@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
+use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,10 @@ Route::prefix('v1')->group(function () {
 
     // Endpoints protégés par Laravel Sanctum
     Route::middleware('auth:sanctum')->group(function () {
+        // Profil Utilisateur / Contributeur
+        Route::get('/profile', [ProfileController::class, 'show']);
+        Route::put('/profile', [ProfileController::class, 'update']);
+
         Route::get('/user', function (Request $request) {
             $user = $request->user();
             return response()->json([

@@ -14,13 +14,18 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
             $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('phone_number')->nullable()->unique();
+            $table->string('district')->nullable();
+            $table->string('city')->default('Ouagadougou');
             $table->string('otp_code')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
             $table->integer('reputation_score')->default(100);
+            $table->integer('completed_missions_count')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
