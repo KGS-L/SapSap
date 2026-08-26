@@ -38,7 +38,7 @@ story_location:
 development_status:
   epic-1: in-progress
   1-1-inscription-authentification-otp-contributeur-mobile: done
-  1-2-authentification-web-business-admin-avec-spatie-rbac: backlog
+  1-2-authentification-web-business-admin-avec-spatie-rbac: done
   1-3-gestion-du-profil-contributeur-score-de-réputation: backlog
   epic-1-retrospective: optional
 

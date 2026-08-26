@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\MobileAuthController;
+use App\Http\Controllers\Api\Auth\WebAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,12 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth/mobile')->group(function () {
         Route::post('/request-otp', [MobileAuthController::class, 'requestOtp']);
         Route::post('/verify-otp', [MobileAuthController::class, 'verifyOtp']);
+    });
+
+    // Authentification Web Business & Admin
+    Route::prefix('auth/web')->group(function () {
+        Route::post('/login', [WebAuthController::class, 'login']);
+        Route::middleware('auth:sanctum')->post('/logout', [WebAuthController::class, 'logout']);
     });
 
     // Endpoints protégés par Laravel Sanctum
@@ -32,6 +39,16 @@ Route::prefix('v1')->group(function () {
                     'roles' => $user->getRoleNames(),
                 ],
                 'message' => 'Profil utilisateur récupéré',
+                'errors' => null,
+            ]);
+        });
+
+        // Route de test d'autorisation RBAC Admin / Validator
+        Route::middleware('role:super-admin|validator')->get('/admin/test-rbac', function () {
+            return response()->json([
+                'success' => true,
+                'message' => 'Accès Admin/Validateur autorisé.',
+                'data' => null,
                 'errors' => null,
             ]);
         });
