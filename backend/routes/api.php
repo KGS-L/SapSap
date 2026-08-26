@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
 use App\Http\Controllers\Api\Business\CampaignController;
+use App\Http\Controllers\Api\Business\CampaignPaymentController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/campaigns', [CampaignController::class, 'store']);
             Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
             Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
+
+            // Règlement & Séquestre du Budget de la Campagne
+            Route::post('/campaigns/{id}/pay', [CampaignPaymentController::class, 'pay']);
         });
 
         // Route de test d'autorisation RBAC Admin / Validator
