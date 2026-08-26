@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AdminCampaignController;
+use App\Http\Controllers\Api\Admin\AdminSubmissionController;
 use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
 use App\Http\Controllers\Api\Business\CampaignController;
@@ -69,11 +70,16 @@ Route::prefix('v1')->group(function () {
             Route::post('/campaigns/{id}/pay', [CampaignPaymentController::class, 'pay']);
         });
 
-        // Espace Admin - Modération & Approbation des Campagnes (super-admin, validator)
+        // Espace Admin - Modération des Campagnes & Revue des Soumissions (super-admin, validator)
         Route::middleware('role:super-admin|validator')->prefix('admin')->group(function () {
             Route::get('/campaigns', [AdminCampaignController::class, 'index']);
             Route::post('/campaigns/{id}/approve', [AdminCampaignController::class, 'approve']);
             Route::post('/campaigns/{id}/reject', [AdminCampaignController::class, 'reject']);
+
+            // Revue Manuelle & Approbation/Rejet des Preuves de Missions
+            Route::get('/submissions', [AdminSubmissionController::class, 'index']);
+            Route::post('/submissions/{id}/approve', [AdminSubmissionController::class, 'approve']);
+            Route::post('/submissions/{id}/reject', [AdminSubmissionController::class, 'reject']);
 
             Route::get('/test-rbac', function () {
                 return response()->json([

@@ -54,11 +54,11 @@ development_status:
   3-4-soumission-avec-résilience-réseau-compression-d-image: done
   epic-3-retrospective: optional
 
-  epic-4: in-progress
+  epic-4: done
   4-1-dashboard-admin-modération-des-campagnes: done
-  4-2-interface-de-revue-manuelle-des-soumissions: backlog
-  4-3-contrôle-anti-fraude-avec-empreinte-sha-256-device-id: backlog
-  4-4-job-planifié-d-auto-validation-à-48h-laravel-scheduler: backlog
+  4-2-interface-de-revue-manuelle-des-soumissions: done
+  4-3-contrôle-anti-fraude-avec-empreinte-sha-256-device-id: done
+  4-4-job-planifié-d-auto-validation-à-48h-laravel-scheduler: done
   epic-4-retrospective: optional
 
   epic-5: backlog
