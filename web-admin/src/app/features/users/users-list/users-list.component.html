@@ -32,7 +32,11 @@
               <span class="phone-text">{{ user.phone }}</span>
             </td>
             <td>
-              <span class="badge" [ngClass]="user.role === 'super-admin' ? 'badge-purple' : 'badge-info'">
+              <span 
+                class="badge" 
+                [class.badge-purple]="user.role === 'super-admin'"
+                [class.badge-info]="user.role !== 'super-admin'"
+              >
                 {{ user.roleLabel }}
               </span>
             </td>

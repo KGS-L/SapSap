@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-submissions-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './submissions-list.component.html',
   styleUrl: './submissions-list.component.css'
 })

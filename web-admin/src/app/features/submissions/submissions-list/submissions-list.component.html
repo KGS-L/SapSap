@@ -23,7 +23,7 @@
         <div class="sub-card-top">
           <div class="sub-author-block">
             <div class="contributor-avatar">
-              <span>{{ sub.contributor.substring(0, 2) | uppercase }}</span>
+              <span>{{ sub.contributor.substring(0, 2).toUpperCase() }}</span>
             </div>
             <div>
               <div class="contributor-name-row">
@@ -35,7 +35,8 @@
           </div>
           <span 
             class="badge" 
-            [ngClass]="sub.status === 'fraud_suspect' ? 'badge-danger' : 'badge-info'"
+            [class.badge-danger]="sub.status === 'fraud_suspect'"
+            [class.badge-info]="sub.status !== 'fraud_suspect'"
           >
             {{ sub.status === 'fraud_suspect' ? '⚠️ Écart GPS critique' : 'En attente revue' }}
           </span>

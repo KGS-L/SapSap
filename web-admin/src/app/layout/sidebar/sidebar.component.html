@@ -11,10 +11,12 @@
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
         </svg>
       </div>
-      <div class="brand-text" *ngIf="!sidebarService.isCollapsed()">
-        <span class="brand-name">SapSap</span>
-        <span class="brand-badge">ADMIN</span>
-      </div>
+      @if (!sidebarService.isCollapsed()) {
+        <div class="brand-text">
+          <span class="brand-name">SapSap</span>
+          <span class="brand-badge">ADMIN</span>
+        </div>
+      }
     </div>
 
     <!-- Toggle Collapse Button (Desktop) -->
@@ -24,12 +26,15 @@
       [attr.aria-label]="sidebarService.isCollapsed() ? 'Déplier le menu' : 'Replier le menu'"
       title="Basculer le menu"
     >
-      <svg *ngIf="!sidebarService.isCollapsed()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-      <svg *ngIf="sidebarService.isCollapsed()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
+      @if (!sidebarService.isCollapsed()) {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      } @else {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      }
     </button>
   </div>
 
@@ -37,9 +42,11 @@
   <nav class="sidebar-nav">
     @for (section of navSections; track section.title) {
       <div class="nav-section">
-        <div class="section-title" *ngIf="!sidebarService.isCollapsed()">
-          {{ section.title }}
-        </div>
+        @if (!sidebarService.isCollapsed()) {
+          <div class="section-title">
+            {{ section.title }}
+          </div>
+        }
         <ul class="nav-list">
           @for (item of section.items; track item.id) {
             <li class="nav-item">
@@ -95,18 +102,23 @@
                   }
                 </span>
 
-                <span class="nav-label" *ngIf="!sidebarService.isCollapsed()">
-                  {{ item.label }}
-                </span>
+                @if (!sidebarService.isCollapsed()) {
+                  <span class="nav-label">
+                    {{ item.label }}
+                  </span>
+                }
 
                 <!-- Counter Badge -->
-                <span 
-                  *ngIf="item.badge && !sidebarService.isCollapsed()" 
-                  class="badge" 
-                  [ngClass]="'badge-' + (item.badgeType || 'info')"
-                >
-                  {{ item.badge }}
-                </span>
+                @if (item.badge && !sidebarService.isCollapsed()) {
+                  <span 
+                    class="badge" 
+                    [class.badge-warning]="item.badgeType === 'warning'"
+                    [class.badge-info]="item.badgeType === 'info'"
+                    [class.badge-danger]="item.badgeType === 'danger'"
+                  >
+                    {{ item.badge }}
+                  </span>
+                }
               </a>
             </li>
           }
@@ -116,14 +128,16 @@
   </nav>
 
   <!-- Auto-Validation Live Indicator Banner -->
-  <div class="scheduler-banner" *ngIf="!sidebarService.isCollapsed()">
-    <div class="scheduler-header">
-      <span class="pulse-live"></span>
-      <span class="scheduler-title">Job Auto-Validation 48h</span>
+  @if (!sidebarService.isCollapsed()) {
+    <div class="scheduler-banner">
+      <div class="scheduler-header">
+        <span class="pulse-live"></span>
+        <span class="scheduler-title">Job Auto-Validation 48h</span>
+      </div>
+      <p class="scheduler-desc">Actif (Laravel Scheduler)</p>
+      <span class="scheduler-time">Dernier passage : {{ statsService.stats().lastAutoValidationCheck }}</span>
     </div>
-    <p class="scheduler-desc">Actif (Laravel Scheduler)</p>
-    <span class="scheduler-time">Dernier passage : {{ statsService.stats().lastAutoValidationCheck }}</span>
-  </div>
+  }
 
   <!-- Sidebar Footer / Current Admin Info -->
   <div class="sidebar-footer">
@@ -131,10 +145,12 @@
       <div class="user-avatar">
         <span>AD</span>
       </div>
-      <div class="user-info" *ngIf="!sidebarService.isCollapsed()">
-        <span class="user-name">{{ statsService.currentUser().name }}</span>
-        <span class="user-role">{{ statsService.currentUser().role }}</span>
-      </div>
+      @if (!sidebarService.isCollapsed()) {
+        <div class="user-info">
+          <span class="user-name">{{ statsService.currentUser().name }}</span>
+          <span class="user-role">{{ statsService.currentUser().role }}</span>
+        </div>
+      }
     </div>
   </div>
 </aside>

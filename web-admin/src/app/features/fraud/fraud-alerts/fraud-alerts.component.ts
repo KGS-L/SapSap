@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-fraud-alerts',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './fraud-alerts.component.html',
   styleUrl: './fraud-alerts.component.css'
 })

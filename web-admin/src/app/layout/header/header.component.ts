@@ -1,14 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
 import { SidebarService } from '../../core/services/sidebar.service';
 import { AdminStatsService } from '../../core/services/admin-stats.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
@@ -45,10 +43,10 @@ export class HeaderComponent {
   ];
 
   constructor() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.updateTitleFromRoute(event.urlAfterRedirects || event.url);
+    this.router.events.subscribe((event: any) => {
+      if (event instanceof NavigationEnd) {
+        this.updateTitleFromRoute(event.urlAfterRedirects || event.url);
+      }
     });
   }
 

@@ -1,14 +1,13 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarService } from '../../core/services/sidebar.service';
 import { AdminStatsService } from '../../core/services/admin-stats.service';
-import { NavItem } from '../../core/models/nav-item.model';
+import { NavSection } from '../../core/models/nav-item.model';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
@@ -16,7 +15,7 @@ export class SidebarComponent {
   readonly sidebarService = inject(SidebarService);
   readonly statsService = inject(AdminStatsService);
 
-  readonly navSections = [
+  readonly navSections: NavSection[] = [
     {
       title: 'VUE GLOBALE',
       items: [
@@ -38,7 +37,7 @@ export class SidebarComponent {
           route: '/campaigns',
           icon: 'campaign',
           badge: this.statsService.stats().pendingCampaigns,
-          badgeType: 'warning' as const
+          badgeType: 'warning'
         },
         {
           id: 'submissions',
@@ -46,7 +45,7 @@ export class SidebarComponent {
           route: '/submissions',
           icon: 'camera',
           badge: this.statsService.stats().pendingSubmissions,
-          badgeType: 'info' as const
+          badgeType: 'info'
         },
         {
           id: 'fraud',
@@ -54,7 +53,7 @@ export class SidebarComponent {
           route: '/fraud-alerts',
           icon: 'shield',
           badge: this.statsService.stats().fraudAlerts,
-          badgeType: 'danger' as const
+          badgeType: 'danger'
         }
       ]
     },

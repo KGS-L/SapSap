@@ -127,7 +127,8 @@
                 <span class="campaign-name">{{ camp.title }}</span>
                 <span 
                   class="badge" 
-                  [ngClass]="camp.status === 'pending' ? 'badge-warning' : 'badge-success'"
+                  [class.badge-warning]="camp.status === 'pending'"
+                  [class.badge-success]="camp.status === 'approved'"
                 >
                   {{ camp.status === 'pending' ? 'En attente' : 'Approuvée' }}
                 </span>
@@ -142,9 +143,11 @@
               <button class="btn btn-sm btn-secondary" title="Examiner le questionnaire et les critères">
                 Détails
               </button>
-              <button *ngIf="camp.status === 'pending'" class="btn btn-sm btn-primary" title="Approuver la mise en ligne">
-                Approuver
-              </button>
+              @if (camp.status === 'pending') {
+                <button class="btn btn-sm btn-primary" title="Approuver la mise en ligne">
+                  Approuver
+                </button>
+              }
             </div>
           </div>
         }
@@ -168,7 +171,7 @@
         @for (sub of recentSubmissions; track sub.id) {
           <div class="submission-mini-item" [class.suspect]="sub.status === 'fraud_suspect'">
             <div class="submission-avatar">
-              <span>{{ sub.contributor.substring(0, 2) | uppercase }}</span>
+              <span>{{ sub.contributor.substring(0, 2).toUpperCase() }}</span>
             </div>
             <div class="submission-info">
               <div class="sub-header-row">
@@ -176,7 +179,8 @@
                 <span class="sub-score" title="Score de réputation SapSap">⭐ {{ sub.reputation }}/100</span>
                 <span 
                   class="badge" 
-                  [ngClass]="sub.status === 'fraud_suspect' ? 'badge-danger' : 'badge-info'"
+                  [class.badge-danger]="sub.status === 'fraud_suspect'"
+                  [class.badge-info]="sub.status !== 'fraud_suspect'"
                 >
                   {{ sub.status === 'fraud_suspect' ? 'Alerte GPS' : 'À valider' }}
                 </span>

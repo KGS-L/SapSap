@@ -69,16 +69,17 @@
             <td>
               <div class="price-cell">
                 <span class="mission-count">{{ camp.missionsCount }} missions</span>
-                <span class="mission-reward">{{ camp.rewardPerMission | number }} FCFA / mission</span>
+                <span class="mission-reward">{{ formatPrice(camp.rewardPerMission) }} FCFA / mission</span>
               </div>
             </td>
             <td>
-              <span class="budget-total">{{ camp.totalBudget | number }} FCFA</span>
+              <span class="budget-total">{{ formatPrice(camp.totalBudget) }} FCFA</span>
             </td>
             <td>
               <span 
                 class="badge"
-                [ngClass]="camp.status === 'pending' ? 'badge-warning' : 'badge-success'"
+                [class.badge-warning]="camp.status === 'pending'"
+                [class.badge-success]="camp.status === 'approved'"
               >
                 <span class="badge-dot"></span>
                 {{ camp.status === 'pending' ? 'En attente' : 'Approuvée' }}
@@ -87,8 +88,10 @@
             <td style="text-align: right;">
               <div class="table-actions">
                 <button class="btn btn-sm btn-secondary">Examiner</button>
-                <button *ngIf="camp.status === 'pending'" class="btn btn-sm btn-primary">Valider</button>
-                <button *ngIf="camp.status === 'pending'" class="btn btn-sm btn-danger">Rejeter</button>
+                @if (camp.status === 'pending') {
+                  <button class="btn btn-sm btn-primary">Valider</button>
+                  <button class="btn btn-sm btn-danger">Rejeter</button>
+                }
               </div>
             </td>
           </tr>

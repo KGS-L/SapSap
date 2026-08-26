@@ -9,6 +9,11 @@ export interface NavItem {
   exact?: boolean;
 }
 
+export interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
 export interface AdminStats {
   pendingCampaigns: number;
   pendingSubmissions: number;

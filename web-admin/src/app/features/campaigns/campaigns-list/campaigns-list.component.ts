@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-campaigns-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './campaigns-list.component.html',
   styleUrl: './campaigns-list.component.css'
 })
@@ -60,5 +59,9 @@ export class CampaignsListComponent {
   get filteredCampaigns() {
     if (this.activeTab === 'all') return this.campaigns;
     return this.campaigns.filter(c => c.status === this.activeTab);
+  }
+
+  formatPrice(amount: number): string {
+    return amount.toLocaleString('fr-FR');
   }
 }

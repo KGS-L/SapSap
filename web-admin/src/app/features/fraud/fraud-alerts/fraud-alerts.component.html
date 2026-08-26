@@ -24,7 +24,8 @@
             <span class="alert-ref">{{ alert.id }}</span>
             <span 
               class="badge" 
-              [ngClass]="alert.severity === 'high' ? 'badge-danger' : 'badge-warning'"
+              [class.badge-danger]="alert.severity === 'high'"
+              [class.badge-warning]="alert.severity !== 'high'"
             >
               {{ alert.severity === 'high' ? 'Critique' : 'Moyenne' }}
             </span>
@@ -47,10 +48,12 @@
             <span class="detail-label">Preuve / Contexte :</span>
             <span class="detail-val">{{ alert.originalMission }}</span>
           </div>
-          <div class="detail-item full-width" *ngIf="alert.sha256 !== 'N/A'">
-            <span class="detail-label">Empreinte SHA-256 :</span>
-            <code class="sha256-code">{{ alert.sha256 }}</code>
-          </div>
+          @if (alert.sha256 !== 'N/A') {
+            <div class="detail-item full-width">
+              <span class="detail-label">Empreinte SHA-256 :</span>
+              <code class="sha256-code">{{ alert.sha256 }}</code>
+            </div>
+          }
         </div>
 
         <div class="alert-footer">
