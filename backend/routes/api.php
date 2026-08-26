@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Business\CampaignController;
 use App\Http\Controllers\Api\Business\CampaignPaymentController;
 use App\Http\Controllers\Api\MobileMissionController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,10 @@ Route::prefix('v1')->group(function () {
         // Profil Utilisateur / Contributeur
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
+
+        // Portefeuille & Retraits Mobile Money (Contributeur)
+        Route::get('/wallet/balance', [WalletController::class, 'getBalance']);
+        Route::post('/wallet/withdraw', [WalletController::class, 'withdraw']);
 
         // Découverte, Réservation et Soumission de Missions Mobile (Contributeur)
         Route::get('/missions', [MobileMissionController::class, 'index']);

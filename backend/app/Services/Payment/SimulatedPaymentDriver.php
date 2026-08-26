@@ -24,4 +24,23 @@ class SimulatedPaymentDriver implements PaymentGatewayInterface
             'message' => 'Paiement simulé effectué avec succès via ' . ucfirst(str_replace('_', ' ', $paymentMethod)),
         ];
     }
+
+    public function payout(string $phoneNumber, int $amount, string $paymentMethod, array $metadata = []): array
+    {
+        $prefix = match ($paymentMethod) {
+            'orange_money' => 'POUT-OM',
+            'moov_money' => 'POUT-MOOV',
+            default => 'POUT-SIM',
+        };
+
+        $reference = $prefix . '-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+
+        return [
+            'success' => true,
+            'reference' => $reference,
+            'amount' => $amount,
+            'payment_method' => $paymentMethod,
+            'message' => 'Transfert Mobile Money de ' . number_format($amount, 0, ',', ' ') . ' FCFA effectué vers le numéro ' . $phoneNumber,
+        ];
+    }
 }
