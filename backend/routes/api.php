@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
+use App\Http\Controllers\Api\Business\CampaignController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,14 @@ Route::prefix('v1')->group(function () {
                 'message' => 'Profil utilisateur récupéré',
                 'errors' => null,
             ]);
+        });
+
+        // Espace Business - Gestion des Campagnes (company-admin, company-viewer, super-admin)
+        Route::middleware('role:company-admin|company-viewer|super-admin')->prefix('business')->group(function () {
+            Route::get('/campaigns', [CampaignController::class, 'index']);
+            Route::post('/campaigns', [CampaignController::class, 'store']);
+            Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
+            Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
         });
 
         // Route de test d'autorisation RBAC Admin / Validator

@@ -42,8 +42,8 @@ development_status:
   1-3-gestion-du-profil-contributeur-score-de-réputation: done
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-wizard-de-création-de-campagne-sur-portail-business: backlog
+  epic-2: in-progress
+  2-1-wizard-de-création-de-campagne-sur-portail-business: done
   2-2-calculateur-de-budget-paiement-simulé-de-campagne: backlog
   epic-2-retrospective: optional
 
