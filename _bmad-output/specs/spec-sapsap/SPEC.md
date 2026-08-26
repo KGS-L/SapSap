@@ -3,6 +3,7 @@ id: SPEC-sapsap
 companions:
   - mission-types.md
   - anti-fraud-rules.md
+  - ../../planning-artifacts/architecture/architecture-SapSap-2026-08-26/ARCHITECTURE-SPINE.md
 sources:
   - ../../../cachier-de-charge.md
 ---
@@ -30,8 +31,8 @@ Les entreprises opérant à Ouagadougou (Burkina Faso) manquent d'un moyen rapid
   - **success:** L'application bloque la soumission si la distance GPS dépasse la tolérance ou si l'utilisateur tente d'importer une photo de sa galerie, et transmet le package de preuves horodaté au serveur.
 
 - **CAP-4**
-  - **intent:** Le contributeur peut consulter le solde de son portefeuille (en validation, disponible, total gagné) et émettre une demande de retrait vers Mobile Money (Orange Money / Moov Money).
-  - **success:** Une fois la mission validée par l'admin ou l'entreprise, le solde passe en statut disponible et une demande de retrait génère l'ordre d'envoi vers le numéro Mobile Money spécifié.
+  - **intent:** Le contributeur peut consulter le solde de son portefeuille (en validation, disponible, total gagné) et émettre une demande de retrait vers Mobile Money (Orange Money / Moov Money) dès que son solde disponible atteint au moins 1 000 FCFA.
+  - **success:** Dès la validation d'une mission (manuelle ou auto-validée à 48h), le montant est crédité sur le solde disponible et toute demande de retrait supérieure ou égale à 1 000 FCFA initie le versement Mobile Money.
 
 - **CAP-5**
   - **intent:** L'entreprise partenaire peut créer une campagne de missions via un assistant web (type, localisation, instructions, questionnaire, budget) et effectuer le règlement de la campagne.
@@ -42,8 +43,8 @@ Les entreprises opérant à Ouagadougou (Burkina Faso) manquent d'un moyen rapid
   - **success:** Le tableau de bord affiche le taux de complétion en temps réel, permet de consulter les photos/réponses par point de vente et télécharge un fichier de données CSV/Excel structuré.
 
 - **CAP-7**
-  - **intent:** L'équipe interne SapSap peut modérer les nouvelles campagnes d'entreprises, vérifier et valider manuellement les soumissions de missions des contributeurs, et administrer le KYC et les retraits.
-  - **success:** L'administrateur valide sur `admin.sapsap.bf` la conformité GPS/photos/réponses d'une soumission, ce qui débloque instantanément le paiement vers le portefeuille du contributeur.
+  - **intent:** L'équipe interne SapSap peut modérer les nouvelles campagnes d'entreprises, vérifier les soumissions des contributeurs dans un délai de 48 heures (avant auto-validation par le système), et administrer le KYC et les retraits.
+  - **success:** L'administrateur valide sur `admin.sapsap.bf` la soumission dans un délai de 48 heures (ou le système déclenche l'auto-validation à l'échéance des 48h), ce qui transfère le paiement au portefeuille du contributeur.
 
 - **CAP-8**
   - **intent:** Le système contrôle l'authenticité des soumissions via la vérification GPS, l'horodatage serveur, l'empreinte numérique des images (hashing) et la détection d'appareils multiples (Device ID).
@@ -51,9 +52,11 @@ Les entreprises opérant à Ouagadougou (Burkina Faso) manquent d'un moyen rapid
 
 ## Constraints
 
-- Le marché pilote MVP est strictement limité à la ville de Ouagadougou (Burkina Faso) afin de garantir une densité optimale de contributeurs.
+- Le marché pilote MVP est strictly limité à la ville de Ouagadougou (Burkina Faso) afin de garantir une densité optimale de contributeurs.
 - Les prises de vue pour l'ensemble des missions doivent être réalisées exclusivement via la caméra native in-app de SapSap avec blocage strict de la galerie photos.
 - La validation de proximité GPS est obligatoire avant le déverrouillage de la prise de vue et du questionnaire (rayon maximal par défaut <= 100 mètres).
+- Seuil minimal de retrait fixé à 1 000 FCFA pour toute demande de transfert vers Mobile Money (Orange Money / Moov Money).
+- Délai d'auto-validation des soumissions fixé à 48 heures si l'entreprise ou l'admin n'a pas statué sur la soumission.
 - L'application mobile Contributeur est développée sous Angular + Ionic + Capacitor ciblant Android. Les interfaces Business et Admin sont des applications Web Angular/React hébergées sur `business.sapsap.bf` et `admin.sapsap.bf`.
 - Le backend repose sur un monolithe modulaire API REST (NestJS ou Laravel) couplé à une base de données relationnelle PostgreSQL.
 - Les paiements et retraits s'effectuent via les services Mobile Money locaux (Orange Money, Moov Money).
@@ -75,8 +78,3 @@ Au moins 3 entreprises payantes à Ouagadougou réalisent avec succès une campa
 
 - Les API des agrégateurs ou les mécanismes de paiement/retrait manuel Orange Money / Moov Money sont opérationnels au Burkina Faso.
 - L'équipement smartphone Android sous Android 8+ avec GPS fonctionnel couvre plus de 90% des contributeurs potentiels à Ouagadougou.
-
-## Open Questions
-
-- Quel est le montant exact retenu pour le seuil minimal de retrait du portefeuille (1 000 FCFA vs 2 000 FCFA) afin de couvrir efficacement les frais de transaction Mobile Money ?
-- Quel est le délai d'auto-validation (ex: 48h) attribué si l'entreprise ou l'admin n'a pas statué sur une soumission de mission ?

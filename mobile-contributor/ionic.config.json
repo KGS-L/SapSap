@@ -1,0 +1,7 @@
+{
+  "name": "mobile-contributor",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
