@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminCampaignController;
 use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
 use App\Http\Controllers\Api\Business\CampaignController;
@@ -61,14 +62,20 @@ Route::prefix('v1')->group(function () {
             Route::post('/campaigns/{id}/pay', [CampaignPaymentController::class, 'pay']);
         });
 
-        // Route de test d'autorisation RBAC Admin / Validator
-        Route::middleware('role:super-admin|validator')->get('/admin/test-rbac', function () {
-            return response()->json([
-                'success' => true,
-                'message' => 'Accès Admin/Validateur autorisé.',
-                'data' => null,
-                'errors' => null,
-            ]);
+        // Espace Admin - Modération & Approbation des Campagnes (super-admin, validator)
+        Route::middleware('role:super-admin|validator')->prefix('admin')->group(function () {
+            Route::get('/campaigns', [AdminCampaignController::class, 'index']);
+            Route::post('/campaigns/{id}/approve', [AdminCampaignController::class, 'approve']);
+            Route::post('/campaigns/{id}/reject', [AdminCampaignController::class, 'reject']);
+
+            Route::get('/test-rbac', function () {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Accès Admin/Validateur autorisé.',
+                    'data' => null,
+                    'errors' => null,
+                ]);
+            });
         });
     });
 });

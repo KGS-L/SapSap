@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Campaign extends Model
 {
@@ -45,5 +46,13 @@ class Campaign extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(User::class, 'company_id');
+    }
+
+    /**
+     * Relation avec les missions générées pour cette campagne.
+     */
+    public function missions(): HasMany
+    {
+        return $this->hasMany(Mission::class);
     }
 }
