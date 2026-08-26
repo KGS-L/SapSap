@@ -1,0 +1,262 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Intro Header */
+.page-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.welcome-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.welcome-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.intro-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* KPI Cards */
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.kpi-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-warning { background: var(--warning-bg); color: var(--warning-text); }
+.icon-info { background: var(--info-bg); color: var(--info-text); }
+.icon-danger { background: var(--danger-bg); color: var(--danger-text); }
+.icon-success { background: var(--success-bg); color: var(--success-text); }
+
+.kpi-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.kpi-value {
+  font-family: var(--font-heading);
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.kpi-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  font-size: 0.75rem;
+}
+
+.kpi-link {
+  font-weight: 600;
+  color: var(--primary-600);
+}
+
+.kpi-link.danger-link {
+  color: var(--danger);
+}
+
+.kpi-caption {
+  color: var(--text-muted);
+}
+
+/* Main Content Grid */
+.dashboard-content-grid {
+  align-items: start;
+}
+
+.card-action-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary-600);
+}
+
+/* Campaigns Mini List */
+.campaigns-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.campaign-mini-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.campaign-main-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campaign-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.campaign-name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--text-main);
+}
+
+.campaign-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.campaign-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Submissions Mini List */
+.submissions-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.submission-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+}
+
+.submission-mini-item.suspect {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: #fef2f2;
+}
+
+.submission-avatar {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submission-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sub-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub-contributor {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--text-main);
+}
+
+.sub-score {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--warning-text);
+  background: var(--warning-bg);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.sub-mission-name {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.sub-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.7rem;
+}
+
+.gps-chip {
+  color: var(--text-muted);
+}
+
+.countdown-chip {
+  color: var(--primary-700);
+  font-weight: 600;
+}
+
+@media (max-width: 992px) {
+  .page-intro {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

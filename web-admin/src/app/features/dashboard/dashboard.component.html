@@ -1,0 +1,195 @@
+<div class="dashboard-page">
+  <!-- Welcome / Overview Header -->
+  <div class="page-intro">
+    <div>
+      <h2 class="welcome-title">Bienvenue sur le portail d'administration SapSap 👋</h2>
+      <p class="welcome-subtitle">
+        Supervisez les campagnes d'entreprises, modérez les soumissions terrain à Ouagadougou et gérez la conformité anti-fraude.
+      </p>
+    </div>
+    <div class="intro-actions">
+      <a routerLink="/campaigns" class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        File Campagnes
+      </a>
+      <a routerLink="/submissions" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        Valider les soumissions
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Metrics Grid (4 Cards) -->
+  <div class="grid grid-cols-4 kpi-grid">
+    <!-- KPI 1: Campagnes en attente (Story 4.1) -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Campagnes à modérer</span>
+        <div class="kpi-icon icon-warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ statsService.stats().pendingCampaigns }}</span>
+        <span class="badge badge-warning">Action requise</span>
+      </div>
+      <div class="kpi-footer">
+        <a routerLink="/campaigns" class="kpi-link">Examiner la conformité →</a>
+      </div>
+    </div>
+
+    <!-- KPI 2: Soumissions à vérifier sous 48h (Story 4.2) -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Soumissions en attente</span>
+        <div class="kpi-icon icon-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ statsService.stats().pendingSubmissions }}</span>
+        <span class="badge badge-info">Délai max 48h</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-caption">Auto-validation dans &lt; 48h</span>
+      </div>
+    </div>
+
+    <!-- KPI 3: Alertes Anti-Fraude (Story 4.3) -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Alertes Anti-Fraude</span>
+        <div class="kpi-icon icon-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ statsService.stats().fraudAlerts }}</span>
+        <span class="badge badge-danger">Bloquant</span>
+      </div>
+      <div class="kpi-footer">
+        <a routerLink="/fraud-alerts" class="kpi-link danger-link">Voir les empreintes SHA-256 →</a>
+      </div>
+    </div>
+
+    <!-- KPI 4: Contributeurs actifs -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Contributeurs Actifs</span>
+        <div class="kpi-icon icon-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ statsService.stats().activeContributors }}</span>
+        <span class="badge badge-success">Ouagadougou</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-caption">Gains reversés : 1 450 000 FCFA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid (Recent Campagins & Recent Submissions) -->
+  <div class="grid grid-cols-2 dashboard-content-grid">
+    <!-- Left Panel: Campagnes en attente de modération -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--warning);">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Campagnes à Modérer
+        </h3>
+        <a routerLink="/campaigns" class="card-action-link">Voir tout ({{ statsService.stats().pendingCampaigns }})</a>
+      </div>
+
+      <div class="campaigns-mini-list">
+        @for (camp of recentCampaigns; track camp.id) {
+          <div class="campaign-mini-item">
+            <div class="campaign-main-info">
+              <div class="campaign-title-row">
+                <span class="campaign-name">{{ camp.title }}</span>
+                <span 
+                  class="badge" 
+                  [ngClass]="camp.status === 'pending' ? 'badge-warning' : 'badge-success'"
+                >
+                  {{ camp.status === 'pending' ? 'En attente' : 'Approuvée' }}
+                </span>
+              </div>
+              <div class="campaign-meta">
+                <span>🏢 {{ camp.company }}</span>
+                <span>📍 {{ camp.city }}</span>
+                <span>💰 {{ camp.budget }}</span>
+              </div>
+            </div>
+            <div class="campaign-actions">
+              <button class="btn btn-sm btn-secondary" title="Examiner le questionnaire et les critères">
+                Détails
+              </button>
+              <button *ngIf="camp.status === 'pending'" class="btn btn-sm btn-primary" title="Approuver la mise en ligne">
+                Approuver
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Right Panel: Soumissions récentes terrain -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--info);">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          Dernières Soumissions Reçues
+        </h3>
+        <a routerLink="/submissions" class="card-action-link">Revue complète →</a>
+      </div>
+
+      <div class="submissions-mini-list">
+        @for (sub of recentSubmissions; track sub.id) {
+          <div class="submission-mini-item" [class.suspect]="sub.status === 'fraud_suspect'">
+            <div class="submission-avatar">
+              <span>{{ sub.contributor.substring(0, 2) | uppercase }}</span>
+            </div>
+            <div class="submission-info">
+              <div class="sub-header-row">
+                <span class="sub-contributor">{{ sub.contributor }}</span>
+                <span class="sub-score" title="Score de réputation SapSap">⭐ {{ sub.reputation }}/100</span>
+                <span 
+                  class="badge" 
+                  [ngClass]="sub.status === 'fraud_suspect' ? 'badge-danger' : 'badge-info'"
+                >
+                  {{ sub.status === 'fraud_suspect' ? 'Alerte GPS' : 'À valider' }}
+                </span>
+              </div>
+              <p class="sub-mission-name">{{ sub.mission }} ({{ sub.location }})</p>
+              <div class="sub-meta-row">
+                <span class="gps-chip">📡 {{ sub.gpsAccuracy }}</span>
+                <span class="countdown-chip">⏱️ Auto-valide dans {{ sub.hoursLeft }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

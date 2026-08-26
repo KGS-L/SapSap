@@ -1,0 +1,54 @@
+<div class="settings-page">
+  <div class="page-header card">
+    <div>
+      <h2 class="section-title">Paramètres Système & Invariants Métier</h2>
+      <p class="section-desc">Configuration des règles de validation, des seuils de retrait et du planificateur Laravel Scheduler.</p>
+    </div>
+    <button class="btn btn-primary">Enregistrer les modifications</button>
+  </div>
+
+  <div class="grid grid-cols-2">
+    <!-- Card 1: Invariants Métier -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">⚙️ Règles Métier & Tolérances Terrain</h3>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tolérance d'Écart GPS Max (Haversine/PostGIS)</label>
+        <input type="number" class="form-control" [value]="gpsToleranceMeters" suffix="m">
+        <small style="color: var(--text-muted); font-size: 0.75rem;">Fixé à 100m pour Ouagadougou.</small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Délai du Verrou de Réservation de Mission (minutes)</label>
+        <input type="number" class="form-control" [value]="reservationLockMinutes">
+        <small style="color: var(--text-muted); font-size: 0.75rem;">Temps alloué au contributeur pour se déplacer et soumettre (45 min).</small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Seuil Minimal de Retrait Mobile Money (FCFA)</label>
+        <input type="number" class="form-control" [value]="minWithdrawalFcfa">
+        <small style="color: var(--text-muted); font-size: 0.75rem;">Montant minimum pour déclencher un retrait vers Orange/Moov Money (1 000 FCFA).</small>
+      </div>
+    </div>
+
+    <!-- Card 2: Configuration Scheduler -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">⏱️ Planificateur d'Auto-Validation (Laravel Scheduler)</h3>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Délai d'Auto-Validation des Soumissions (heures)</label>
+        <input type="number" class="form-control" [value]="autoValidationDelayHours">
+        <small style="color: var(--text-muted); font-size: 0.75rem;">Passage automatique en statut validé et libération des fonds après 48h sans action.</small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fréquence d'exécution du Job (Cron Scheduler)</label>
+        <input type="text" class="form-control" [value]="schedulerInterval" readonly>
+        <small style="color: var(--text-muted); font-size: 0.75rem;">Exécuté toutes les heures via <code>CheckPendingSubmissionsJob</code>.</small>
+      </div>
+      <div class="scheduler-status-box">
+        <span class="pulse-live"></span>
+        <span>Planificateur en cours d'exécution active sur le serveur backend</span>
+      </div>
+    </div>
+  </div>
+</div>

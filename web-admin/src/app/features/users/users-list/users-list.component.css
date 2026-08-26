@@ -1,0 +1,52 @@
+.users-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.section-desc {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.user-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name-text {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.user-email-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.phone-text {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.login-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

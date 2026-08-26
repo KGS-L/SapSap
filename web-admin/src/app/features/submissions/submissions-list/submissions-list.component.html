@@ -1,0 +1,87 @@
+<div class="submissions-page">
+  <!-- Page Header -->
+  <div class="page-header card">
+    <div>
+      <h2 class="section-title">Revue des Soumissions Terrain (Story 4.2 & 4.4)</h2>
+      <p class="section-desc">
+        Vérifiez les preuves photographiques, les réponses et le contrôle d'écart GPS (&lt;100m). Les soumissions sans décision sous 48h sont validées automatiquement par le scheduler.
+      </p>
+    </div>
+    <div class="header-badge-wrap">
+      <span class="badge badge-info">
+        <span class="pulse-live"></span>
+        18 en attente
+      </span>
+    </div>
+  </div>
+
+  <!-- Submissions Cards Grid -->
+  <div class="submissions-grid">
+    @for (sub of submissions; track sub.id) {
+      <div class="submission-card card" [class.suspect-card]="sub.status === 'fraud_suspect'">
+        <!-- Card Top Bar -->
+        <div class="sub-card-top">
+          <div class="sub-author-block">
+            <div class="contributor-avatar">
+              <span>{{ sub.contributor.substring(0, 2) | uppercase }}</span>
+            </div>
+            <div>
+              <div class="contributor-name-row">
+                <span class="contributor-name">{{ sub.contributor }}</span>
+                <span class="reputation-badge">Score : {{ sub.reputation }}/100</span>
+              </div>
+              <span class="contributor-phone">{{ sub.phone }}</span>
+            </div>
+          </div>
+          <span 
+            class="badge" 
+            [ngClass]="sub.status === 'fraud_suspect' ? 'badge-danger' : 'badge-info'"
+          >
+            {{ sub.status === 'fraud_suspect' ? '⚠️ Écart GPS critique' : 'En attente revue' }}
+          </span>
+        </div>
+
+        <!-- Mission Details -->
+        <div class="sub-mission-body">
+          <span class="sub-campaign-tag">{{ sub.campaign }}</span>
+          <h4 class="sub-mission-title">{{ sub.mission }}</h4>
+          <p class="sub-location">📍 {{ sub.location }}</p>
+        </div>
+
+        <!-- Verification Indicators -->
+        <div class="verification-indicators">
+          <!-- GPS Accuracy Chip -->
+          <div 
+            class="indicator-item"
+            [class.indicator-danger]="sub.gpsDistance > sub.gpsTolerance"
+            [class.indicator-success]="sub.gpsDistance <= sub.gpsTolerance"
+          >
+            <span class="indicator-label">Écart GPS :</span>
+            <span class="indicator-val">{{ sub.gpsDistance }}m (max {{ sub.gpsTolerance }}m)</span>
+          </div>
+
+          <!-- Photos Count -->
+          <div class="indicator-item">
+            <span class="indicator-label">Photos capturées :</span>
+            <span class="indicator-val">📷 {{ sub.photosCount }} (Caméra native)</span>
+          </div>
+
+          <!-- Auto-validation Countdown -->
+          <div class="indicator-item">
+            <span class="indicator-label">Auto-validation :</span>
+            <span class="indicator-val">⏱️ {{ sub.autoValidationDeadline }}</span>
+          </div>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="sub-card-actions">
+          <button class="btn btn-secondary btn-sm">Voir questionnaire & photos</button>
+          <div class="action-buttons-right">
+            <button class="btn btn-danger btn-sm">Rejeter (avec motif)</button>
+            <button class="btn btn-primary btn-sm">Valider & Payer</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

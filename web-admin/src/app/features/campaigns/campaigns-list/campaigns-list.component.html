@@ -1,0 +1,99 @@
+<div class="campaigns-page">
+  <!-- Page Header & Filters -->
+  <div class="page-header card">
+    <div>
+      <h2 class="section-title">Modération des Campagnes (Story 4.1)</h2>
+      <p class="section-desc">Vérifiez la conformité des missions, la clarté des questionnaires et la solvabilité du budget séquestre.</p>
+    </div>
+
+    <!-- Tabs Filter -->
+    <div class="tabs-group">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'pending'"
+        (click)="setTab('pending')"
+      >
+        En attente
+        <span class="tab-count">2</span>
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'approved'"
+        (click)="setTab('approved')"
+      >
+        Approuvées
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'all'"
+        (click)="setTab('all')"
+      >
+        Toutes ({{ campaigns.length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Campaigns Table -->
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Réf & Campagne</th>
+          <th>Entreprise</th>
+          <th>Type & Critères</th>
+          <th>Missions / Prix</th>
+          <th>Budget Total</th>
+          <th>Statut</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (camp of filteredCampaigns; track camp.id) {
+          <tr>
+            <td>
+              <div class="camp-title-cell">
+                <span class="camp-ref">{{ camp.id }}</span>
+                <span class="camp-title-text">{{ camp.title }}</span>
+                <span class="camp-city">📍 {{ camp.city }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="company-name">{{ camp.company }}</span>
+            </td>
+            <td>
+              <div class="criteria-cell">
+                <span class="camp-type-badge">{{ camp.type }}</span>
+                <span class="criteria-text">{{ camp.criteria }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="price-cell">
+                <span class="mission-count">{{ camp.missionsCount }} missions</span>
+                <span class="mission-reward">{{ camp.rewardPerMission | number }} FCFA / mission</span>
+              </div>
+            </td>
+            <td>
+              <span class="budget-total">{{ camp.totalBudget | number }} FCFA</span>
+            </td>
+            <td>
+              <span 
+                class="badge"
+                [ngClass]="camp.status === 'pending' ? 'badge-warning' : 'badge-success'"
+              >
+                <span class="badge-dot"></span>
+                {{ camp.status === 'pending' ? 'En attente' : 'Approuvée' }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div class="table-actions">
+                <button class="btn btn-sm btn-secondary">Examiner</button>
+                <button *ngIf="camp.status === 'pending'" class="btn btn-sm btn-primary">Valider</button>
+                <button *ngIf="camp.status === 'pending'" class="btn btn-sm btn-danger">Rejeter</button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

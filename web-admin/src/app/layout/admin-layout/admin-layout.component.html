@@ -1,0 +1,19 @@
+<div class="admin-wrapper" [class.sidebar-collapsed]="sidebarService.isCollapsed()">
+  <!-- Backdrop for Mobile Drawer -->
+  <div 
+    class="mobile-backdrop" 
+    *ngIf="sidebarService.isMobileOpen()"
+    (click)="sidebarService.closeMobile()"
+  ></div>
+
+  <!-- Sidebar Component -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content Container -->
+  <div class="main-container">
+    <app-header></app-header>
+    <main class="page-content animate-fade-in">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

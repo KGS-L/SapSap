@@ -1,0 +1,140 @@
+<aside 
+  class="sidebar" 
+  [class.collapsed]="sidebarService.isCollapsed()"
+  [class.mobile-open]="sidebarService.isMobileOpen()"
+>
+  <!-- Sidebar Header / Logo -->
+  <div class="sidebar-header">
+    <div class="brand-wrapper">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="brand-text" *ngIf="!sidebarService.isCollapsed()">
+        <span class="brand-name">SapSap</span>
+        <span class="brand-badge">ADMIN</span>
+      </div>
+    </div>
+
+    <!-- Toggle Collapse Button (Desktop) -->
+    <button 
+      class="collapse-btn" 
+      (click)="sidebarService.toggleCollapse()" 
+      [attr.aria-label]="sidebarService.isCollapsed() ? 'Déplier le menu' : 'Replier le menu'"
+      title="Basculer le menu"
+    >
+      <svg *ngIf="!sidebarService.isCollapsed()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <svg *ngIf="sidebarService.isCollapsed()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Navigation Menu List -->
+  <nav class="sidebar-nav">
+    @for (section of navSections; track section.title) {
+      <div class="nav-section">
+        <div class="section-title" *ngIf="!sidebarService.isCollapsed()">
+          {{ section.title }}
+        </div>
+        <ul class="nav-list">
+          @for (item of section.items; track item.id) {
+            <li class="nav-item">
+              <a 
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: !!item.exact }"
+                (click)="onNavigate()"
+                class="nav-link"
+                [title]="item.label"
+              >
+                <!-- SVG Icon Switch -->
+                <span class="nav-icon">
+                  @switch (item.icon) {
+                    @case ('dashboard') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                      </svg>
+                    }
+                    @case ('campaign') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                    }
+                    @case ('camera') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                    }
+                    @case ('shield') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                      </svg>
+                    }
+                    @case ('users') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                    }
+                    @case ('settings') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                      </svg>
+                    }
+                  }
+                </span>
+
+                <span class="nav-label" *ngIf="!sidebarService.isCollapsed()">
+                  {{ item.label }}
+                </span>
+
+                <!-- Counter Badge -->
+                <span 
+                  *ngIf="item.badge && !sidebarService.isCollapsed()" 
+                  class="badge" 
+                  [ngClass]="'badge-' + (item.badgeType || 'info')"
+                >
+                  {{ item.badge }}
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </nav>
+
+  <!-- Auto-Validation Live Indicator Banner -->
+  <div class="scheduler-banner" *ngIf="!sidebarService.isCollapsed()">
+    <div class="scheduler-header">
+      <span class="pulse-live"></span>
+      <span class="scheduler-title">Job Auto-Validation 48h</span>
+    </div>
+    <p class="scheduler-desc">Actif (Laravel Scheduler)</p>
+    <span class="scheduler-time">Dernier passage : {{ statsService.stats().lastAutoValidationCheck }}</span>
+  </div>
+
+  <!-- Sidebar Footer / Current Admin Info -->
+  <div class="sidebar-footer">
+    <div class="user-profile">
+      <div class="user-avatar">
+        <span>AD</span>
+      </div>
+      <div class="user-info" *ngIf="!sidebarService.isCollapsed()">
+        <span class="user-name">{{ statsService.currentUser().name }}</span>
+        <span class="user-role">{{ statsService.currentUser().role }}</span>
+      </div>
+    </div>
+  </div>
+</aside>

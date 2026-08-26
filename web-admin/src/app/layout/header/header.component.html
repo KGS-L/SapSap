@@ -1,0 +1,105 @@
+<header class="header">
+  <!-- Left Header Area: Mobile Menu Toggle & Title / Breadcrumb -->
+  <div class="header-left">
+    <button 
+      class="mobile-toggle-btn"
+      (click)="sidebarService.toggleMobile()"
+      aria-label="Ouvrir le menu mobile"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <div class="page-title-wrap">
+      <div class="breadcrumb">
+        <span>Administration</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span class="active">{{ currentTitle }}</span>
+      </div>
+      <h1 class="page-title">{{ currentTitle }}</h1>
+    </div>
+  </div>
+
+  <!-- Center: Global Search Bar -->
+  <div class="header-search">
+    <div class="search-input-wrapper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Rechercher une mission, une campagne, un contributeur..."
+        aria-label="Recherche globale"
+      >
+      <span class="search-shortcut">Ctrl+K</span>
+    </div>
+  </div>
+
+  <!-- Right: System Status Badges, Notifications & Profile -->
+  <div class="header-right">
+    <!-- Live API Status Chip -->
+    <div class="status-chip" title="Connecté au backend Laravel">
+      <span class="pulse-live"></span>
+      <span class="chip-text">API Connectée</span>
+    </div>
+
+    <!-- Notifications Button & Dropdown -->
+    <div class="notifications-wrapper">
+      <button 
+        class="header-icon-btn" 
+        (click)="toggleNotifications()"
+        [class.active]="notificationsOpen"
+        aria-label="Notifications"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge" *ngIf="notifications.length > 0">
+          {{ notifications.length }}
+        </span>
+      </button>
+
+      <!-- Dropdown Content -->
+      <div class="notifications-dropdown" *ngIf="notificationsOpen">
+        <div class="dropdown-header">
+          <span class="dropdown-title">Alertes & Notifications</span>
+          <span class="badge badge-info">{{ notifications.length }} nouvelles</span>
+        </div>
+        <div class="dropdown-list">
+          @for (notif of notifications; track notif.id) {
+            <div class="notification-item" [ngClass]="'item-' + notif.type">
+              <div class="notif-dot"></div>
+              <div class="notif-content">
+                <span class="notif-title">{{ notif.title }}</span>
+                <p class="notif-desc">{{ notif.desc }}</p>
+                <span class="notif-time">{{ notif.time }}</span>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="dropdown-footer">
+          <a routerLink="/submissions" (click)="notificationsOpen = false">Voir toute la file de modération →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Profile Action -->
+    <div class="admin-pill">
+      <div class="admin-avatar">
+        <span>SA</span>
+      </div>
+      <div class="admin-details">
+        <span class="admin-name">{{ statsService.currentUser().name }}</span>
+        <span class="admin-badge">{{ statsService.currentUser().roleCode }}</span>
+      </div>
+    </div>
+  </div>
+</header>

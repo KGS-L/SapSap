@@ -1,0 +1,69 @@
+<div class="fraud-page">
+  <!-- Page Header -->
+  <div class="page-header card">
+    <div>
+      <h2 class="section-title">Surveillance Anti-Fraude (Story 4.3)</h2>
+      <p class="section-desc">
+        Détection des empreintes d'images SHA-256 dupliquées, tracking Device ID multi-comptes et anomalies GPS sur Ouagadougou.
+      </p>
+    </div>
+    <div class="header-badge-wrap">
+      <span class="badge badge-danger">
+        <span class="badge-dot"></span>
+        3 alertes actives
+      </span>
+    </div>
+  </div>
+
+  <!-- Alerts List -->
+  <div class="alerts-list">
+    @for (alert of fraudAlerts; track alert.id) {
+      <div class="alert-card card" [class.alert-high]="alert.severity === 'high'">
+        <div class="alert-top">
+          <div class="alert-type-group">
+            <span class="alert-ref">{{ alert.id }}</span>
+            <span 
+              class="badge" 
+              [ngClass]="alert.severity === 'high' ? 'badge-danger' : 'badge-warning'"
+            >
+              {{ alert.severity === 'high' ? 'Critique' : 'Moyenne' }}
+            </span>
+          </div>
+          <span class="alert-time">{{ alert.detectedAt }}</span>
+        </div>
+
+        <h4 class="alert-title">{{ alert.title }}</h4>
+
+        <div class="alert-details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Contributeur / Cible :</span>
+            <span class="detail-val">{{ alert.contributor }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Mission concernée :</span>
+            <span class="detail-val">{{ alert.targetMission }}</span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="detail-label">Preuve / Contexte :</span>
+            <span class="detail-val">{{ alert.originalMission }}</span>
+          </div>
+          <div class="detail-item full-width" *ngIf="alert.sha256 !== 'N/A'">
+            <span class="detail-label">Empreinte SHA-256 :</span>
+            <code class="sha256-code">{{ alert.sha256 }}</code>
+          </div>
+        </div>
+
+        <div class="alert-footer">
+          <div class="action-taken">
+            <span class="action-label">Action automatique :</span>
+            <span class="action-value">{{ alert.actionTaken }}</span>
+          </div>
+          <div class="alert-actions">
+            <button class="btn btn-sm btn-secondary">Ignorer (Faux positif)</button>
+            <button class="btn btn-sm btn-danger">Bannir le compte</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

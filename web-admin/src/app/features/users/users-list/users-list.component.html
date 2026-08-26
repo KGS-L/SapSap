@@ -1,0 +1,56 @@
+<div class="users-page">
+  <div class="page-header card">
+    <div>
+      <h2 class="section-title">Utilisateurs & Permissions RBAC (Story 1.2)</h2>
+      <p class="section-desc">Gérez les accès Super-Admin, Validateurs de soumissions et Administrateurs d'entreprises.</p>
+    </div>
+    <button class="btn btn-primary">+ Nouvel Utilisateur</button>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>Contact & Téléphone</th>
+          <th>Rôle Spatie</th>
+          <th>Statut</th>
+          <th>Dernière connexion</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.id) {
+          <tr>
+            <td>
+              <div class="user-cell">
+                <span class="user-name-text">{{ user.name }}</span>
+                <span class="user-email-text">{{ user.email }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="phone-text">{{ user.phone }}</span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="user.role === 'super-admin' ? 'badge-purple' : 'badge-info'">
+                {{ user.roleLabel }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-success">
+                <span class="badge-dot"></span>
+                Actif
+              </span>
+            </td>
+            <td>
+              <span class="login-time">{{ user.lastLogin }}</span>
+            </td>
+            <td style="text-align: right;">
+              <button class="btn btn-sm btn-secondary">Modifier</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
