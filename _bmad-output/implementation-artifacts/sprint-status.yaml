@@ -47,9 +47,9 @@ development_status:
   2-2-calculateur-de-budget-paiement-simulé-de-campagne: done
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-découverte-des-missions-sur-liste-et-carte-ouagadougou: backlog
-  3-2-réservation-temporaire-de-mission-verrou-45-min: backlog
+  epic-3: in-progress
+  3-1-découverte-des-missions-sur-liste-et-carte-ouagadougou: done
+  3-2-réservation-temporaire-de-mission-verrou-45-min: done
   3-3-contrôle-de-proximité-gps-prise-de-vue-caméra-natif: backlog
   3-4-soumission-avec-résilience-réseau-compression-d-image: backlog
   epic-3-retrospective: optional

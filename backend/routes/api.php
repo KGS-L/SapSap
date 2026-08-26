@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
 use App\Http\Controllers\Api\Business\CampaignController;
 use App\Http\Controllers\Api\Business\CampaignPaymentController;
+use App\Http\Controllers\Api\MobileMissionController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,11 @@ Route::prefix('v1')->group(function () {
         // Profil Utilisateur / Contributeur
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
+
+        // Découverte et Réservation de Missions Mobile (Contributeur)
+        Route::get('/missions', [MobileMissionController::class, 'index']);
+        Route::post('/missions/{id}/reserve', [MobileMissionController::class, 'reserve']);
+        Route::post('/missions/{id}/cancel-reservation', [MobileMissionController::class, 'cancelReservation']);
 
         Route::get('/user', function (Request $request) {
             $user = $request->user();
