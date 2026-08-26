@@ -35,10 +35,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
 
-        // Découverte et Réservation de Missions Mobile (Contributeur)
+        // Découverte, Réservation et Soumission de Missions Mobile (Contributeur)
         Route::get('/missions', [MobileMissionController::class, 'index']);
         Route::post('/missions/{id}/reserve', [MobileMissionController::class, 'reserve']);
         Route::post('/missions/{id}/cancel-reservation', [MobileMissionController::class, 'cancelReservation']);
+        Route::post('/missions/{id}/submit', [MobileMissionController::class, 'submit']);
 
         Route::get('/user', function (Request $request) {
             $user = $request->user();
