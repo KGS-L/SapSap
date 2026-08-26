@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\MobileAuthController;
 use App\Http\Controllers\Api\Auth\WebAuthController;
 use App\Http\Controllers\Api\Business\CampaignController;
 use App\Http\Controllers\Api\Business\CampaignPaymentController;
+use App\Http\Controllers\Api\Business\CampaignReportController;
 use App\Http\Controllers\Api\MobileMissionController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\WalletController;
@@ -73,6 +74,10 @@ Route::prefix('v1')->group(function () {
 
             // Règlement & Séquestre du Budget de la Campagne
             Route::post('/campaigns/{id}/pay', [CampaignPaymentController::class, 'pay']);
+
+            // Suivi en temps réel & Export des données de campagne (CSV / JSON)
+            Route::get('/campaigns/{id}/report', [CampaignReportController::class, 'getReport']);
+            Route::get('/campaigns/{id}/export', [CampaignReportController::class, 'exportData']);
         });
 
         // Espace Admin - Modération des Campagnes & Revue des Soumissions (super-admin, validator)
