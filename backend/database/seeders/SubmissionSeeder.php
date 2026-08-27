@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Campaign;
 use App\Models\Mission;
+use App\Models\SchedulerLog;
 use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -58,7 +59,7 @@ class SubmissionSeeder extends Seeder
             return;
         }
 
-        // 1. Soumission Conforme Moussa (Écart 22m)
+        // 1. Soumission Conforme Moussa (Écart 22m, récente)
         if (isset($missions[0])) {
             Submission::firstOrCreate(
                 ['mission_id' => $missions[0]->id, 'user_id' => $moussa->id],
@@ -84,7 +85,7 @@ class SubmissionSeeder extends Seeder
             );
         }
 
-        // 2. Soumission Conforme Amina (Écart 45m)
+        // 2. Soumission Conforme Amina (Écart 45m, récente)
         if (isset($missions[1])) {
             Submission::firstOrCreate(
                 ['mission_id' => $missions[1]->id, 'user_id' => $amina->id],
@@ -131,5 +132,99 @@ class SubmissionSeeder extends Seeder
                 ]
             );
         }
+
+        // 4. Story 4.4 : Soumission éligible à l'auto-validation (En attente depuis 52h > 48h)
+        $extraMission1 = Mission::firstOrCreate(
+            ['title' => 'Vérification Totem Shell Dassasgho'],
+            [
+                'campaign_id' => $missions[0]->campaign_id ?? 1,
+                'location_name' => 'Dassasgho, Rue 29.14',
+                'latitude' => 12.3789,
+                'longitude' => -1.4921,
+                'reward' => 2500,
+                'status' => 'submitted',
+            ]
+        );
+
+        Submission::firstOrCreate(
+            ['mission_id' => $extraMission1->id, 'user_id' => $moussa->id],
+            [
+                'status' => 'submitted',
+                'submitted_latitude' => 12.3788,
+                'submitted_longitude' => -1.4920,
+                'gps_accuracy' => 7.0,
+                'gps_distance_meters' => 18.0,
+                'device_id' => 'DEV-BF-OUAGA-99182',
+                'answers' => [
+                    'Prix Totem affiché' => 'Super91 850 FCFA, Gasoil 775 FCFA',
+                    'Boutique ouverte' => 'Oui',
+                ],
+                'photos' => [
+                    'https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?w=600'
+                ],
+                'created_at' => now()->subHours(52), // > 48 heures d'inactivité
+                'updated_at' => now()->subHours(52),
+            ]
+        );
+
+        // 5. Story 4.4 : Soumission déjà auto-validée lors d'un cycle antérieur
+        $extraMission2 = Mission::firstOrCreate(
+            ['title' => 'Audit Kiosque Orange Money Pissy'],
+            [
+                'campaign_id' => $missions[0]->campaign_id ?? 1,
+                'location_name' => 'Pissy Secteur 17',
+                'latitude' => 12.3551,
+                'longitude' => -1.5432,
+                'reward' => 2000,
+                'status' => 'validated',
+            ]
+        );
+
+        Submission::firstOrCreate(
+            ['mission_id' => $extraMission2->id, 'user_id' => $amina->id],
+            [
+                'status' => 'validated',
+                'submitted_latitude' => 12.3550,
+                'submitted_longitude' => -1.5430,
+                'gps_accuracy' => 5.0,
+                'gps_distance_meters' => 25.0,
+                'device_id' => 'DEV-BF-OUAGA-77211',
+                'answers' => [
+                    'Présence Grille tarifaire' => 'Affiche visible sur le comptoir',
+                    'Liquidité disponible' => 'Plus de 200 000 FCFA',
+                ],
+                'photos' => [
+                    'https://images.unsplash.com/photo-1556742049-0a67e557224f?w=600'
+                ],
+                'validated_at' => now()->subHours(24),
+                'auto_validated_at' => now()->subHours(24), // Auto-validé à 48h
+                'created_at' => now()->subHours(72),
+                'updated_at' => now()->subHours(24),
+            ]
+        );
+
+        // Initialisation des logs du Scheduler
+        SchedulerLog::firstOrCreate(
+            ['job_name' => 'CheckPendingSubmissionsJob', 'status' => 'success'],
+            [
+                'executed_at' => now()->subHours(1),
+                'processed_count' => 1,
+                'status' => 'success',
+                'details' => [
+                    'hours_threshold' => 48,
+                    'duration_ms' => 42.5,
+                    'processed_items' => [
+                        [
+                            'submission_id' => 5,
+                            'contributor_name' => 'Amina Sawadogo',
+                            'mission_title' => 'Audit Kiosque Orange Money Pissy',
+                            'reward' => 2000,
+                            'auto_validated_at' => now()->subHours(24)->toIso8601String(),
+                        ]
+                    ],
+                ],
+                'triggered_by' => 'scheduler',
+            ]
+        );
     }
 }

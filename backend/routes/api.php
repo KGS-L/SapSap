@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Admin\CampaignAdminController;
 use App\Http\Controllers\Api\V1\Admin\SubmissionAdminController;
 use App\Http\Controllers\Api\V1\Admin\FraudAdminController;
+use App\Http\Controllers\Api\V1\Admin\SchedulerAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,5 +44,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/fraud/alerts/{id}', [FraudAdminController::class, 'show']);
         Route::post('/fraud/alerts/{id}/resolve', [FraudAdminController::class, 'resolveAlert']);
         Route::post('/fraud/alerts/{id}/dismiss', [FraudAdminController::class, 'dismissAlert']);
+
+        // Story 4.4 : Planificateur Laravel & Monitoring Auto-Validation 48h
+        Route::get('/scheduler/status', [SchedulerAdminController::class, 'getStatus']);
+        Route::post('/scheduler/run-auto-validation', [SchedulerAdminController::class, 'runAutoValidation']);
+        Route::get('/scheduler/logs', [SchedulerAdminController::class, 'getLogs']);
     });
 });
+

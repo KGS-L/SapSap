@@ -13,8 +13,8 @@
   <!-- Header & Filter Tabs -->
   <div class="page-header card">
     <div>
-      <h2 class="section-title">Revue des Soumissions Terrain (Story 4.2)</h2>
-      <p class="section-desc">Inspectez les preuves capturées (photos natives in-app, questionnaire, contrôle de tolérance GPS < 100m).</p>
+      <h2 class="section-title">Revue des Soumissions Terrain & Auto-Validation</h2>
+      <p class="section-desc">Inspectez les preuves capturées (photos natives in-app, questionnaire, contrôle GPS < 100m) et suivez les auto-validations à 48h.</p>
     </div>
 
     <!-- Filter Tabs -->
@@ -45,6 +45,13 @@
         (click)="setTab('validated')"
       >
         Validées ({{ submissionService.counts().validated }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'auto_validated'"
+        (click)="setTab('auto_validated')"
+      >
+        ⚡ Auto-validées (48h)
       </button>
       <button 
         class="tab-btn" 
@@ -84,14 +91,14 @@
             <th>Mission & Campagne</th>
             <th>Lieu Cible</th>
             <th>Contrôle GPS</th>
-            <th>Preuves</th>
-            <th>Statut</th>
+            <th>Preuves & Gain</th>
+            <th>Statut & Validation</th>
             <th style="text-align: right;">Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (sub of submissionService.submissions(); track sub.id) {
-            <tr [class.row-alert]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100">
+            <tr [class.row-alert]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100" [class.row-auto]="!!sub.auto_validated_at">
               <td>
                 <div class="contributor-cell">
                   <span class="sub-ref">SUB-2026-00{{ sub.id }}</span>
@@ -125,25 +132,34 @@
               <td>
                 <div class="evidence-cell">
                   <span class="photos-count">📸 {{ sub.photos?.length || 0 }} photo(s)</span>
-                  <span class="reward-tag">{{ formatPrice(sub.mission?.reward) }} FCFA</span>
+                  <span class="reward-tag font-bold">{{ formatPrice(sub.mission?.reward) }} FCFA</span>
                 </div>
               </td>
               <td>
-                <span 
-                  class="badge"
-                  [class.badge-warning]="sub.status === 'submitted'"
-                  [class.badge-success]="sub.status === 'validated'"
-                  [class.badge-danger]="sub.status === 'rejected' || sub.status === 'fraud_suspect'"
-                >
-                  <span class="badge-dot"></span>
-                  @switch (sub.status) {
-                    @case ('submitted') { À valider }
-                    @case ('validated') { Validée }
-                    @case ('rejected') { Rejetée }
-                    @case ('fraud_suspect') { Alerte Fraude }
-                    @default { {{ sub.status }} }
-                  }
-                </span>
+                @if (sub.auto_validated_at) {
+                  <div class="status-auto-wrapper">
+                    <span class="badge badge-auto">
+                      ⚡ Auto-validée (48h)
+                    </span>
+                    <span class="auto-val-date font-mono">{{ formatDateShort(sub.auto_validated_at) }}</span>
+                  </div>
+                } @else {
+                  <span 
+                    class="badge"
+                    [class.badge-warning]="sub.status === 'submitted'"
+                    [class.badge-success]="sub.status === 'validated'"
+                    [class.badge-danger]="sub.status === 'rejected' || sub.status === 'fraud_suspect'"
+                  >
+                    <span class="badge-dot"></span>
+                    @switch (sub.status) {
+                      @case ('submitted') { À valider }
+                      @case ('validated') { Validée manuellement }
+                      @case ('rejected') { Rejetée }
+                      @case ('fraud_suspect') { Alerte Fraude }
+                      @default { {{ sub.status }} }
+                    }
+                  </span>
+                }
               </td>
               <td style="text-align: right;">
                 <div class="table-actions">
@@ -175,6 +191,19 @@
           </div>
           <button class="close-btn" (click)="closeInspectModal()">✕</button>
         </div>
+
+        <!-- Banner for Auto-Validated Submissions -->
+        @if (selectedSubmission()?.auto_validated_at) {
+          <div class="auto-validated-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="auto-banner-icon">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <div>
+              <strong>Soumission Auto-Validée à 48h</strong>
+              <p>Cette soumission a été validée automatiquement par le planificateur Laravel Scheduler le {{ formatDateTimeFull(selectedSubmission()?.auto_validated_at) }} suite au délai d'inactivité de 48 heures. Les gains ({{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA) ont été crédités au portefeuille du contributeur.</p>
+            </div>
+          </div>
+        }
 
         <div class="modal-body inspector-grid">
           <!-- Left Column: Photos Gallery & Zoom -->
@@ -247,7 +276,7 @@
                 <span class="c-score">⭐ Score de réputation : {{ selectedSubmission()?.user?.reputation_score }}/100</span>
               </div>
               <div class="reward-box">
-                <span class="reward-label">Gain à verser :</span>
+                <span class="reward-label">Gain versé :</span>
                 <span class="reward-amount">{{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA</span>
               </div>
             </div>
@@ -277,7 +306,7 @@
         <div class="modal-footer">
           @if (selectedSubmission()?.status === 'submitted' || selectedSubmission()?.status === 'fraud_suspect') {
             <button class="btn btn-danger" (click)="openRejectModal(selectedSubmission()!)">Rejeter avec motif</button>
-            <button class="btn btn-primary" (click)="onValidate(selectedSubmission()!)">Valider la prestation</button>
+            <button class="btn btn-primary" (click)="onValidate(selectedSubmission()!)">Valider manuellement</button>
           } @else {
             <button class="btn btn-secondary" (click)="closeInspectModal()">Fermer</button>
           }

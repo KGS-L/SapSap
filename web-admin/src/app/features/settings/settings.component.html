@@ -1,54 +1,229 @@
 <div class="settings-page">
+  <!-- Toast Notification -->
+  @if (actionToast()) {
+    <div class="feedback-toast" [class.toast-success]="actionToast()?.type === 'success'" [class.toast-error]="actionToast()?.type === 'error'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toast-icon">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>{{ actionToast()?.message }}</span>
+    </div>
+  }
+
+  <!-- Page Header -->
   <div class="page-header card">
     <div>
-      <h2 class="section-title">Paramètres Système & Invariants Métier</h2>
-      <p class="section-desc">Configuration des règles de validation, des seuils de retrait et du planificateur Laravel Scheduler.</p>
+      <h2 class="section-title">Paramètres Système & Monitoring du Scheduler (Story 4.4)</h2>
+      <p class="section-desc">Supervision du planificateur Laravel, auto-validation à 48h et configuration des invariants métier de SapSap.</p>
     </div>
-    <button class="btn btn-primary">Enregistrer les modifications</button>
+    <button class="btn btn-primary" (click)="onSaveInvariants()">
+      Enregistrer les modifications
+    </button>
   </div>
 
   <div class="grid grid-cols-2">
     <!-- Card 1: Invariants Métier -->
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">⚙️ Règles Métier & Tolérances Terrain</h3>
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--primary);">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Invariants Métier & Tolérances Terrain
+        </h3>
       </div>
-      <div class="form-group">
-        <label class="form-label">Tolérance d'Écart GPS Max (Haversine/PostGIS)</label>
-        <input type="number" class="form-control" [value]="gpsToleranceMeters" suffix="m">
-        <small style="color: var(--text-muted); font-size: 0.75rem;">Fixé à 100m pour Ouagadougou.</small>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Délai du Verrou de Réservation de Mission (minutes)</label>
-        <input type="number" class="form-control" [value]="reservationLockMinutes">
-        <small style="color: var(--text-muted); font-size: 0.75rem;">Temps alloué au contributeur pour se déplacer et soumettre (45 min).</small>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Seuil Minimal de Retrait Mobile Money (FCFA)</label>
-        <input type="number" class="form-control" [value]="minWithdrawalFcfa">
-        <small style="color: var(--text-muted); font-size: 0.75rem;">Montant minimum pour déclencher un retrait vers Orange/Moov Money (1 000 FCFA).</small>
+      <div class="card-body form-body">
+        <div class="form-group">
+          <label class="form-label">Tolérance d'Écart GPS Max (Distance Haversine)</label>
+          <div class="input-with-suffix">
+            <input type="number" class="form-control" [(ngModel)]="gpsToleranceMeters">
+            <span class="input-suffix">mètres</span>
+          </div>
+          <small class="form-hint">Fixé à 100m pour le tissu urbain de Ouagadougou.</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Délai du Verrou de Réservation de Mission</label>
+          <div class="input-with-suffix">
+            <input type="number" class="form-control" [(ngModel)]="reservationLockMinutes">
+            <span class="input-suffix">minutes</span>
+          </div>
+          <small class="form-hint">Temps alloué au contributeur mobile pour rejoindre le point cible (45 min).</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Seuil Minimal de Retrait Portefeuille (Mobile Money)</label>
+          <div class="input-with-suffix">
+            <input type="number" class="form-control" [(ngModel)]="minWithdrawalFcfa">
+            <span class="input-suffix">FCFA</span>
+          </div>
+          <small class="form-hint">Montant minimum requis pour déclencher un retrait vers Orange/Moov Money (1 000 FCFA).</small>
+        </div>
       </div>
     </div>
 
-    <!-- Card 2: Configuration Scheduler -->
-    <div class="card">
+    <!-- Card 2: Laravel Scheduler & Auto-Validation Live Center -->
+    <div class="card scheduler-card">
       <div class="card-header">
-        <h3 class="card-title">⏱️ Planificateur d'Auto-Validation (Laravel Scheduler)</h3>
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--warning);">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Planificateur d'Auto-Validation à 48h (Laravel Scheduler)
+        </h3>
+        <div class="live-pill">
+          <span class="pulse-live"></span>
+          <span>Cron Actif (0 * * * *)</span>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Délai d'Auto-Validation des Soumissions (heures)</label>
-        <input type="number" class="form-control" [value]="autoValidationDelayHours">
-        <small style="color: var(--text-muted); font-size: 0.75rem;">Passage automatique en statut validé et libération des fonds après 48h sans action.</small>
+
+      <div class="card-body">
+        <!-- Live Metrics Grid -->
+        <div class="scheduler-kpi-grid">
+          <div class="kpi-mini-card">
+            <span class="kpi-mini-label">Délai Auto-Validation</span>
+            <span class="kpi-mini-val font-bold text-primary">{{ autoValidationDelayHours }} heures</span>
+            <span class="kpi-mini-sub">Inactivité sans action</span>
+          </div>
+
+          <div class="kpi-mini-card">
+            <span class="kpi-mini-label">En attente &gt; 48h</span>
+            <span class="kpi-mini-val font-bold" [class.text-warning]="(schedulerService.stats().pending_eligible_count || 0) > 0">
+              {{ schedulerService.stats().pending_eligible_count || 0 }}
+            </span>
+            <span class="kpi-mini-sub">Prêtes à être validées</span>
+          </div>
+
+          <div class="kpi-mini-card">
+            <span class="kpi-mini-label">Auto-validées (Total)</span>
+            <span class="kpi-mini-val font-bold text-success">{{ schedulerService.stats().total_auto_validated_count || 0 }}</span>
+            <span class="kpi-mini-sub">Fonds débloqués</span>
+          </div>
+        </div>
+
+        <!-- Scheduler Info Details -->
+        <div class="scheduler-meta-box">
+          <div class="meta-item">
+            <span class="meta-label">Dernière exécution :</span>
+            <span class="meta-value font-mono">
+              {{ formatDateTime(schedulerService.stats().last_run?.executed_at) }}
+            </span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Prochain passage estimé :</span>
+            <span class="meta-value font-mono">
+              {{ formatDateTime(schedulerService.stats().next_estimated_run) }}
+            </span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Job Laravel :</span>
+            <span class="meta-value font-mono font-bold text-primary">CheckPendingSubmissionsJob</span>
+          </div>
+        </div>
+
+        <!-- Interactive Trigger Button -->
+        <div class="trigger-action-bar">
+          <div class="trigger-info">
+            <span class="trigger-title">Déclenchement Manuel d'Urgence</span>
+            <p class="trigger-desc">Exécute immédiatement le contrôle d'auto-validation sans attendre le prochain passage horaire du cron.</p>
+          </div>
+          <button 
+            class="btn btn-warning btn-trigger" 
+            [disabled]="schedulerService.isExecuting()"
+            (click)="onTriggerAutoValidation()"
+          >
+            @if (schedulerService.isExecuting()) {
+              <span class="spinner-sm"></span>
+              <span>Traitement en cours...</span>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Exécuter l'Auto-Validation Maintenant</span>
+            }
+          </button>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Fréquence d'exécution du Job (Cron Scheduler)</label>
-        <input type="text" class="form-control" [value]="schedulerInterval" readonly>
-        <small style="color: var(--text-muted); font-size: 0.75rem;">Exécuté toutes les heures via <code>CheckPendingSubmissionsJob</code>.</small>
-      </div>
-      <div class="scheduler-status-box">
-        <span class="pulse-live"></span>
-        <span>Planificateur en cours d'exécution active sur le serveur backend</span>
-      </div>
+    </div>
+  </div>
+
+  <!-- Full Width Execution Logs Table (Story 4.4 Audit) -->
+  <div class="card logs-card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--info);">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Journal des Exécutions du Scheduler (Audit & Traçabilité)
+      </h3>
+      <span class="badge badge-info">{{ schedulerService.logs().length }} exécution(s) enregistrée(s)</span>
+    </div>
+
+    <div class="table-container">
+      @if (schedulerService.logs().length === 0) {
+        <div class="empty-state">
+          <span>Aucune exécution archivée.</span>
+        </div>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date & Heure</th>
+              <th>Job / Processus</th>
+              <th>Déclencheur</th>
+              <th>Volume Traité</th>
+              <th>Durée d'Exécution</th>
+              <th>Statut</th>
+              <th>Détails</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of schedulerService.logs(); track log.id) {
+              <tr>
+                <td>
+                  <span class="font-mono">{{ formatDateTime(log.executed_at) }}</span>
+                </td>
+                <td>
+                  <span class="job-tag font-mono">{{ log.job_name }}</span>
+                </td>
+                <td>
+                  <span class="badge" [class.badge-primary]="log.triggered_by === 'scheduler'" [class.badge-warning]="log.triggered_by === 'manual_admin'">
+                    {{ log.triggered_by === 'scheduler' ? '⏱️ Scheduler Laravel' : '👤 Manuel (Admin)' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="font-bold" [class.text-success]="log.processed_count > 0">
+                    {{ log.processed_count }} soumission(s)
+                  </span>
+                </td>
+                <td>
+                  <span class="font-mono text-muted">{{ log.details?.duration_ms ? log.details!.duration_ms + ' ms' : '< 50 ms' }}</span>
+                </td>
+                <td>
+                  <span class="badge" [class.badge-success]="log.status === 'success'" [class.badge-danger]="log.status === 'failed'">
+                    {{ log.status === 'success' ? '✓ Succès' : '✕ Échec' }}
+                  </span>
+                </td>
+                <td>
+                  @if (log.details?.processed_items && log.details!.processed_items!.length > 0) {
+                    <span class="details-summary" [title]="'Soumissions auto-validées : ' + log.details!.processed_items!.length">
+                      SUB #{{ log.details!.processed_items![0].submission_id }} ({{ log.details!.processed_items![0].contributor_name }})
+                    </span>
+                  } @else {
+                    <span class="text-muted">0 soumission éligible</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
   </div>
 </div>

@@ -58,7 +58,7 @@ development_status:
   4-1-dashboard-admin-modération-des-campagnes: review
   4-2-interface-de-revue-manuelle-des-soumissions: review
   4-3-contrôle-anti-fraude-avec-empreinte-sha-256-device-id: review
-  4-4-job-planifié-d-auto-validation-à-48h-laravel-scheduler: backlog
+  4-4-job-planifié-d-auto-validation-à-48h-laravel-scheduler: done
   epic-4-retrospective: optional
 
   epic-5: backlog

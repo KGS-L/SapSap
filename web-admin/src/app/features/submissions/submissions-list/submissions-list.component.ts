@@ -13,7 +13,7 @@ import { Submission } from '../../../core/models/submission.model';
 export class SubmissionsListComponent implements OnInit {
   readonly submissionService = inject(SubmissionAdminService);
 
-  activeTab: 'submitted' | 'validated' | 'rejected' | 'fraud_suspect' | 'all' = 'submitted';
+  activeTab: 'submitted' | 'validated' | 'auto_validated' | 'rejected' | 'fraud_suspect' | 'all' = 'submitted';
 
   // Modales
   readonly isInspectModalOpen = signal<boolean>(false);
@@ -32,7 +32,7 @@ export class SubmissionsListComponent implements OnInit {
     this.submissionService.loadSubmissions(this.activeTab).subscribe();
   }
 
-  setTab(tab: 'submitted' | 'validated' | 'rejected' | 'fraud_suspect' | 'all'): void {
+  setTab(tab: 'submitted' | 'validated' | 'auto_validated' | 'rejected' | 'fraud_suspect' | 'all'): void {
     this.activeTab = tab;
     this.loadSubmissions();
   }
@@ -97,6 +97,37 @@ export class SubmissionsListComponent implements OnInit {
 
   formatPrice(amount?: number): string {
     return (amount || 0).toLocaleString('fr-FR');
+  }
+
+  formatDateShort(dateStr?: string | null): string {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  formatDateTimeFull(dateStr?: string | null): string {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
   }
 
   private showFeedback(msg: string): void {

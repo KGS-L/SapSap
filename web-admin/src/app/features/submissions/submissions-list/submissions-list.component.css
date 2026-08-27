@@ -160,6 +160,66 @@
   font-weight: 700;
 }
 
+.status-auto-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.badge-auto {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.auto-val-date {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.auto-validated-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 0.8125rem;
+}
+
+.auto-validated-banner strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #8b5cf6;
+  margin-bottom: 2px;
+}
+
+.auto-validated-banner p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.auto-banner-icon {
+  width: 22px;
+  height: 22px;
+  color: #8b5cf6;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.row-auto {
+  background: rgba(139, 92, 246, 0.02);
+}
+
 .table-actions {
   display: flex;
   align-items: center;

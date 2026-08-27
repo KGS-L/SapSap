@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('scheduler_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('job_name')->default('CheckPendingSubmissionsJob');
+            $table->timestamp('executed_at');
+            $table->unsignedInteger('processed_count')->default(0);
+            $table->enum('status', ['success', 'warning', 'failed'])->default('success');
+            $table->json('details')->nullable();
+            $table->enum('triggered_by', ['scheduler', 'manual_admin'])->default('scheduler');
+            $table->foreignId('admin_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('scheduler_logs');
+    }
+};
