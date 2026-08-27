@@ -20,11 +20,18 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'phone',
+        'phone_number',
         'password',
-        'reputation_score',
+        'district',
         'city',
+        'otp_code',
+        'otp_expires_at',
+        'reputation_score',
+        'completed_missions_count',
         'is_active',
     ];
 
@@ -36,6 +43,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_code',
     ];
 
     /**
@@ -47,9 +55,11 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'otp_expires_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
             'reputation_score' => 'integer',
+            'completed_missions_count' => 'integer',
         ];
     }
 
@@ -68,4 +78,3 @@ class User extends Authenticatable
         return $this->hasMany(WithdrawalRequest::class)->latest();
     }
 }
-

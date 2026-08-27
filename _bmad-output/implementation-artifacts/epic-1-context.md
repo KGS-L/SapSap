@@ -4,7 +4,7 @@
 
 ## Goal
 
-Permettre à chaque type d'utilisateur (Contributeurs mobiles, Entreprises web, Administrateurs SapSap) de créer un compte sécurisé (OTP téléphone pour mobile, Email/Mot de passe pour Web), de s'authentifier via Laravel Sanctum et d'accéder à son profil et à ses autorisations RBAC Spatie (`super-admin`, `validator`, `company-admin`, `company-viewer`).
+Permettre à chaque type d'utilisateur (Contributeurs mobiles, Entreprises web, Administrateurs SapSap) de créer un compte sécurisé (OTP téléphone pour mobile, Email/Mot de passe pour Web), de s'authentifier via Laravel Sanctum et d'accéder à son profil et à ses autorisations RBAC Spatie (`super-admin`, `validator`, `company-admin`, `company-viewer`, `contributor`).
 
 ## Stories
 
@@ -14,24 +14,21 @@ Permettre à chaque type d'utilisateur (Contributeurs mobiles, Entreprises web, 
 
 ## Requirements & Constraints
 
-- Numéro de téléphone burkinabè (`+226 XX XX XX XX`) avec vérification OTP SMS à 6 chiffres pour les contributeurs mobiles (code test `123456` en dev/simulation).
-- Authentification par Email et Mot de passe pour les portails web (`admin.sapsap.bf` et `business.sapsap.bf`).
+- **FR1** : Inscription et authentification des contributeurs via numéro de téléphone burkinabè (`+226 XX XX XX XX`) et code OTP à 6 chiffres (code de test `123456` en environnement dev/simulation).
+- **FR2** : Consultation et modification des informations du profil contributeur, avec suivi du score de réputation SapSap (ex: 92/100) et historique des prestations.
+- **FR10 & NFR5** : Authentification des utilisateurs web Business (`business.sapsap.bf`) et Admin (`admin.sapsap.bf`) par email/mot de passe. Contrôle d'accès strict via Spatie RBAC (`super-admin`, `validator`, `company-admin`, `company-viewer`), retournant HTTP 403 Forbidden en cas d'accès non autorisé.
 - Gestion de session par tokens API Laravel Sanctum (`Authorization: Bearer <token>`).
-- Contrôle d'accès basé sur les rôles (RBAC) via `spatie/laravel-permission` avec codes de statut HTTP 403 Forbidden en cas d'accès non autorisé.
 - Stockage sécurisé des identifiants et hashage des mots de passe en base de données PostgreSQL.
 
 ## Technical Decisions
 
-- **Backend** : Module `Auth` sous Laravel 11, Sanctum 4.x, Spatie Permissions 6.x.
+- **Authentification REST** : Laravel Sanctum pour la génération et la validation des tokens d'API bearer.
+- **Autorisations & Rôles** : Package `spatie/laravel-permission` pour la gestion fine des rôles et des autorisations d'accès aux routes de l'API REST backend.
+- **Base de données** : PostgreSQL 16. Modèle `User` étendu pour intégrer le numéro de téléphone, le score de réputation (par défaut 100) et les données de profil.
 - **Frontend Web** : Angular 18 (Standalone Components), `AuthService` avec signaux réactifs, `AuthGuard` et `RoleGuard` fonctionnels, `authInterceptor` injectant le token Bearer.
-- **Modèle de données** : Table `users` (id UUID v4, name, email, phone, reputation_score, created_at), tables Spatie `roles`, `permissions`, `model_has_roles`.
-- **Réponses API standard** : Enveloppe uniforme `{ "success": boolean, "data": object|array, "message": string, "errors": array|null }`.
+- **Simulateur OTP** : Service OTP backend générant un code à 6 chiffres et acceptant le code `123456` en mode local/simulation.
 
 ## UX & Interaction Patterns
 
-- Page de connexion dédiée `/login` avec redirection automatique selon le rôle après authentification réussie.
-- Formulaire d'authentification avec validation en temps réel, indicateurs d'erreur clairs et état de chargement (spinner) lors de la soumission.
-
-## Cross-Story Dependencies
-
-- Story 1.2 fournit les fondations d'authentification et de contrôle d'accès pour toutes les fonctionnalités d'administration (Épic 4) et de gestion d'entreprise (Épic 2 & Épic 5).
+- **Mobile** : Écran de saisie du numéro de téléphone burkinabè puis écran de validation du code OTP 6 chiffres.
+- **Web Business & Admin** : Page de connexion `/login` avec formulaire réactif, validation en temps réel, retour d'erreur clair (HTTP 401) et redirection automatique selon le rôle.

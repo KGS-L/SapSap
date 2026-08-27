@@ -5,16 +5,17 @@ created: '2026-08-26'
 status: 'done'
 baseline_commit: '5aa1b14d497a2e359d3dcf1ae14bed3317eb95fd'
 review_loop_iteration: 0
-context: []
+context:
+  - '_bmad-output/implementation-artifacts/epic-1-context.md'
 ---
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
 
 ## Intent
 
-**Problem:** Les utilisateurs d'administration (`admin.sapsap.bf`) et entreprises (`business.sapsap.bf`) ont besoin d'une authentification sécurisée par email/mot de passe et d'un cloisonnement strict de leurs accès selon leurs rôles RBAC (`super-admin`, `validator`, `company-admin`, `company-viewer`).
+**Problem:** Les utilisateurs d'administration (`admin.sapsap.bf`) et entreprises (`business.sapsap.bf`) ont besoin d'une authentification sécurisée par email/mot de passe et d'un cloisonnement strict de leurs accès selon leurs rôles RBAC (`super-admin`, `validator`, `company-admin`, `company-viewer`, `contributor`).
 
-**Approach:** Développer les endpoints d'authentification Laravel Sanctum (`/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/auth/me`), associer les rôles Spatie au modèle `User`, et côté Angular (`web-admin`), créer la page `/login`, le service réactif `AuthService`, les guards `AuthGuard` / `RoleGuard` et l'intercepteur HTTP Bearer token.
+**Approach:** Développer les endpoints d'authentification Laravel Sanctum (`/api/v1/auth/login`, `/api/v1/auth/web/login`, `/api/v1/auth/logout`, `/api/v1/auth/me`), associer les rôles Spatie au modèle `User`, et côté Angular (`web-admin`), créer la page `/login`, le service réactif `AuthService`, les guards `AuthGuard` / `RoleGuard` et l'intercepteur HTTP Bearer token.
 
 ## Boundaries & Constraints
 
@@ -25,7 +26,7 @@ context: []
 - Côté Angular, stocker le token dans le stockage local sécurisé, injecter le header `Authorization: Bearer <token>` sur les requêtes API sortantes et rediriger vers `/login` sur expiration ou 401.
 
 **Ask First:**
-- Modifier la nomenclature des rôles standards (`super-admin`, `validator`, `company-admin`, `company-viewer`) ou la durée de validité des tokens.
+- Modifier la nomenclature des rôles standards (`super-admin`, `validator`, `company-admin`, `company-viewer`, `contributor`) ou la durée de validité des tokens.
 
 **Never:**
 - Ne jamais stocker de mots de passe en clair dans la base de données PostgreSQL.
@@ -47,9 +48,9 @@ context: []
 ## Code Map
 
 - `backend/app/Models/User.php` -- Intégration des traits `HasApiTokens` (Sanctum) et `HasRoles` (Spatie).
-- `backend/app/Http/Controllers/Api/V1/AuthController.php` -- Contrôleur d'authentification API (`login`, `logout`, `me`).
+- `backend/app/Http/Controllers/Api/Auth/WebAuthController.php` & `AuthController.php` -- Contrôleurs d'authentification API (`login`, `logout`, `me`).
 - `backend/routes/api.php` -- Définition des routes d'authentification publiques et protégées (`auth:sanctum`).
-- `backend/database/seeders/RoleAndUserSeeder.php` -- Seeder créant les rôles Spatie et les comptes de test initiaux.
+- `backend/database/seeders/RolesAndPermissionsSeeder.php` & `RoleAndUserSeeder.php` -- Seeders créant les rôles Spatie et les comptes de test.
 - `web-admin/src/app/core/models/user.model.ts` -- Interfaces TypeScript `User`, `AuthResponse`, `LoginCredentials`.
 - `web-admin/src/app/core/services/auth.service.ts` -- Service Angular gérant la session utilisateur avec Signals.
 - `web-admin/src/app/core/guards/auth.guard.ts` -- Guard fonctionnel de vérification de session active.
@@ -62,9 +63,9 @@ context: []
 
 **Execution:**
 - [x] `backend/app/Models/User.php` -- Ajouter `Laravel\Sanctum\HasApiTokens` et `Spatie\Permission\Traits\HasRoles` -- Activer l'authentification token et les rôles.
-- [x] `backend/app/Http/Controllers/Api/V1/AuthController.php` -- Créer les méthodes `login`, `logout` et `me` avec validation -- Gérer le cycle de vie de la session API.
-- [x] `backend/routes/api.php` -- Déclarer les routes `/v1/auth/login`, `/v1/auth/logout`, `/v1/auth/me` -- Exposer l'API d'authentification.
-- [x] `backend/database/seeders/RoleAndUserSeeder.php` -- Créer les 4 rôles Spatie et des comptes administrateur et validateur par défaut -- Permettre les tests d'authentification immédiats.
+- [x] `backend/app/Http/Controllers/Api/Auth/WebAuthController.php` -- Implémenter login, logout et réponse JSON avec rôles Spatie.
+- [x] `backend/routes/api.php` -- Déclarer les routes d'authentification et de test RBAC -- Exposer l'API d'authentification.
+- [x] `backend/database/seeders/RolesAndPermissionsSeeder.php` -- Créer les 5 rôles Spatie et comptes de test.
 - [x] `web-admin/src/app/core/models/user.model.ts` -- Définir les types utilisateur et réponses API -- Assurer le typage strict des données de session.
 - [x] `web-admin/src/app/core/services/auth.service.ts` -- Implémenter la connexion, déconnexion et état réactif `currentUser` -- Gérer l'état d'authentification côté client.
 - [x] `web-admin/src/app/core/guards/auth.guard.ts` -- Créer `authGuard` et `roleGuard` -- Protéger les routes de l'administration.
@@ -78,55 +79,8 @@ context: []
 - Given un mot de passe incorrect lors de la soumission du formulaire, when l'API répond 401, then une alerte claire "Identifiants invalides" s'affiche sur le formulaire sans plantage.
 - Given un administrateur connecté cliquant sur "Déconnexion", when l'action est validée, then le token est révoqué côté serveur et l'utilisateur est redirigé sur `/login`.
 
-## Design Notes
-
-L'intercepteur HTTP Angular 18 utilise la fonction `HttpInterceptorFn` moderne :
-```typescript
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.token();
-  if (token) {
-    req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
-  }
-  return next(req);
-};
-```
-
 ## Verification
 
 **Commands:**
 - `npm run build` dans `web-admin` -- expected: `Application bundle generation complete` (0 erreur)
-- Exécution des migrations & seeders sur le backend Docker `docker compose exec backend php artisan migrate --seed` -- expected: rôles et utilisateurs créés sans erreur.
-
-## Suggested Review Order
-
-**Backend Authentication & RBAC Core**
-
-- Intégration de Sanctum et Spatie sur le modèle User
-  [`User.php:12`](../../backend/app/Models/User.php#L12)
-
-- Contrôleur d'authentification API login, logout, me
-  [`AuthController.php:17`](../../backend/app/Http/Controllers/Api/V1/AuthController.php#L17)
-
-- Définition des routes publiques et protégées API v1
-  [`api.php:13`](../../backend/routes/api.php#L13)
-
-- Seeder créant les 4 rôles et les comptes de test
-  [`RoleAndUserSeeder.php:15`](../../backend/database/seeders/RoleAndUserSeeder.php#L15)
-
-**Frontend Web-Admin Authentication & Guards**
-
-- Service réactif Angular Signals pour la gestion de session
-  [`auth.service.ts:18`](../../web-admin/src/app/core/services/auth.service.ts#L18)
-
-- Guard fonctionnel de protection des routes d'administration
-  [`auth.guard.ts:5`](../../web-admin/src/app/core/guards/auth.guard.ts#L5)
-
-- Intercepteur HTTP pour injection du token Bearer
-  [`auth.interceptor.ts:6`](../../web-admin/src/app/core/interceptors/auth.interceptor.ts#L6)
-
-- Composant de page de connexion et formulaire réactif
-  [`login.component.ts:18`](../../web-admin/src/app/features/auth/login/login.component.ts#L18)
-
-- Configuration du routage racine avec protection authGuard
-  [`app.routes.ts:14`](../../web-admin/src/app/app.routes.ts#L14)
+- `docker compose exec backend php artisan test --filter=WebAuthRbacTest` -- expected: Tests PASS

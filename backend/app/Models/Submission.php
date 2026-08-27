@@ -13,34 +13,43 @@ class Submission extends Model
     protected $fillable = [
         'mission_id',
         'user_id',
-        'status',
-        'answers',
-        'photos',
+        'latitude',
+        'longitude',
         'submitted_latitude',
         'submitted_longitude',
         'gps_accuracy',
         'gps_distance_meters',
+        'distance_from_target_meters',
+        'answers',
+        'photos',
+        'photo_urls',
         'device_id',
-        'rejection_reason',
+        'submission_hash',
+        'status',
+        'reviewed_by',
+        'reviewed_at',
         'validated_at',
         'rejected_at',
         'auto_validated_at',
+        'rejection_reason',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'answers' => 'array',
-            'photos' => 'array',
-            'submitted_latitude' => 'float',
-            'submitted_longitude' => 'float',
-            'gps_accuracy' => 'float',
-            'gps_distance_meters' => 'float',
-            'validated_at' => 'datetime',
-            'rejected_at' => 'datetime',
-            'auto_validated_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'answers' => 'array',
+        'photos' => 'array',
+        'photo_urls' => 'array',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'submitted_latitude' => 'float',
+        'submitted_longitude' => 'float',
+        'gps_accuracy' => 'float',
+        'gps_distance_meters' => 'float',
+        'distance_from_target_meters' => 'integer',
+        'reviewed_at' => 'datetime',
+        'validated_at' => 'datetime',
+        'rejected_at' => 'datetime',
+        'auto_validated_at' => 'datetime',
+    ];
 
     public function mission(): BelongsTo
     {
@@ -49,6 +58,16 @@ class Submission extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function contributor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

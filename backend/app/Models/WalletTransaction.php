@@ -13,24 +13,25 @@ class WalletTransaction extends Model
     protected $fillable = [
         'wallet_id',
         'user_id',
+        'campaign_id',
         'type',
+        'transaction_type',
         'amount',
         'balance_before',
         'balance_after',
-        'status',
+        'payment_method',
+        'payment_reference',
         'reference',
+        'status',
         'metadata',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'amount' => 'integer',
-            'balance_before' => 'integer',
-            'balance_after' => 'integer',
-            'metadata' => 'array',
-        ];
-    }
+    protected $casts = [
+        'amount' => 'integer',
+        'balance_before' => 'integer',
+        'balance_after' => 'integer',
+        'metadata' => 'array',
+    ];
 
     public function wallet(): BelongsTo
     {
@@ -40,5 +41,10 @@ class WalletTransaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class);
     }
 }

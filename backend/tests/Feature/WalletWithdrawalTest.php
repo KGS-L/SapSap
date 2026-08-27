@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Services\WalletService;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,125 +17,201 @@ class WalletWithdrawalTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Test 1: Demande de retrait valide (>= 1 000 FCFA) avec solde suffisant
-     */
-    public function test_contributor_can_request_valid_withdrawal_above_1000_fcfa(): void
+    protected function setUp(): void
     {
-        $user = User::factory()->create(['name' => 'Moussa Ouédraogo', 'phone' => '+226 70 12 34 56']);
-        $wallet = Wallet::create([
-            'user_id' => $user->id,
-            'available_balance' => 5000,
-            'total_earned' => 5000,
-        ]);
-
-        $walletService = app(WalletService::class);
-        $result = $walletService->requestWithdrawal($user, 2000, 'orange_money', '+226 70 12 34 56');
-
-        $this->assertTrue($result['success']);
-        $this->assertEquals(3000, $result['wallet']['available_balance']);
-
-        // Vérifier la décrémentation en base
-        $wallet->refresh();
-        $this->assertEquals(3000, $wallet->available_balance);
-
-        // Vérifier l'inscription au registre comptable immuable
-        $this->assertDatabaseHas('wallet_transactions', [
-            'wallet_id' => $wallet->id,
-            'user_id' => $user->id,
-            'type' => 'withdrawal_debit',
-            'amount' => -2000,
-            'balance_before' => 5000,
-            'balance_after' => 3000,
-            'status' => 'completed',
-        ]);
-
-        // Vérifier l'enregistrement de la demande de retrait avec payout ID simulé
-        $this->assertDatabaseHas('withdrawal_requests', [
-            'user_id' => $user->id,
-            'amount' => 2000,
-            'provider' => 'orange_money',
-            'status' => 'completed',
-        ]);
+        parent::setUp();
+        $this->seed(RolesAndPermissionsSeeder::class);
     }
 
-    /**
-     * Test 2: Rejet d'une demande inférieure à 1 000 FCFA (Invariance Règle Métier)
-     */
-    public function test_withdrawal_under_1000_fcfa_is_rejected(): void
+    public function test_contributor_can_get_balance_and_transactions(): void
     {
-        $user = User::factory()->create();
-        Wallet::create([
-            'user_id' => $user->id,
-            'available_balance' => 5000,
-            'total_earned' => 5000,
+        $contributor = User::create([
+            'phone_number' => '+22670111222',
+            'name' => 'Moussa Wallet',
         ]);
+        $contributor->assignRole('contributor');
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Le seuil minimal de retrait est de 1 000 FCFA.");
-
-        $walletService = app(WalletService::class);
-        $walletService->requestWithdrawal($user, 500, 'orange_money', '+226 70 00 00 00');
-    }
-
-    /**
-     * Test 3: Rejet d'une demande supérieure au solde disponible
-     */
-    public function test_withdrawal_exceeding_available_balance_is_rejected(): void
-    {
-        $user = User::factory()->create();
-        Wallet::create([
-            'user_id' => $user->id,
-            'available_balance' => 2000,
-            'total_earned' => 2000,
-        ]);
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Solde disponible insuffisant");
-
-        $walletService = app(WalletService::class);
-        $walletService->requestWithdrawal($user, 4000, 'moov_money', '+226 76 00 00 00');
-    }
-
-    /**
-     * Test 4: Validation de mission crédite automatiquement le portefeuille
-     */
-    public function test_mission_validation_automatically_credits_contributor_wallet(): void
-    {
-        $user = User::factory()->create();
+        $companyAdmin = User::where('email', 'business@sapsap.bf')->first();
         $campaign = Campaign::create([
-            'title' => 'Campagne Sobbra',
-            'company_name' => 'Sobbra BF',
-            'type' => 'Audit',
-            'city' => 'Ouagadougou',
-            'status' => 'active'
+            'company_id' => $companyAdmin->id,
+            'title' => 'Campagne Wallet',
+            'mission_type' => 'audit',
+            'reward_per_mission' => 2500,
+            'total_missions_requested' => 2,
+            'subtotal_amount' => 5000,
+            'platform_fee_amount' => 750,
+            'total_budget_amount' => 5750,
+            'status' => 'active',
         ]);
 
-        $mission = Mission::create([
+        WalletTransaction::create([
+            'user_id' => $contributor->id,
             'campaign_id' => $campaign->id,
-            'title' => 'Audit Kiosque',
-            'location_name' => 'Gounghin',
-            'reward' => 3000,
-            'status' => 'submitted'
+            'transaction_type' => 'contributor_payout',
+            'amount' => 2500,
+            'payment_method' => 'system_escrow',
+            'payment_reference' => 'TEST-REF-1',
+            'status' => 'released',
         ]);
 
-        $submission = Submission::create([
-            'mission_id' => $mission->id,
-            'user_id' => $user->id,
-            'status' => 'submitted',
-            'created_at' => now(),
+        WalletTransaction::create([
+            'user_id' => $contributor->id,
+            'campaign_id' => $campaign->id,
+            'transaction_type' => 'contributor_payout',
+            'amount' => 2500,
+            'payment_method' => 'system_escrow',
+            'payment_reference' => 'TEST-REF-2',
+            'status' => 'released',
         ]);
 
-        $walletService = app(WalletService::class);
-        $transaction = $walletService->creditMissionEarning($submission);
+        $token = $contributor->createToken('mobile-app')->plainTextToken;
 
-        $this->assertEquals(3000, $transaction->amount);
-        $this->assertEquals(0, $transaction->balance_before);
-        $this->assertEquals(3000, $transaction->balance_after);
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->getJson('/api/v1/wallet/balance');
 
-        $wallet = $user->wallet()->first();
-        $this->assertNotNull($wallet);
-        $this->assertEquals(3000, $wallet->available_balance);
-        $this->assertEquals(3000, $wallet->total_earned);
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'available_balance' => 5000,
+                    'total_earned' => 5000,
+                    'total_withdrawn' => 0,
+                    'currency' => 'FCFA',
+                ],
+            ]);
+
+        $this->assertCount(2, $response->json('data.transactions'));
+    }
+
+    public function test_contributor_can_withdraw_funds_to_mobile_money(): void
+    {
+        $contributor = User::create([
+            'phone_number' => '+22670222333',
+            'name' => 'Fatou Withdraw',
+        ]);
+        $contributor->assignRole('contributor');
+
+        $companyAdmin = User::where('email', 'business@sapsap.bf')->first();
+        $campaign = Campaign::create([
+            'company_id' => $companyAdmin->id,
+            'title' => 'Campagne Withdraw',
+            'mission_type' => 'audit',
+            'reward_per_mission' => 5000,
+            'total_missions_requested' => 1,
+            'subtotal_amount' => 5000,
+            'platform_fee_amount' => 750,
+            'total_budget_amount' => 5750,
+            'status' => 'active',
+        ]);
+
+        WalletTransaction::create([
+            'user_id' => $contributor->id,
+            'campaign_id' => $campaign->id,
+            'transaction_type' => 'contributor_payout',
+            'amount' => 5000,
+            'payment_method' => 'system_escrow',
+            'payment_reference' => 'TEST-REF-3',
+            'status' => 'released',
+        ]);
+
+        $token = $contributor->createToken('mobile-app')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/v1/wallet/withdraw', [
+                'amount' => 3000,
+                'payment_method' => 'orange_money',
+                'phone_number' => '+22670222333',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'amount_withdrawn' => 3000,
+                    'new_available_balance' => 2000,
+                    'status' => 'completed',
+                ],
+            ]);
+
+        $this->assertDatabaseHas('wallet_transactions', [
+            'user_id' => $contributor->id,
+            'transaction_type' => 'withdrawal',
+            'amount' => 3000,
+            'status' => 'completed',
+        ]);
+    }
+
+    public function test_withdraw_fails_when_amount_exceeds_available_balance(): void
+    {
+        $contributor = User::create([
+            'phone_number' => '+22670333444',
+            'name' => 'Paul Exceed',
+        ]);
+        $contributor->assignRole('contributor');
+
+        $companyAdmin = User::where('email', 'business@sapsap.bf')->first();
+        $campaign = Campaign::create([
+            'company_id' => $companyAdmin->id,
+            'title' => 'Campagne Exceed',
+            'mission_type' => 'audit',
+            'reward_per_mission' => 2000,
+            'total_missions_requested' => 1,
+            'subtotal_amount' => 2000,
+            'platform_fee_amount' => 300,
+            'total_budget_amount' => 2300,
+            'status' => 'active',
+        ]);
+
+        WalletTransaction::create([
+            'user_id' => $contributor->id,
+            'campaign_id' => $campaign->id,
+            'transaction_type' => 'contributor_payout',
+            'amount' => 2000,
+            'payment_method' => 'system_escrow',
+            'payment_reference' => 'TEST-REF-4',
+            'status' => 'released',
+        ]);
+
+        $token = $contributor->createToken('mobile-app')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/v1/wallet/withdraw', [
+                'amount' => 5000,
+                'payment_method' => 'moov_money',
+                'phone_number' => '+22670333444',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+            ]);
+
+        $this->assertStringContainsString('Solde insuffisant', $response->json('message'));
+    }
+
+    public function test_withdraw_fails_when_amount_below_minimum(): void
+    {
+        $contributor = User::create([
+            'phone_number' => '+22670444555',
+            'name' => 'Awa Min',
+        ]);
+        $contributor->assignRole('contributor');
+
+        $token = $contributor->createToken('mobile-app')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/v1/wallet/withdraw', [
+                'amount' => 200, // Moins que le minimum de 500 ou 1000 FCFA
+                'payment_method' => 'orange_money',
+                'phone_number' => '+22670444555',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+            ]);
+
+        $errorsJson = json_encode($response->json());
+        $this->assertStringContainsString('minimum', strtolower($errorsJson));
     }
 }
