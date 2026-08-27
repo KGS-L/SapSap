@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\Admin\CampaignAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,5 +20,13 @@ Route::prefix('v1')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::get('/me', [AuthController::class, 'me']);
         });
+    });
+
+    // Administration & Modération
+    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+        Route::get('/campaigns', [CampaignAdminController::class, 'index']);
+        Route::get('/campaigns/{id}', [CampaignAdminController::class, 'show']);
+        Route::post('/campaigns/{id}/approve', [CampaignAdminController::class, 'approve']);
+        Route::post('/campaigns/{id}/reject', [CampaignAdminController::class, 'reject']);
     });
 });

@@ -1,67 +1,93 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CampaignAdminService } from '../../../core/services/campaign-admin.service';
+import { Campaign } from '../../../core/models/campaign.model';
 
 @Component({
   selector: 'app-campaigns-list',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './campaigns-list.component.html',
   styleUrl: './campaigns-list.component.css'
 })
-export class CampaignsListComponent {
-  activeTab: 'pending' | 'approved' | 'rejected' | 'all' = 'pending';
+export class CampaignsListComponent implements OnInit {
+  readonly campaignService = inject(CampaignAdminService);
 
-  campaigns = [
-    {
-      id: 'CMP-2026-004',
-      title: 'Audit Présence PLV Boissons Sobbra',
-      company: 'Sobbra Distribution BF',
-      city: 'Ouagadougou',
-      type: 'Audit & Présence',
-      missionsCount: 150,
-      rewardPerMission: 3000,
-      totalBudget: 450000,
-      createdAt: '26/08/2026 14:15',
-      status: 'pending',
-      criteria: 'Photo façade + Photo rayon + Questionnaire 4 questions'
-    },
-    {
-      id: 'CMP-2026-003',
-      title: 'Relevé Prix Carburant Total / Shell',
-      company: 'Observatoire Énergétique',
-      city: 'Ouagadougou & Périphérie',
-      type: 'Relevé de prix',
-      missionsCount: 60,
-      rewardPerMission: 2500,
-      totalBudget: 180000,
-      createdAt: '26/08/2026 11:30',
-      status: 'pending',
-      criteria: 'Photo totem tarifaire + Saisie prix Super91 et Gasoil'
-    },
-    {
-      id: 'CMP-2026-002',
-      title: 'Contrôle Boutiques Orange Money',
-      company: 'Orange Burkina SA',
-      city: 'Ouaga 2000, Patte d\'Oie',
-      type: 'Vérification point de vente',
-      missionsCount: 200,
-      rewardPerMission: 2500,
-      totalBudget: 600000,
-      createdAt: '25/08/2026 16:40',
-      status: 'approved',
-      criteria: 'Vérification grille tarifaire visible + liquidité disponible'
-    }
-  ];
+  activeTab: 'pending' | 'active' | 'rejected' | 'all' = 'pending';
 
-  setTab(tab: 'pending' | 'approved' | 'rejected' | 'all'): void {
-    this.activeTab = tab;
+  // États des modales
+  readonly isRejectModalOpen = signal<boolean>(false);
+  readonly isDetailsModalOpen = signal<boolean>(false);
+  readonly selectedCampaign = signal<Campaign | null>(null);
+  
+  rejectionReason = '';
+  actionFeedback = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.loadCampaigns();
   }
 
-  get filteredCampaigns() {
-    if (this.activeTab === 'all') return this.campaigns;
-    return this.campaigns.filter(c => c.status === this.activeTab);
+  loadCampaigns(): void {
+    this.campaignService.loadCampaigns(this.activeTab).subscribe();
+  }
+
+  setTab(tab: 'pending' | 'active' | 'rejected' | 'all'): void {
+    this.activeTab = tab;
+    this.loadCampaigns();
+  }
+
+  onApprove(campaign: Campaign): void {
+    this.campaignService.approveCampaign(campaign.id).subscribe({
+      next: () => {
+        this.showFeedback(`La campagne "${campaign.title}" a été approuvée et publiée avec succès.`);
+      }
+    });
+  }
+
+  openRejectModal(campaign: Campaign): void {
+    this.selectedCampaign.set(campaign);
+    this.rejectionReason = '';
+    this.isRejectModalOpen.set(true);
+  }
+
+  closeRejectModal(): void {
+    this.isRejectModalOpen.set(false);
+    this.selectedCampaign.set(null);
+    this.rejectionReason = '';
+  }
+
+  confirmReject(): void {
+    const campaign = this.selectedCampaign();
+    if (!campaign || !this.rejectionReason.trim()) {
+      return;
+    }
+
+    this.campaignService.rejectCampaign(campaign.id, this.rejectionReason.trim()).subscribe({
+      next: () => {
+        this.closeRejectModal();
+        this.showFeedback(`La campagne "${campaign.title}" a été rejetée.`);
+      }
+    });
+  }
+
+  openDetails(campaign: Campaign): void {
+    this.selectedCampaign.set(campaign);
+    this.isDetailsModalOpen.set(true);
+  }
+
+  closeDetails(): void {
+    this.isDetailsModalOpen.set(false);
+    this.selectedCampaign.set(null);
   }
 
   formatPrice(amount: number): string {
-    return amount.toLocaleString('fr-FR');
+    return (amount || 0).toLocaleString('fr-FR');
+  }
+
+  private showFeedback(msg: string): void {
+    this.actionFeedback.set(msg);
+    setTimeout(() => {
+      this.actionFeedback.set(null);
+    }, 4000);
   }
 }

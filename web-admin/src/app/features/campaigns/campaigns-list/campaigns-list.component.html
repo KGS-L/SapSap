@@ -1,4 +1,15 @@
 <div class="campaigns-page">
+  <!-- Feedback Toast Notification -->
+  @if (actionFeedback()) {
+    <div class="feedback-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toast-icon">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>{{ actionFeedback() }}</span>
+    </div>
+  }
+
   <!-- Page Header & Filters -->
   <div class="page-header card">
     <div>
@@ -14,89 +25,222 @@
         (click)="setTab('pending')"
       >
         En attente
-        <span class="tab-count">2</span>
+        @if (campaignService.counts().pending > 0) {
+          <span class="tab-count">{{ campaignService.counts().pending }}</span>
+        }
       </button>
       <button 
         class="tab-btn" 
-        [class.active]="activeTab === 'approved'"
-        (click)="setTab('approved')"
+        [class.active]="activeTab === 'active'"
+        (click)="setTab('active')"
       >
-        Approuvées
+        Approuvées ({{ campaignService.counts().active }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'rejected'"
+        (click)="setTab('rejected')"
+      >
+        Rejetées ({{ campaignService.counts().rejected }})
       </button>
       <button 
         class="tab-btn" 
         [class.active]="activeTab === 'all'"
         (click)="setTab('all')"
       >
-        Toutes ({{ campaigns.length }})
+        Toutes ({{ campaignService.counts().total }})
       </button>
     </div>
   </div>
 
   <!-- Campaigns Table -->
   <div class="table-container card">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Réf & Campagne</th>
-          <th>Entreprise</th>
-          <th>Type & Critères</th>
-          <th>Missions / Prix</th>
-          <th>Budget Total</th>
-          <th>Statut</th>
-          <th style="text-align: right;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (camp of filteredCampaigns; track camp.id) {
+    @if (campaignService.isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Chargement des campagnes...</span>
+      </div>
+    } @else if (campaignService.campaigns().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📁</div>
+        <h3>Aucune campagne dans cet onglet</h3>
+        <p>Toutes les campagnes sont à jour pour ce filtre.</p>
+      </div>
+    } @else {
+      <table class="data-table">
+        <thead>
           <tr>
-            <td>
-              <div class="camp-title-cell">
-                <span class="camp-ref">{{ camp.id }}</span>
-                <span class="camp-title-text">{{ camp.title }}</span>
-                <span class="camp-city">📍 {{ camp.city }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="company-name">{{ camp.company }}</span>
-            </td>
-            <td>
-              <div class="criteria-cell">
-                <span class="camp-type-badge">{{ camp.type }}</span>
-                <span class="criteria-text">{{ camp.criteria }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="price-cell">
-                <span class="mission-count">{{ camp.missionsCount }} missions</span>
-                <span class="mission-reward">{{ formatPrice(camp.rewardPerMission) }} FCFA / mission</span>
-              </div>
-            </td>
-            <td>
-              <span class="budget-total">{{ formatPrice(camp.totalBudget) }} FCFA</span>
-            </td>
-            <td>
-              <span 
-                class="badge"
-                [class.badge-warning]="camp.status === 'pending'"
-                [class.badge-success]="camp.status === 'approved'"
-              >
-                <span class="badge-dot"></span>
-                {{ camp.status === 'pending' ? 'En attente' : 'Approuvée' }}
-              </span>
-            </td>
-            <td style="text-align: right;">
-              <div class="table-actions">
-                <button class="btn btn-sm btn-secondary">Examiner</button>
-                @if (camp.status === 'pending') {
-                  <button class="btn btn-sm btn-primary">Valider</button>
-                  <button class="btn btn-sm btn-danger">Rejeter</button>
-                }
-              </div>
-            </td>
+            <th>Réf & Campagne</th>
+            <th>Entreprise</th>
+            <th>Type & Critères</th>
+            <th>Missions / Prix</th>
+            <th>Budget Total</th>
+            <th>Statut</th>
+            <th style="text-align: right;">Actions</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (camp of campaignService.campaigns(); track camp.id) {
+            <tr>
+              <td>
+                <div class="camp-title-cell">
+                  <span class="camp-ref">CMP-2026-00{{ camp.id }}</span>
+                  <span class="camp-title-text">{{ camp.title }}</span>
+                  <span class="camp-city">📍 {{ camp.city }} ({{ camp.target_neighborhoods || 'Centre-ville' }})</span>
+                </div>
+              </td>
+              <td>
+                <div class="company-cell">
+                  <span class="company-name">{{ camp.company_name || camp.user?.name || 'Entreprise' }}</span>
+                  @if (camp.user?.email) {
+                    <span class="company-email">{{ camp.user?.email }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="criteria-cell">
+                  <span class="camp-type-badge">{{ camp.type }}</span>
+                  <span class="criteria-text">{{ camp.criteria || 'Photos et questionnaire standard' }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="price-cell">
+                  <span class="mission-count">{{ camp.missions_count }} missions</span>
+                  <span class="mission-reward">{{ formatPrice(camp.reward_per_mission) }} FCFA / mission</span>
+                </div>
+              </td>
+              <td>
+                <span class="budget-total">{{ formatPrice(camp.total_budget) }} FCFA</span>
+              </td>
+              <td>
+                <span 
+                  class="badge"
+                  [class.badge-warning]="camp.status === 'pending'"
+                  [class.badge-success]="camp.status === 'active'"
+                  [class.badge-danger]="camp.status === 'rejected'"
+                >
+                  <span class="badge-dot"></span>
+                  @switch (camp.status) {
+                    @case ('pending') { En attente }
+                    @case ('active') { Approuvée }
+                    @case ('rejected') { Rejetée }
+                    @default { {{ camp.status }} }
+                  }
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <div class="table-actions">
+                  <button class="btn btn-sm btn-secondary" (click)="openDetails(camp)">Examiner</button>
+                  @if (camp.status === 'pending') {
+                    <button class="btn btn-sm btn-primary" (click)="onApprove(camp)">Valider</button>
+                    <button class="btn btn-sm btn-danger" (click)="openRejectModal(camp)">Rejeter</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   </div>
+
+  <!-- Rejection Reason Modal -->
+  @if (isRejectModalOpen() && selectedCampaign()) {
+    <div class="modal-backdrop" (click)="closeRejectModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-danger">⚠️</span>
+            <h3>Rejeter la campagne</h3>
+          </div>
+          <button class="close-btn" (click)="closeRejectModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-desc">
+            Veuillez indiquer le motif du refus pour la campagne <strong>"{{ selectedCampaign()?.title }}"</strong>.
+            Ce motif sera transmis à l'entreprise pour lui permettre de corriger sa demande.
+          </p>
+
+          <div class="form-group">
+            <label for="rejectReason" class="form-label">Motif du rejet (obligatoire)</label>
+            <textarea 
+              id="rejectReason" 
+              [(ngModel)]="rejectionReason" 
+              class="form-textarea" 
+              placeholder="ex: Les photos demandées manquent de clarté. Veuillez préciser si la PLV doit être photographiée de face ou de côté."
+              rows="4"
+              required
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler</button>
+          <button 
+            class="btn btn-danger" 
+            [disabled]="!rejectionReason.trim()"
+            (click)="confirmReject()"
+          >
+            Confirmer le Rejet
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Details & Criteria Modal -->
+  @if (isDetailsModalOpen() && selectedCampaign()) {
+    <div class="modal-backdrop" (click)="closeDetails()">
+      <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-info">📋</span>
+            <h3>Détails de la campagne</h3>
+          </div>
+          <button class="close-btn" (click)="closeDetails()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Titre :</span>
+              <span class="detail-value">{{ selectedCampaign()?.title }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Entreprise :</span>
+              <span class="detail-value">{{ selectedCampaign()?.company_name || selectedCampaign()?.user?.name }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Type & Zone :</span>
+              <span class="detail-value">{{ selectedCampaign()?.type }} — {{ selectedCampaign()?.city }} ({{ selectedCampaign()?.target_neighborhoods }})</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Budget Séquestre :</span>
+              <span class="detail-value budget-highlight">{{ formatPrice(selectedCampaign()!.total_budget) }} FCFA ({{ selectedCampaign()?.missions_count }} missions à {{ formatPrice(selectedCampaign()!.reward_per_mission) }} FCFA)</span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="detail-label">Critères & Questionnaire :</span>
+              <div class="criteria-box">{{ selectedCampaign()?.criteria }}</div>
+            </div>
+            @if (selectedCampaign()?.rejection_reason) {
+              <div class="detail-item full-width">
+                <span class="detail-label text-danger">Motif du rejet consigné :</span>
+                <div class="rejection-box">{{ selectedCampaign()?.rejection_reason }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          @if (selectedCampaign()?.status === 'pending') {
+            <button class="btn btn-danger" (click)="closeDetails(); openRejectModal(selectedCampaign()!)">Rejeter</button>
+            <button class="btn btn-primary" (click)="onApprove(selectedCampaign()!); closeDetails()">Valider la campagne</button>
+          } @else {
+            <button class="btn btn-secondary" (click)="closeDetails()">Fermer</button>
+          }
+        </div>
+      </div>
+    </div>
+  }
 </div>

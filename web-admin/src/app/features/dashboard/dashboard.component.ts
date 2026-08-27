@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AdminStatsService } from '../../core/services/admin-stats.service';
+import { CampaignAdminService } from '../../core/services/campaign-admin.service';
+import { Campaign } from '../../core/models/campaign.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,44 +11,25 @@ import { AdminStatsService } from '../../core/services/admin-stats.service';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   readonly statsService = inject(AdminStatsService);
+  readonly campaignService = inject(CampaignAdminService);
 
-  readonly recentCampaigns = [
-    {
-      id: 'CMP-2026-004',
-      title: 'Audit Présence PLV Boissons Sobbra',
-      company: 'Sobbra Distribution BF',
-      city: 'Ouagadougou (Secteurs 1-15)',
-      budget: '450 000 FCFA',
-      missionsCount: 150,
-      rewardPerMission: '3 000 FCFA',
-      submittedAt: 'Il y a 25 min',
-      status: 'pending'
-    },
-    {
-      id: 'CMP-2026-003',
-      title: 'Relevé Prix Carburant Total / Shell',
-      company: 'Observatoire Énergétique',
-      city: 'Ouagadougou & Périphérie',
-      budget: '180 000 FCFA',
-      missionsCount: 60,
-      rewardPerMission: '2 500 FCFA',
-      submittedAt: 'Il y a 2h',
-      status: 'pending'
-    },
-    {
-      id: 'CMP-2026-002',
-      title: 'Contrôle Boutiques Orange Money',
-      company: 'Orange Burkina SA',
-      city: 'Ouaga 2000, Patte d\'Oie',
-      budget: '600 000 FCFA',
-      missionsCount: 200,
-      rewardPerMission: '2 500 FCFA',
-      submittedAt: 'Hier à 16:40',
-      status: 'approved'
-    }
-  ];
+  ngOnInit(): void {
+    this.campaignService.loadCampaigns().subscribe();
+  }
+
+  get pendingCampaigns(): Campaign[] {
+    return this.campaignService.campaigns().filter(c => c.status === 'pending');
+  }
+
+  onApprove(campaign: Campaign): void {
+    this.campaignService.approveCampaign(campaign.id).subscribe();
+  }
+
+  formatPrice(amount: number): string {
+    return (amount || 0).toLocaleString('fr-FR');
+  }
 
   readonly recentSubmissions = [
     {

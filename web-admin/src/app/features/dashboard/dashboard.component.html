@@ -120,36 +120,37 @@
       </div>
 
       <div class="campaigns-mini-list">
-        @for (camp of recentCampaigns; track camp.id) {
-          <div class="campaign-mini-item">
-            <div class="campaign-main-info">
-              <div class="campaign-title-row">
-                <span class="campaign-name">{{ camp.title }}</span>
-                <span 
-                  class="badge" 
-                  [class.badge-warning]="camp.status === 'pending'"
-                  [class.badge-success]="camp.status === 'approved'"
-                >
-                  {{ camp.status === 'pending' ? 'En attente' : 'Approuvée' }}
-                </span>
+        @if (campaignService.isLoading()) {
+          <div class="loading-state-mini">
+            <span class="spinner-sm"></span>
+            <span>Chargement...</span>
+          </div>
+        } @else if (pendingCampaigns.length === 0) {
+          <div class="empty-state-mini">
+            <span>✨ Aucune campagne en attente de modération</span>
+          </div>
+        } @else {
+          @for (camp of pendingCampaigns; track camp.id) {
+            <div class="campaign-mini-item">
+              <div class="campaign-main-info">
+                <div class="campaign-title-row">
+                  <span class="campaign-name">{{ camp.title }}</span>
+                  <span class="badge badge-warning">En attente</span>
+                </div>
+                <div class="campaign-meta">
+                  <span>🏢 {{ camp.company_name || camp.user?.name || 'Entreprise' }}</span>
+                  <span>📍 {{ camp.city }}</span>
+                  <span>💰 {{ formatPrice(camp.total_budget) }} FCFA</span>
+                </div>
               </div>
-              <div class="campaign-meta">
-                <span>🏢 {{ camp.company }}</span>
-                <span>📍 {{ camp.city }}</span>
-                <span>💰 {{ camp.budget }}</span>
-              </div>
-            </div>
-            <div class="campaign-actions">
-              <button class="btn btn-sm btn-secondary" title="Examiner le questionnaire et les critères">
-                Détails
-              </button>
-              @if (camp.status === 'pending') {
-                <button class="btn btn-sm btn-primary" title="Approuver la mise en ligne">
+              <div class="campaign-actions">
+                <a routerLink="/campaigns" class="btn btn-sm btn-secondary">Détails</a>
+                <button class="btn btn-sm btn-primary" (click)="onApprove(camp)" title="Approuver la mise en ligne">
                   Approuver
                 </button>
-              }
+              </div>
             </div>
-          </div>
+          }
         }
       </div>
     </div>
