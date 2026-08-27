@@ -1,0 +1,152 @@
+<div class="campaigns-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Mes Campagnes Terrain</h1>
+      <p class="page-subtitle">Suivez vos études de marché, audits PLV et vérifications de points de vente à Ouagadougou.</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/tracking/1" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+        <span>Vue Carte Live</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Top Stats -->
+  <div class="stats-grid" *ngIf="campaignService.stats() as stats">
+    <div class="card stat-card">
+      <div class="stat-icon icon-emerald">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Campagnes Actives</div>
+        <div class="stat-value">{{ stats.active_campaigns }} <span class="stat-total">/ {{ stats.total_campaigns }}</span></div>
+        <div class="stat-sub text-success">En déploiement à Ouagadougou</div>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon icon-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Missions Validées</div>
+        <div class="stat-value">{{ stats.total_missions_completed }} <span class="stat-total">/ {{ stats.total_missions_target }}</span></div>
+        <div class="stat-sub text-info">{{ ((stats.total_missions_completed / stats.total_missions_target) * 100) | number:'1.0-0' }}% d'avancement global</div>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon icon-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Budget Consommé</div>
+        <div class="stat-value">{{ formatPrice(stats.total_budget_spent) }} <span class="currency">FCFA</span></div>
+        <div class="stat-sub">Sur {{ formatPrice(stats.total_budget_allocated) }} FCFA alloués</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Toolbar -->
+  <div class="filter-toolbar">
+    <div class="filter-tabs">
+      <button 
+        class="filter-tab" 
+        [class.active]="activeFilter === 'all'" 
+        (click)="setFilter('all')">
+        Toutes les campagnes ({{ campaignService.campaigns().length }})
+      </button>
+      <button 
+        class="filter-tab" 
+        [class.active]="activeFilter === 'active'" 
+        (click)="setFilter('active')">
+        Actives en cours
+      </button>
+      <button 
+        class="filter-tab" 
+        [class.active]="activeFilter === 'pending'" 
+        (click)="setFilter('pending')">
+        En modération
+      </button>
+    </div>
+  </div>
+
+  <!-- Campaigns Grid -->
+  <div class="campaigns-grid">
+    <div class="card campaign-card" *ngFor="let camp of filteredCampaigns">
+      <!-- Card Header -->
+      <div class="card-top">
+        <div class="type-and-badge">
+          <span class="campaign-type">{{ camp.type }}</span>
+          <span class="badge" [ngClass]="'badge-' + camp.status">
+            {{ camp.status === 'active' ? 'Active' : (camp.status === 'pending' ? 'En modération' : camp.status) }}
+          </span>
+        </div>
+        <h3 class="campaign-title">{{ camp.title }}</h3>
+        <p class="campaign-desc">{{ camp.description }}</p>
+      </div>
+
+      <!-- Target info -->
+      <div class="campaign-target-row">
+        <div class="target-item">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>{{ camp.city }} ({{ camp.target_neighborhoods }})</span>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="progress-section">
+        <div class="progress-label-row">
+          <span class="progress-label">Progression des audits</span>
+          <span class="progress-count">
+            <strong>{{ camp.completed_missions || 0 }}</strong> / {{ camp.missions_count }} points validés ({{ camp.progress_percent || 0 }}%)
+          </span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" [style.width.%]="camp.progress_percent || 0"></div>
+        </div>
+      </div>
+
+      <!-- Financials and Actions -->
+      <div class="card-bottom">
+        <div class="financial-meta">
+          <div class="meta-item">
+            <span class="meta-label">Rémunération / mission</span>
+            <span class="meta-value">{{ formatPrice(camp.reward_per_mission) }} FCFA</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Budget consommé</span>
+            <span class="meta-value text-emerald">{{ formatPrice(camp.spent_budget) }} / {{ formatPrice(camp.total_budget) }} FCFA</span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a [routerLink]="['/tracking', camp.id]" class="btn btn-primary btn-sm">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+            </svg>
+            <span>Suivi Live & Carte</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

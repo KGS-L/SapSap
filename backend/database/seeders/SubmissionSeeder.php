@@ -17,7 +17,7 @@ class SubmissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Créer les contributeurs de test
+        // 1. Créer les contributeurs de test
         $moussa = User::firstOrCreate(
             ['email' => 'moussa@sapsap.bf'],
             [
@@ -37,7 +37,7 @@ class SubmissionSeeder extends Seeder
                 'password' => Hash::make('Password123!'),
                 'phone' => '+226 76 98 76 54',
                 'city' => 'Ouagadougou',
-                'reputation_score' => 92,
+                'reputation_score' => 94,
                 'is_active' => true,
             ]
         );
@@ -49,159 +49,91 @@ class SubmissionSeeder extends Seeder
                 'password' => Hash::make('Password123!'),
                 'phone' => '+226 65 11 22 33',
                 'city' => 'Ouagadougou',
-                'reputation_score' => 64,
+                'reputation_score' => 88,
                 'is_active' => true,
             ]
         );
 
+        $contributors = [$moussa, $amina, $ibrahim];
+
+        // 2. Parcourir toutes les missions de la campagne Sobbra et créer les soumissions correspondantes
         $missions = Mission::all();
         if ($missions->isEmpty()) {
             return;
         }
 
-        // 1. Soumission Conforme Moussa (Écart 22m, récente)
-        if (isset($missions[0])) {
-            Submission::firstOrCreate(
-                ['mission_id' => $missions[0]->id, 'user_id' => $moussa->id],
-                [
-                    'status' => 'submitted',
-                    'submitted_latitude' => 12.3716,
-                    'submitted_longitude' => -1.5195,
-                    'gps_accuracy' => 8.0,
-                    'gps_distance_meters' => 22.0,
-                    'device_id' => 'DEV-BF-OUAGA-99182',
-                    'answers' => [
-                        'Nombre de frigos Sobbra visibles' => '2 frigos vitrés opérationnels',
-                        'Affiche promotionnelle présente' => 'Oui, affichage bien visible sur la façade',
-                        'Prix Beaufort 50cl' => '800 FCFA',
-                        'Disponibilité stock' => 'Plus de 5 casiers en réserve'
-                    ],
-                    'photos' => [
-                        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600',
-                        'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600'
-                    ],
-                    'created_at' => now()->subMinutes(15),
-                ]
-            );
+        $photoPool = [
+            'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800',
+            'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800',
+            'https://images.unsplash.com/photo-1527018607636-921ec5735f5d?w=800',
+            'https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?w=800',
+            'https://images.unsplash.com/photo-1556742049-0a67e557224f?w=800',
+            'https://images.unsplash.com/photo-1541888946425-d0fbb18f15f6?w=800',
+        ];
+
+        foreach ($missions as $index => $mission) {
+            $contributor = $contributors[$index % count($contributors)];
+
+            if ($mission->status === 'validated') {
+                $mission->update(['assigned_user_id' => $contributor->id]);
+
+                Submission::firstOrCreate(
+                    ['mission_id' => $mission->id],
+                    [
+                        'user_id' => $contributor->id,
+                        'status' => 'validated',
+                        'submitted_latitude' => $mission->latitude + 0.0001,
+                        'submitted_longitude' => $mission->longitude + 0.0001,
+                        'gps_accuracy' => 6.5,
+                        'gps_distance_meters' => 15.0 + ($index * 2),
+                        'device_id' => 'DEV-BF-OUAGA-' . (10000 + $index),
+                        'answers' => [
+                            'Affiches publicitaires visibles' => 'Oui, grande affiche PLV en façade principale',
+                            'Frigo Sobbra opérationnel' => 'Oui, 2 réfrigérateurs fonctionnels et branchés',
+                            'Prix Beaufort Lager 50cl' => '800 FCFA',
+                            'Stock disponible' => 'Plus de 8 casiers en stock',
+                        ],
+                        'photos' => [
+                            $photoPool[$index % count($photoPool)],
+                            $photoPool[($index + 1) % count($photoPool)],
+                        ],
+                        'validated_at' => now()->subHours(rand(2, 48)),
+                        'created_at' => now()->subHours(rand(4, 72)),
+                    ]
+                );
+            } elseif ($mission->status === 'submitted') {
+                $mission->update(['assigned_user_id' => $contributor->id]);
+
+                Submission::firstOrCreate(
+                    ['mission_id' => $mission->id],
+                    [
+                        'user_id' => $contributor->id,
+                        'status' => 'submitted',
+                        'submitted_latitude' => $mission->latitude + 0.0002,
+                        'submitted_longitude' => $mission->longitude - 0.0001,
+                        'gps_accuracy' => 8.0,
+                        'gps_distance_meters' => 24.0,
+                        'device_id' => 'DEV-BF-OUAGA-' . (20000 + $index),
+                        'answers' => [
+                            'Affiches publicitaires visibles' => 'Oui, poster bien exposé sur le comptoir',
+                            'Frigo Sobbra opérationnel' => '1 réfrigérateur Sobbra présent',
+                            'Prix Castel Beer 50cl' => '700 FCFA',
+                            'Stock disponible' => '3 casiers en réserve',
+                        ],
+                        'photos' => [
+                            $photoPool[($index + 2) % count($photoPool)],
+                        ],
+                        'created_at' => now()->subMinutes(rand(10, 180)),
+                    ]
+                );
+            } elseif ($mission->status === 'reserved') {
+                $mission->update([
+                    'assigned_user_id' => $contributor->id,
+                    'reserved_at' => now()->subMinutes(20),
+                    'reservation_expires_at' => now()->addMinutes(25),
+                ]);
+            }
         }
-
-        // 2. Soumission Conforme Amina (Écart 45m, récente)
-        if (isset($missions[1])) {
-            Submission::firstOrCreate(
-                ['mission_id' => $missions[1]->id, 'user_id' => $amina->id],
-                [
-                    'status' => 'submitted',
-                    'submitted_latitude' => 12.3768,
-                    'submitted_longitude' => -1.5142,
-                    'gps_accuracy' => 12.0,
-                    'gps_distance_meters' => 45.0,
-                    'device_id' => 'DEV-BF-OUAGA-77211',
-                    'answers' => [
-                        'Prix Super 91 affiché' => '850 FCFA/L',
-                        'Prix Gasoil affiché' => '775 FCFA/L',
-                        'File d\'attente à la pompe' => 'Fluide (moins de 2 véhicules)',
-                        'Paiement Mobile Money actif' => 'Oui (Orange Money et Moov Money disponibles)'
-                    ],
-                    'photos' => [
-                        'https://images.unsplash.com/photo-1527018607636-921ec5735f5d?w=600'
-                    ],
-                    'created_at' => now()->subMinutes(45),
-                ]
-            );
-        }
-
-        // 3. Soumission Suspecte Ibrahim (Écart 140m > 100m)
-        if (isset($missions[2])) {
-            Submission::firstOrCreate(
-                ['mission_id' => $missions[2]->id, 'user_id' => $ibrahim->id],
-                [
-                    'status' => 'fraud_suspect',
-                    'submitted_latitude' => 12.3880,
-                    'submitted_longitude' => -1.5030,
-                    'gps_accuracy' => 6.0,
-                    'gps_distance_meters' => 140.0,
-                    'device_id' => 'DEV-BF-OUAGA-33044',
-                    'answers' => [
-                        'Point de vente trouvé' => 'Oui mais rideau baissé',
-                        'Photos prises depuis' => 'Véhicule en mouvement'
-                    ],
-                    'photos' => [
-                        'https://images.unsplash.com/photo-1541888946425-d0fbb18f15f6?w=600'
-                    ],
-                    'created_at' => now()->subHours(1),
-                ]
-            );
-        }
-
-        // 4. Story 4.4 : Soumission éligible à l'auto-validation (En attente depuis 52h > 48h)
-        $extraMission1 = Mission::firstOrCreate(
-            ['title' => 'Vérification Totem Shell Dassasgho'],
-            [
-                'campaign_id' => $missions[0]->campaign_id ?? 1,
-                'location_name' => 'Dassasgho, Rue 29.14',
-                'latitude' => 12.3789,
-                'longitude' => -1.4921,
-                'reward' => 2500,
-                'status' => 'submitted',
-            ]
-        );
-
-        Submission::firstOrCreate(
-            ['mission_id' => $extraMission1->id, 'user_id' => $moussa->id],
-            [
-                'status' => 'submitted',
-                'submitted_latitude' => 12.3788,
-                'submitted_longitude' => -1.4920,
-                'gps_accuracy' => 7.0,
-                'gps_distance_meters' => 18.0,
-                'device_id' => 'DEV-BF-OUAGA-99182',
-                'answers' => [
-                    'Prix Totem affiché' => 'Super91 850 FCFA, Gasoil 775 FCFA',
-                    'Boutique ouverte' => 'Oui',
-                ],
-                'photos' => [
-                    'https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?w=600'
-                ],
-                'created_at' => now()->subHours(52), // > 48 heures d'inactivité
-                'updated_at' => now()->subHours(52),
-            ]
-        );
-
-        // 5. Story 4.4 : Soumission déjà auto-validée lors d'un cycle antérieur
-        $extraMission2 = Mission::firstOrCreate(
-            ['title' => 'Audit Kiosque Orange Money Pissy'],
-            [
-                'campaign_id' => $missions[0]->campaign_id ?? 1,
-                'location_name' => 'Pissy Secteur 17',
-                'latitude' => 12.3551,
-                'longitude' => -1.5432,
-                'reward' => 2000,
-                'status' => 'validated',
-            ]
-        );
-
-        Submission::firstOrCreate(
-            ['mission_id' => $extraMission2->id, 'user_id' => $amina->id],
-            [
-                'status' => 'validated',
-                'submitted_latitude' => 12.3550,
-                'submitted_longitude' => -1.5430,
-                'gps_accuracy' => 5.0,
-                'gps_distance_meters' => 25.0,
-                'device_id' => 'DEV-BF-OUAGA-77211',
-                'answers' => [
-                    'Présence Grille tarifaire' => 'Affiche visible sur le comptoir',
-                    'Liquidité disponible' => 'Plus de 200 000 FCFA',
-                ],
-                'photos' => [
-                    'https://images.unsplash.com/photo-1556742049-0a67e557224f?w=600'
-                ],
-                'validated_at' => now()->subHours(24),
-                'auto_validated_at' => now()->subHours(24), // Auto-validé à 48h
-                'created_at' => now()->subHours(72),
-                'updated_at' => now()->subHours(24),
-            ]
-        );
 
         // Initialisation des logs du Scheduler
         SchedulerLog::firstOrCreate(
@@ -215,10 +147,10 @@ class SubmissionSeeder extends Seeder
                     'duration_ms' => 42.5,
                     'processed_items' => [
                         [
-                            'submission_id' => 5,
+                            'submission_id' => 1,
                             'contributor_name' => 'Amina Sawadogo',
-                            'mission_title' => 'Audit Kiosque Orange Money Pissy',
-                            'reward' => 2000,
+                            'mission_title' => 'Maquis Plein Air — Gounghin',
+                            'reward' => 2500,
                             'auto_validated_at' => now()->subHours(24)->toIso8601String(),
                         ]
                     ],

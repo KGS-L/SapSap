@@ -63,7 +63,7 @@ development_status:
 
   epic-5: in-progress
   5-1-portefeuille-contributeur-demande-de-retrait-1-000-fcfa: done
-  5-2-suivi-de-campagne-en-temps-réel-carte-des-résultats: backlog
+  5-2-suivi-de-campagne-en-temps-réel-carte-des-résultats: review
   5-3-exportation-des-données-de-campagne-csv-excel: backlog
   epic-5-retrospective: optional
 

@@ -45,4 +45,14 @@ class Mission extends Model
     {
         return $this->belongsTo(User::class, 'assigned_user_id');
     }
+
+    public function submissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Submission::class);
+    }
+
+    public function latestSubmission(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Submission::class)->latestOfMany();
+    }
 }

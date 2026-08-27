@@ -1,0 +1,165 @@
+<div class="business-shell">
+  <!-- Sidebar -->
+  <aside class="business-sidebar" [class.collapsed]="isSidebarCollapsed">
+    <!-- Brand -->
+    <div class="sidebar-header">
+      <div class="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text" *ngIf="!isSidebarCollapsed">
+          <span class="brand-name">SapSap</span>
+          <span class="brand-badge">BUSINESS</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()" title="Réduire le menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path *ngIf="!isSidebarCollapsed" d="M15 18l-6-6 6-6"/>
+          <path *ngIf="isSidebarCollapsed" d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Active Company Card -->
+    <div class="company-card" *ngIf="!isSidebarCollapsed && authService.currentUser() as user">
+      <div class="company-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+      </div>
+      <div class="company-info">
+        <div class="company-name" [title]="user.company_name">{{ user.company_name }}</div>
+        <div class="company-sub">Portail Entreprise • {{ user.city }}</div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-title" *ngIf="!isSidebarCollapsed">PILOTAGE TERRAIN</div>
+
+      <a routerLink="/campaigns" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
+          </svg>
+        </span>
+        <span class="nav-label" *ngIf="!isSidebarCollapsed">Mes Campagnes</span>
+        <span class="nav-badge" *ngIf="!isSidebarCollapsed && campaignService.campaigns().length > 0">
+          {{ campaignService.campaigns().length }}
+        </span>
+      </a>
+
+      <a routerLink="/tracking/1" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon live-icon-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+          <span class="nav-pulse"></span>
+        </span>
+        <span class="nav-label" *ngIf="!isSidebarCollapsed">Suivi & Carte Temps Réel</span>
+        <span class="badge badge-active" *ngIf="!isSidebarCollapsed">LIVE</span>
+      </a>
+
+      <div class="nav-section-title" *ngIf="!isSidebarCollapsed">EXPLOITATION</div>
+
+      <a routerLink="/exports" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </span>
+        <span class="nav-label" *ngIf="!isSidebarCollapsed">Exportations Données</span>
+      </a>
+
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="nav-label" *ngIf="!isSidebarCollapsed">Paramètres</span>
+      </a>
+    </nav>
+
+    <!-- Company Switcher & Profile Footer -->
+    <div class="sidebar-footer" *ngIf="!isSidebarCollapsed">
+      <div class="demo-switcher">
+        <div class="switcher-label">Compte actif :</div>
+        <div class="switcher-buttons">
+          <button 
+            type="button" 
+            class="switch-btn" 
+            [class.active]="authService.currentUser()?.company_name?.includes('Sobbra')"
+            (click)="switchCompany('sobbra')">
+            Sobbra BF
+          </button>
+          <button 
+            type="button" 
+            class="switch-btn" 
+            [class.active]="authService.currentUser()?.company_name?.includes('Orange')"
+            (click)="switchCompany('orange')">
+            Orange BF
+          </button>
+        </div>
+      </div>
+
+      <div class="user-profile-row" *ngIf="authService.currentUser() as user">
+        <img [src]="user.avatar_url" alt="Avatar" class="user-avatar-img">
+        <div class="user-details">
+          <div class="user-name">{{ user.name }}</div>
+          <div class="user-role">{{ user.email }}</div>
+        </div>
+        <button class="logout-btn" (click)="onLogout()" title="Déconnexion">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Canvas -->
+  <div class="business-main">
+    <!-- Top Header -->
+    <header class="business-header">
+      <div class="header-left">
+        <div class="live-status-pill">
+          <span class="radar-live"></span>
+          <span>Réseau Terrain Connecté • Ouagadougou</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <a routerLink="/tracking/1" class="btn btn-primary btn-sm">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/>
+            <line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+          <span>Ouvrir Carte en Direct</span>
+        </a>
+
+        <div class="header-divider"></div>
+
+        <div class="user-badge-header" *ngIf="authService.currentUser() as user">
+          <img [src]="user.avatar_url" alt="User" class="header-avatar">
+          <span class="header-user-name">{{ user.name }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Routed Outlet -->
+    <main class="business-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

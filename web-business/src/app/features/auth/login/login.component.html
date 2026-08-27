@@ -1,0 +1,79 @@
+<div class="login-wrapper">
+  <div class="login-card card">
+    <!-- Brand Header -->
+    <div class="brand-block">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">SapSap Business</h1>
+      <p class="brand-subtitle">Portail de supervision terrain & études à Ouagadougou</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="error-alert" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Direct Demo Login Presets -->
+    <div class="presets-section">
+      <div class="presets-label">Accès rapide démonstration :</div>
+      <div class="presets-list">
+        <button 
+          type="button" 
+          class="preset-btn" 
+          (click)="loginWithPreset('business@sobbra.bf')">
+          <span class="preset-badge">Sobbra BF</span>
+          <span class="preset-name">Audit PLV Boissons (14/20 réalisés)</span>
+        </button>
+        <button 
+          type="button" 
+          class="preset-btn" 
+          (click)="loginWithPreset('business@orange.bf')">
+          <span class="preset-badge badge-orange">Orange BF</span>
+          <span class="preset-name">Contrôle Kiosques OM (32/50 réalisés)</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="divider">
+      <span>OU IDENTIFIANTS</span>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="form-group">
+        <label for="email" class="form-label">Adresse Email Professionnelle</label>
+        <input 
+          id="email" 
+          type="email" 
+          class="form-input" 
+          [(ngModel)]="email" 
+          name="email" 
+          placeholder="ex: contact@entreprise.bf" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Mot de passe</label>
+        <input 
+          id="password" 
+          type="password" 
+          class="form-input" 
+          [(ngModel)]="password" 
+          name="password" 
+          placeholder="••••••••" 
+          required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-submit">
+        <span>Se connecter au portail Business</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>

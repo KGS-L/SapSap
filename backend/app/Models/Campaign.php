@@ -49,4 +49,9 @@ class Campaign extends Model
     {
         return $this->hasMany(Mission::class);
     }
+
+    public function submissions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Submission::class, Mission::class);
+    }
 }

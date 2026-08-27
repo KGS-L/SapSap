@@ -65,6 +65,14 @@ Route::prefix('v1')->group(function () {
         Route::get('/finances/withdrawals', [FinanceAdminController::class, 'getWithdrawals']);
         Route::get('/finances/ledger', [FinanceAdminController::class, 'getLedger']);
     });
+
+    // Story 5.2 : Portail Entreprise (business.sapsap.bf) - Suivi Temps Réel & Cartographie des Résultats
+    Route::prefix('business')->middleware('auth:sanctum')->group(function () {
+        Route::get('/campaigns', [\App\Http\Controllers\Api\V1\Business\CampaignBusinessController::class, 'index']);
+        Route::get('/campaigns/{id}', [\App\Http\Controllers\Api\V1\Business\CampaignBusinessController::class, 'show']);
+        Route::get('/campaigns/{id}/tracking', [\App\Http\Controllers\Api\V1\Business\CampaignBusinessController::class, 'tracking']);
+        Route::get('/campaigns/{id}/results-map', [\App\Http\Controllers\Api\V1\Business\CampaignBusinessController::class, 'resultsMap']);
+    });
 });
 
 
