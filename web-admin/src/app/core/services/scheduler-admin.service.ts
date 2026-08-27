@@ -8,13 +8,14 @@ import {
   SchedulerStats,
   SchedulerStatusResponse
 } from '../models/scheduler.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SchedulerAdminService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api/v1/admin/scheduler';
+  private readonly baseUrl = `${environment.apiUrl}/admin/scheduler`;
 
   // Signals réactifs pour le monitoring d'état
   readonly stats = signal<SchedulerStats>({

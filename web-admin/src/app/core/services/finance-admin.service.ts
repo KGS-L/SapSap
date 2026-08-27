@@ -9,13 +9,14 @@ import {
   WithdrawalListResponse,
   WithdrawalRequest
 } from '../models/finance.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FinanceAdminService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api/v1/admin/finances';
+  private readonly baseUrl = `${environment.apiUrl}/admin/finances`;
 
   // Signals réactifs pour les métriques financières
   readonly stats = signal<FinanceStats>({

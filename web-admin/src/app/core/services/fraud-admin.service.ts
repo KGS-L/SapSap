@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { FraudAlert, FraudCounts, FraudAlertListResponse, FraudDetailResponse } from '../models/fraud.model';
 import { AdminStatsService } from './admin-stats.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class FraudAdminService {
   private readonly http = inject(HttpClient);
   private readonly adminStatsService = inject(AdminStatsService);
 
-  private readonly API_URL = 'http://localhost:8080/api/v1/admin/fraud/alerts';
+  private readonly API_URL = `${environment.apiUrl}/admin/fraud/alerts`;
 
   readonly alerts = signal<FraudAlert[]>([]);
   readonly counts = signal<FraudCounts>({

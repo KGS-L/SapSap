@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { Campaign, CampaignCounts, CampaignListResponse, CampaignDetailResponse } from '../models/campaign.model';
 import { AdminStatsService } from './admin-stats.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class CampaignAdminService {
   private readonly http = inject(HttpClient);
   private readonly adminStatsService = inject(AdminStatsService);
 
-  private readonly API_URL = 'http://localhost:8080/api/v1/admin/campaigns';
+  private readonly API_URL = `${environment.apiUrl}/admin/campaigns`;
 
   readonly campaigns = signal<Campaign[]>([]);
   readonly counts = signal<CampaignCounts>({ total: 0, pending: 0, active: 0, rejected: 0 });

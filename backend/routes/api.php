@@ -134,6 +134,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/finances/withdrawals', [FinanceAdminController::class, 'getWithdrawals']);
             Route::get('/finances/ledger', [FinanceAdminController::class, 'getLedger']);
 
+            // Gestion des Utilisateurs & Rôles Spatie
+            Route::get('/users', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'index']);
+            Route::get('/users/{id}', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'show']);
+            Route::put('/users/{id}/role', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'updateRole']);
+            Route::put('/users/{id}/toggle-status', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'toggleStatus']);
+
             Route::get('/test-rbac', function () {
                 return response()->json([
                     'success' => true,

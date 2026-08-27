@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { Submission, SubmissionCounts, SubmissionListResponse, SubmissionDetailResponse } from '../models/submission.model';
 import { AdminStatsService } from './admin-stats.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class SubmissionAdminService {
   private readonly http = inject(HttpClient);
   private readonly adminStatsService = inject(AdminStatsService);
 
-  private readonly API_URL = 'http://localhost:8080/api/v1/admin/submissions';
+  private readonly API_URL = `${environment.apiUrl}/admin/submissions`;
 
   // Données de secours réalistes pour Ouagadougou
   private readonly mockSubmissions: Submission[] = [

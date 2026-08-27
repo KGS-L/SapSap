@@ -1,60 +1,185 @@
 <div class="users-page">
+  <!-- En-tête -->
   <div class="page-header card">
     <div>
       <h2 class="section-title">Utilisateurs & Permissions RBAC (Story 1.2)</h2>
-      <p class="section-desc">Gérez les accès Super-Admin, Validateurs de soumissions et Administrateurs d'entreprises.</p>
+      <p class="section-desc">Gestion des accès Super-Admin, Validateurs de soumissions, Entreprises et Contributeurs.</p>
     </div>
-    <button class="btn btn-primary">+ Nouvel Utilisateur</button>
+    <div class="header-badges">
+      <span class="stat-pill"><span class="pill-dot green"></span> {{ userService.counts().active }} Actifs</span>
+      <span class="stat-pill"><span class="pill-dot purple"></span> {{ userService.counts().super_admins }} Super-Admins</span>
+      <span class="stat-pill"><span class="pill-dot blue"></span> {{ userService.counts().validators }} Validateurs</span>
+    </div>
   </div>
 
-  <div class="table-container card">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Utilisateur</th>
-          <th>Contact & Téléphone</th>
-          <th>Rôle Spatie</th>
-          <th>Statut</th>
-          <th>Dernière connexion</th>
-          <th style="text-align: right;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (user of users; track user.id) {
-          <tr>
-            <td>
-              <div class="user-cell">
-                <span class="user-name-text">{{ user.name }}</span>
-                <span class="user-email-text">{{ user.email }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="phone-text">{{ user.phone }}</span>
-            </td>
-            <td>
-              <span 
-                class="badge" 
-                [class.badge-purple]="user.role === 'super-admin'"
-                [class.badge-info]="user.role !== 'super-admin'"
-              >
-                {{ user.roleLabel }}
-              </span>
-            </td>
-            <td>
-              <span class="badge badge-success">
-                <span class="badge-dot"></span>
-                Actif
-              </span>
-            </td>
-            <td>
-              <span class="login-time">{{ user.lastLogin }}</span>
-            </td>
-            <td style="text-align: right;">
-              <button class="btn btn-sm btn-secondary">Modifier</button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <!-- Barre de recherche et filtres de rôles -->
+  <div class="filter-bar card">
+    <div class="search-box">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Rechercher par nom, email ou téléphone (+226...)..." 
+        [(ngModel)]="searchQuery" 
+        (input)="onSearchChange()"
+      />
+    </div>
+
+    <div class="role-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="selectedRole === 'all'" 
+        (click)="onRoleFilterChange('all')"
+      >
+        Tous ({{ userService.counts().total }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="selectedRole === 'super-admin'" 
+        (click)="onRoleFilterChange('super-admin')"
+      >
+        Super-Admins ({{ userService.counts().super_admins }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="selectedRole === 'validator'" 
+        (click)="onRoleFilterChange('validator')"
+      >
+        Validateurs ({{ userService.counts().validators }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="selectedRole === 'company-admin'" 
+        (click)="onRoleFilterChange('company-admin')"
+      >
+        Entreprises ({{ userService.counts().companies }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="selectedRole === 'contributor'" 
+        (click)="onRoleFilterChange('contributor')"
+      >
+        Contributeurs ({{ userService.counts().contributors }})
+      </button>
+    </div>
   </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="table-container card">
+    @if (userService.isLoading()) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>Chargement des utilisateurs...</p>
+      </div>
+    } @else if (userService.users().length === 0) {
+      <div class="empty-state">
+        <p>Aucun utilisateur trouvé pour ces critères de recherche.</p>
+      </div>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Contact & Téléphone</th>
+            <th>Rôle Spatie</th>
+            <th>Réputation</th>
+            <th>Statut</th>
+            <th>Dernière activité</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of userService.users(); track user.id) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <span class="user-name-text">{{ user.name }}</span>
+                  <span class="user-email-text">{{ user.email || 'Sans email (Mobile)' }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="phone-text">{{ user.phone || 'Non renseigné' }}</span>
+                @if (user.city) {
+                  <span class="city-subtext">{{ user.city }} @if (user.district) { - {{ user.district }} }</span>
+                }
+              </td>
+              <td>
+                <span 
+                  class="badge" 
+                  [class.badge-purple]="user.role === 'super-admin'"
+                  [class.badge-primary]="user.role === 'validator'"
+                  [class.badge-info]="user.role === 'company-admin' || user.role === 'company-viewer'"
+                  [class.badge-secondary]="user.role === 'contributor'"
+                >
+                  {{ user.role_label }}
+                </span>
+              </td>
+              <td>
+                <div class="reputation-badge" [class.high]="user.reputation_score >= 80" [class.low]="user.reputation_score < 70">
+                  ⭐ {{ user.reputation_score }}/100
+                </div>
+              </td>
+              <td>
+                <button 
+                  class="status-toggle-btn" 
+                  [class.active]="user.is_active" 
+                  [class.inactive]="!user.is_active"
+                  (click)="onToggleStatus(user)"
+                  title="Cliquer pour activer/suspendre"
+                >
+                  <span class="badge-dot"></span>
+                  {{ user.is_active ? 'Actif' : 'Suspendu' }}
+                </button>
+              </td>
+              <td>
+                <span class="login-time">{{ formatDate(user.last_login) }}</span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn btn-sm btn-secondary" (click)="openRoleModal(user)">
+                  Modifier rôle
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <!-- Modal d'édition de rôle -->
+  @if (selectedUserForEdit(); as targetUser) {
+    <div class="modal-backdrop" (click)="closeRoleModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Modifier le rôle RBAC</h3>
+          <button class="close-btn" (click)="closeRoleModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-target-info">
+            Utilisateur : <strong>{{ targetUser.name }}</strong> ({{ targetUser.email || targetUser.phone }})
+          </p>
+          <div class="form-group">
+            <label>Nouveau rôle Spatie RBAC :</label>
+            <select class="form-select" [ngModel]="newRoleSelection()" (ngModelChange)="newRoleSelection.set($event)">
+              <option value="super-admin">👑 Super Administrateur (Tous privilèges)</option>
+              <option value="validator">🔍 Validateur Terrain (Modération & validation)</option>
+              <option value="company-admin">🏢 Admin Entreprise (Création & suivi campagnes)</option>
+              <option value="company-viewer">👀 Observateur Entreprise (Lecture seule)</option>
+              <option value="contributor">📱 Contributeur Mobile (Exécution missions)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRoleModal()">Annuler</button>
+          <button class="btn btn-primary" (click)="saveRoleChange()">Confirmer la modification</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Notification Toast -->
+  @if (toast(); as t) {
+    <div class="toast-notification" [class]="t.type">
+      <span>{{ t.message }}</span>
+    </div>
+  }
 </div>
