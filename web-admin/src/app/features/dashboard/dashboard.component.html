@@ -169,30 +169,42 @@
       </div>
 
       <div class="submissions-mini-list">
-        @for (sub of recentSubmissions; track sub.id) {
-          <div class="submission-mini-item" [class.suspect]="sub.status === 'fraud_suspect'">
-            <div class="submission-avatar">
-              <span>{{ sub.contributor.substring(0, 2).toUpperCase() }}</span>
-            </div>
-            <div class="submission-info">
-              <div class="sub-header-row">
-                <span class="sub-contributor">{{ sub.contributor }}</span>
-                <span class="sub-score" title="Score de réputation SapSap">⭐ {{ sub.reputation }}/100</span>
-                <span 
-                  class="badge" 
-                  [class.badge-danger]="sub.status === 'fraud_suspect'"
-                  [class.badge-info]="sub.status !== 'fraud_suspect'"
-                >
-                  {{ sub.status === 'fraud_suspect' ? 'Alerte GPS' : 'À valider' }}
-                </span>
-              </div>
-              <p class="sub-mission-name">{{ sub.mission }} ({{ sub.location }})</p>
-              <div class="sub-meta-row">
-                <span class="gps-chip">📡 {{ sub.gpsAccuracy }}</span>
-                <span class="countdown-chip">⏱️ Auto-valide dans {{ sub.hoursLeft }}</span>
-              </div>
-            </div>
+        @if (submissionService.isLoading()) {
+          <div class="loading-state-mini">
+            <span class="spinner-sm"></span>
+            <span>Chargement...</span>
           </div>
+        } @else if (recentSubmissionsList.length === 0) {
+          <div class="empty-state-mini">
+            <span>✨ Aucune soumission en attente</span>
+          </div>
+        } @else {
+          @for (sub of recentSubmissionsList; track sub.id) {
+            <div class="submission-mini-item" [class.suspect]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100">
+              <div class="submission-avatar">
+                <span>{{ (sub.user?.name || 'C').substring(0, 2).toUpperCase() }}</span>
+              </div>
+              <div class="submission-info">
+                <div class="sub-header-row">
+                  <span class="sub-contributor">{{ sub.user?.name }}</span>
+                  <span class="sub-score" title="Score de réputation SapSap">⭐ {{ sub.user?.reputation_score || 0 }}/100</span>
+                  <span 
+                    class="badge" 
+                    [class.badge-danger]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100"
+                    [class.badge-warning]="sub.status === 'submitted'"
+                    [class.badge-success]="sub.status === 'validated'"
+                  >
+                    {{ sub.gps_distance_meters > 100 ? 'Alerte GPS' : (sub.status === 'validated' ? 'Validée' : 'À valider') }}
+                  </span>
+                </div>
+                <p class="sub-mission-name">{{ sub.mission?.title }} ({{ sub.mission?.location_name }})</p>
+                <div class="sub-meta-row">
+                  <span class="gps-chip">📡 Écart: {{ sub.gps_distance_meters }}m (±{{ sub.gps_accuracy }}m)</span>
+                  <span class="countdown-chip">💰 {{ formatPrice(sub.mission?.reward) }} FCFA</span>
+                </div>
+              </div>
+            </div>
+          }
         }
       </div>
     </div>

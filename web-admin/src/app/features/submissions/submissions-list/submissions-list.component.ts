@@ -1,61 +1,108 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { SubmissionAdminService } from '../../../core/services/submission-admin.service';
+import { Submission } from '../../../core/models/submission.model';
 
 @Component({
   selector: 'app-submissions-list',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './submissions-list.component.html',
   styleUrl: './submissions-list.component.css'
 })
-export class SubmissionsListComponent {
-  submissions = [
-    {
-      id: 'SUB-894',
-      contributor: 'Moussa Ouédraogo',
-      phone: '+226 70 12 34 56',
-      reputation: 96,
-      mission: 'Audit Boutique Kiosque #42',
-      campaign: 'Audit Présence PLV Sobbra',
-      location: 'Secteur 15 (Patte d\'Oie), Ouagadougou',
-      gpsDistance: 22, // meters
-      gpsTolerance: 100,
-      photosCount: 2,
-      submittedAt: '26/08/2026 16:38',
-      autoValidationDeadline: '28/08/2026 16:38 (dans 47h)',
-      status: 'submitted',
-      photoUrl: 'assets/sample-photo-1.jpg'
-    },
-    {
-      id: 'SUB-893',
-      contributor: 'Amina Sawadogo',
-      phone: '+226 76 98 76 54',
-      reputation: 92,
-      mission: 'Relevé Prix Sobbra - Maquis Le Régal',
-      campaign: 'Audit Présence PLV Sobbra',
-      location: 'Secteur 28 (Dassasgho), Ouagadougou',
-      gpsDistance: 45,
-      gpsTolerance: 100,
-      photosCount: 3,
-      submittedAt: '26/08/2026 16:05',
-      autoValidationDeadline: '28/08/2026 16:05 (dans 47h)',
-      status: 'submitted',
-      photoUrl: 'assets/sample-photo-2.jpg'
-    },
-    {
-      id: 'SUB-892',
-      contributor: 'Ibrahim Kaboré',
-      phone: '+226 65 11 22 33',
-      reputation: 64,
-      mission: 'Contrôle Affiche Publicitaire',
-      campaign: 'Relevé Prix Carburant Total / Shell',
-      location: 'Secteur 12 (Gounghin), Ouagadougou',
-      gpsDistance: 140, // > 100m => GPS anomaly alert!
-      gpsTolerance: 100,
-      photosCount: 1,
-      submittedAt: '26/08/2026 15:40',
-      autoValidationDeadline: '28/08/2026 15:40 (dans 46h)',
-      status: 'fraud_suspect',
-      photoUrl: 'assets/sample-photo-3.jpg'
+export class SubmissionsListComponent implements OnInit {
+  readonly submissionService = inject(SubmissionAdminService);
+
+  activeTab: 'submitted' | 'validated' | 'rejected' | 'fraud_suspect' | 'all' = 'submitted';
+
+  // Modales
+  readonly isInspectModalOpen = signal<boolean>(false);
+  readonly isRejectModalOpen = signal<boolean>(false);
+  readonly selectedSubmission = signal<Submission | null>(null);
+  readonly zoomedPhoto = signal<string | null>(null);
+
+  rejectionReason = '';
+  actionFeedback = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.loadSubmissions();
+  }
+
+  loadSubmissions(): void {
+    this.submissionService.loadSubmissions(this.activeTab).subscribe();
+  }
+
+  setTab(tab: 'submitted' | 'validated' | 'rejected' | 'fraud_suspect' | 'all'): void {
+    this.activeTab = tab;
+    this.loadSubmissions();
+  }
+
+  openInspectModal(sub: Submission): void {
+    this.selectedSubmission.set(sub);
+    this.zoomedPhoto.set(sub.photos && sub.photos.length > 0 ? sub.photos[0] : null);
+    this.isInspectModalOpen.set(true);
+  }
+
+  closeInspectModal(): void {
+    this.isInspectModalOpen.set(false);
+    this.selectedSubmission.set(null);
+    this.zoomedPhoto.set(null);
+  }
+
+  onValidate(sub: Submission): void {
+    this.submissionService.validateSubmission(sub.id).subscribe({
+      next: () => {
+        this.closeInspectModal();
+        this.showFeedback(`La soumission de ${sub.user?.name || 'Contributeur'} a été validée avec succès. Score crédité.`);
+      }
+    });
+  }
+
+  openRejectModal(sub: Submission): void {
+    this.selectedSubmission.set(sub);
+    this.rejectionReason = '';
+    this.isRejectModalOpen.set(true);
+  }
+
+  closeRejectModal(): void {
+    this.isRejectModalOpen.set(false);
+    this.rejectionReason = '';
+  }
+
+  confirmReject(): void {
+    const sub = this.selectedSubmission();
+    if (!sub || !this.rejectionReason.trim()) {
+      return;
     }
-  ];
+
+    this.submissionService.rejectSubmission(sub.id, this.rejectionReason.trim()).subscribe({
+      next: () => {
+        this.closeRejectModal();
+        this.closeInspectModal();
+        this.showFeedback(`La soumission a été rejetée. Le motif a été consigné.`);
+      }
+    });
+  }
+
+  getAnswerEntries(answers?: Record<string, string>): { key: string; value: string }[] {
+    if (!answers) {
+      return [];
+    }
+    return Object.entries(answers).map(([key, value]) => ({ key, value }));
+  }
+
+  setZoomedPhoto(url: string): void {
+    this.zoomedPhoto.set(url);
+  }
+
+  formatPrice(amount?: number): string {
+    return (amount || 0).toLocaleString('fr-FR');
+  }
+
+  private showFeedback(msg: string): void {
+    this.actionFeedback.set(msg);
+    setTimeout(() => {
+      this.actionFeedback.set(null);
+    }, 4000);
+  }
 }

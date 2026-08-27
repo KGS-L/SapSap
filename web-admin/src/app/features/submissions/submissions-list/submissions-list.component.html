@@ -1,88 +1,333 @@
 <div class="submissions-page">
-  <!-- Page Header -->
+  <!-- Toast Notification -->
+  @if (actionFeedback()) {
+    <div class="feedback-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toast-icon">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>{{ actionFeedback() }}</span>
+    </div>
+  }
+
+  <!-- Header & Filter Tabs -->
   <div class="page-header card">
     <div>
-      <h2 class="section-title">Revue des Soumissions Terrain (Story 4.2 & 4.4)</h2>
-      <p class="section-desc">
-        Vérifiez les preuves photographiques, les réponses et le contrôle d'écart GPS (&lt;100m). Les soumissions sans décision sous 48h sont validées automatiquement par le scheduler.
-      </p>
+      <h2 class="section-title">Revue des Soumissions Terrain (Story 4.2)</h2>
+      <p class="section-desc">Inspectez les preuves capturées (photos natives in-app, questionnaire, contrôle de tolérance GPS < 100m).</p>
     </div>
-    <div class="header-badge-wrap">
-      <span class="badge badge-info">
-        <span class="pulse-live"></span>
-        18 en attente
-      </span>
+
+    <!-- Filter Tabs -->
+    <div class="tabs-group">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'submitted'"
+        (click)="setTab('submitted')"
+      >
+        À valider
+        @if (submissionService.counts().submitted > 0) {
+          <span class="tab-count">{{ submissionService.counts().submitted }}</span>
+        }
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'fraud_suspect'"
+        (click)="setTab('fraud_suspect')"
+      >
+        Alertes GPS
+        @if (submissionService.counts().fraud_suspect > 0) {
+          <span class="tab-count badge-danger-count">{{ submissionService.counts().fraud_suspect }}</span>
+        }
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'validated'"
+        (click)="setTab('validated')"
+      >
+        Validées ({{ submissionService.counts().validated }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'rejected'"
+        (click)="setTab('rejected')"
+      >
+        Rejetées ({{ submissionService.counts().rejected }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'all'"
+        (click)="setTab('all')"
+      >
+        Toutes ({{ submissionService.counts().total }})
+      </button>
     </div>
   </div>
 
-  <!-- Submissions Cards Grid -->
-  <div class="submissions-grid">
-    @for (sub of submissions; track sub.id) {
-      <div class="submission-card card" [class.suspect-card]="sub.status === 'fraud_suspect'">
-        <!-- Card Top Bar -->
-        <div class="sub-card-top">
-          <div class="sub-author-block">
-            <div class="contributor-avatar">
-              <span>{{ sub.contributor.substring(0, 2).toUpperCase() }}</span>
-            </div>
-            <div>
-              <div class="contributor-name-row">
-                <span class="contributor-name">{{ sub.contributor }}</span>
-                <span class="reputation-badge">Score : {{ sub.reputation }}/100</span>
-              </div>
-              <span class="contributor-phone">{{ sub.phone }}</span>
-            </div>
-          </div>
-          <span 
-            class="badge" 
-            [class.badge-danger]="sub.status === 'fraud_suspect'"
-            [class.badge-info]="sub.status !== 'fraud_suspect'"
-          >
-            {{ sub.status === 'fraud_suspect' ? '⚠️ Écart GPS critique' : 'En attente revue' }}
-          </span>
-        </div>
-
-        <!-- Mission Details -->
-        <div class="sub-mission-body">
-          <span class="sub-campaign-tag">{{ sub.campaign }}</span>
-          <h4 class="sub-mission-title">{{ sub.mission }}</h4>
-          <p class="sub-location">📍 {{ sub.location }}</p>
-        </div>
-
-        <!-- Verification Indicators -->
-        <div class="verification-indicators">
-          <!-- GPS Accuracy Chip -->
-          <div 
-            class="indicator-item"
-            [class.indicator-danger]="sub.gpsDistance > sub.gpsTolerance"
-            [class.indicator-success]="sub.gpsDistance <= sub.gpsTolerance"
-          >
-            <span class="indicator-label">Écart GPS :</span>
-            <span class="indicator-val">{{ sub.gpsDistance }}m (max {{ sub.gpsTolerance }}m)</span>
-          </div>
-
-          <!-- Photos Count -->
-          <div class="indicator-item">
-            <span class="indicator-label">Photos capturées :</span>
-            <span class="indicator-val">📷 {{ sub.photosCount }} (Caméra native)</span>
-          </div>
-
-          <!-- Auto-validation Countdown -->
-          <div class="indicator-item">
-            <span class="indicator-label">Auto-validation :</span>
-            <span class="indicator-val">⏱️ {{ sub.autoValidationDeadline }}</span>
-          </div>
-        </div>
-
-        <!-- Actions Footer -->
-        <div class="sub-card-actions">
-          <button class="btn btn-secondary btn-sm">Voir questionnaire & photos</button>
-          <div class="action-buttons-right">
-            <button class="btn btn-danger btn-sm">Rejeter (avec motif)</button>
-            <button class="btn btn-primary btn-sm">Valider & Payer</button>
-          </div>
-        </div>
+  <!-- Submissions Table -->
+  <div class="table-container card">
+    @if (submissionService.isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Chargement des soumissions...</span>
       </div>
+    } @else if (submissionService.submissions().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📷</div>
+        <h3>Aucune soumission dans cet onglet</h3>
+        <p>Toutes les preuves terrain ont été traitées.</p>
+      </div>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Réf & Contributeur</th>
+            <th>Mission & Campagne</th>
+            <th>Lieu Cible</th>
+            <th>Contrôle GPS</th>
+            <th>Preuves</th>
+            <th>Statut</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (sub of submissionService.submissions(); track sub.id) {
+            <tr [class.row-alert]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100">
+              <td>
+                <div class="contributor-cell">
+                  <span class="sub-ref">SUB-2026-00{{ sub.id }}</span>
+                  <span class="contributor-name">{{ sub.user?.name || 'Contributeur' }}</span>
+                  <span class="score-badge" title="Score de réputation">⭐ {{ sub.user?.reputation_score || 0 }}/100</span>
+                </div>
+              </td>
+              <td>
+                <div class="mission-cell">
+                  <span class="mission-title">{{ sub.mission?.title }}</span>
+                  <span class="campaign-tag">{{ sub.mission?.campaign?.title }} ({{ sub.mission?.campaign?.company_name }})</span>
+                </div>
+              </td>
+              <td>
+                <div class="location-cell">
+                  <span>📍 {{ sub.mission?.location_name }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="gps-cell">
+                  <span 
+                    class="badge"
+                    [class.badge-success]="sub.gps_distance_meters <= 100"
+                    [class.badge-danger]="sub.gps_distance_meters > 100"
+                  >
+                    {{ sub.gps_distance_meters <= 100 ? '✓ Écart: ' + sub.gps_distance_meters + 'm' : '⚠️ Alerte GPS: ' + sub.gps_distance_meters + 'm' }}
+                  </span>
+                  <span class="gps-subtext">Précision ±{{ sub.gps_accuracy }}m</span>
+                </div>
+              </td>
+              <td>
+                <div class="evidence-cell">
+                  <span class="photos-count">📸 {{ sub.photos?.length || 0 }} photo(s)</span>
+                  <span class="reward-tag">{{ formatPrice(sub.mission?.reward) }} FCFA</span>
+                </div>
+              </td>
+              <td>
+                <span 
+                  class="badge"
+                  [class.badge-warning]="sub.status === 'submitted'"
+                  [class.badge-success]="sub.status === 'validated'"
+                  [class.badge-danger]="sub.status === 'rejected' || sub.status === 'fraud_suspect'"
+                >
+                  <span class="badge-dot"></span>
+                  @switch (sub.status) {
+                    @case ('submitted') { À valider }
+                    @case ('validated') { Validée }
+                    @case ('rejected') { Rejetée }
+                    @case ('fraud_suspect') { Alerte Fraude }
+                    @default { {{ sub.status }} }
+                  }
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <div class="table-actions">
+                  <button class="btn btn-sm btn-secondary" (click)="openInspectModal(sub)">Inspecter</button>
+                  @if (sub.status === 'submitted' || sub.status === 'fraud_suspect') {
+                    <button class="btn btn-sm btn-primary" (click)="onValidate(sub)">Valider</button>
+                    <button class="btn btn-sm btn-danger" (click)="openRejectModal(sub)">Rejeter</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     }
   </div>
+
+  <!-- Detailed Inspector Modal (Photos, GPS & Answers) -->
+  @if (isInspectModalOpen() && selectedSubmission()) {
+    <div class="modal-backdrop" (click)="closeInspectModal()">
+      <div class="modal-card modal-xl" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-info">🔍</span>
+            <div>
+              <h3>Inspection de la soumission SUB-2026-00{{ selectedSubmission()?.id }}</h3>
+              <p class="modal-subtitle">{{ selectedSubmission()?.mission?.title }} — {{ selectedSubmission()?.mission?.campaign?.company_name }}</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeInspectModal()">✕</button>
+        </div>
+
+        <div class="modal-body inspector-grid">
+          <!-- Left Column: Photos Gallery & Zoom -->
+          <div class="photos-panel">
+            <h4 class="panel-heading">Photos Natives Capturées</h4>
+            
+            <div class="main-photo-view">
+              @if (zoomedPhoto()) {
+                <img [src]="zoomedPhoto()" alt="Preuve terrain" class="zoomed-image" />
+              } @else {
+                <div class="no-photo">Aucune photo</div>
+              }
+            </div>
+
+            @if (selectedSubmission()?.photos && selectedSubmission()!.photos!.length > 1) {
+              <div class="thumbnails-row">
+                @for (photo of selectedSubmission()!.photos!; track $index) {
+                  <img 
+                    [src]="photo" 
+                    alt="Vignette" 
+                    class="thumb-img"
+                    [class.active]="zoomedPhoto() === photo"
+                    (click)="setZoomedPhoto(photo)"
+                  />
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Right Column: GPS Verification & Form Answers -->
+          <div class="data-panel">
+            <!-- GPS Audit Card -->
+            <div class="audit-card" [class.audit-alert]="selectedSubmission()!.gps_distance_meters > 100">
+              <div class="audit-header">
+                <span class="audit-title">Contrôle de Proximité Géographique (GPS)</span>
+                <span 
+                  class="badge"
+                  [class.badge-success]="selectedSubmission()!.gps_distance_meters <= 100"
+                  [class.badge-danger]="selectedSubmission()!.gps_distance_meters > 100"
+                >
+                  {{ selectedSubmission()!.gps_distance_meters <= 100 ? '✓ Conforme (<100m)' : '⚠️ Écart non conforme' }}
+                </span>
+              </div>
+              <div class="audit-metrics">
+                <div class="metric">
+                  <span class="metric-label">Écart au point cible :</span>
+                  <span class="metric-value font-bold" [class.text-danger]="selectedSubmission()!.gps_distance_meters > 100">
+                    {{ selectedSubmission()?.gps_distance_meters }} mètres
+                  </span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Précision du capteur :</span>
+                  <span class="metric-value">±{{ selectedSubmission()?.gps_accuracy }} mètres</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Device ID :</span>
+                  <span class="metric-value font-mono">{{ selectedSubmission()?.device_id || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contributor Profile Snippet -->
+            <div class="contributor-card">
+              <div class="contributor-avatar">
+                <span>{{ (selectedSubmission()?.user?.name || 'C').substring(0, 2).toUpperCase() }}</span>
+              </div>
+              <div class="contributor-details">
+                <span class="c-name">{{ selectedSubmission()?.user?.name }}</span>
+                <span class="c-phone">📞 {{ selectedSubmission()?.user?.phone }}</span>
+                <span class="c-score">⭐ Score de réputation : {{ selectedSubmission()?.user?.reputation_score }}/100</span>
+              </div>
+              <div class="reward-box">
+                <span class="reward-label">Gain à verser :</span>
+                <span class="reward-amount">{{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA</span>
+              </div>
+            </div>
+
+            <!-- Answers List -->
+            <div class="answers-panel">
+              <h4 class="panel-heading">Réponses au Questionnaire Terrain</h4>
+              <div class="answers-list">
+                @for (item of getAnswerEntries(selectedSubmission()?.answers); track item.key) {
+                  <div class="answer-item">
+                    <span class="question-text">{{ item.key }}</span>
+                    <span class="answer-text">{{ item.value }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Rejection Reason if any -->
+            @if (selectedSubmission()?.rejection_reason) {
+              <div class="rejection-box">
+                <strong>Motif de refus :</strong> {{ selectedSubmission()?.rejection_reason }}
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          @if (selectedSubmission()?.status === 'submitted' || selectedSubmission()?.status === 'fraud_suspect') {
+            <button class="btn btn-danger" (click)="openRejectModal(selectedSubmission()!)">Rejeter avec motif</button>
+            <button class="btn btn-primary" (click)="onValidate(selectedSubmission()!)">Valider la prestation</button>
+          } @else {
+            <button class="btn btn-secondary" (click)="closeInspectModal()">Fermer</button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Rejection Modal -->
+  @if (isRejectModalOpen() && selectedSubmission()) {
+    <div class="modal-backdrop" (click)="closeRejectModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-danger">⚠️</span>
+            <h3>Rejeter la soumission</h3>
+          </div>
+          <button class="close-btn" (click)="closeRejectModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-desc">
+            Veuillez indiquer le motif du rejet de la soumission de <strong>{{ selectedSubmission()?.user?.name }}</strong>.
+            Le contributeur recevra cette explication.
+          </p>
+
+          <div class="form-group">
+            <label for="subRejectReason" class="form-label">Motif du rejet (obligatoire)</label>
+            <textarea 
+              id="subRejectReason" 
+              [(ngModel)]="rejectionReason" 
+              class="form-textarea" 
+              placeholder="ex: La photo de l'enseigne est floue et l'écart GPS dépasse la tolérance de 100m."
+              rows="4"
+              required
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler</button>
+          <button 
+            class="btn btn-danger" 
+            [disabled]="!rejectionReason.trim()"
+            (click)="confirmReject()"
+          >
+            Confirmer le Rejet
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

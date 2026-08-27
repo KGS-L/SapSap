@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Admin\CampaignAdminController;
+use App\Http\Controllers\Api\V1\Admin\SubmissionAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,9 +25,16 @@ Route::prefix('v1')->group(function () {
 
     // Administration & Modération
     Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+        // Campagnes
         Route::get('/campaigns', [CampaignAdminController::class, 'index']);
         Route::get('/campaigns/{id}', [CampaignAdminController::class, 'show']);
         Route::post('/campaigns/{id}/approve', [CampaignAdminController::class, 'approve']);
         Route::post('/campaigns/{id}/reject', [CampaignAdminController::class, 'reject']);
+
+        // Soumissions terrain
+        Route::get('/submissions', [SubmissionAdminController::class, 'index']);
+        Route::get('/submissions/{id}', [SubmissionAdminController::class, 'show']);
+        Route::post('/submissions/{id}/validate', [SubmissionAdminController::class, 'validateSubmission']);
+        Route::post('/submissions/{id}/reject', [SubmissionAdminController::class, 'rejectSubmission']);
     });
 });
