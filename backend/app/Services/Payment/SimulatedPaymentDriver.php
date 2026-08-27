@@ -5,7 +5,7 @@ namespace App\Services\Payment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class SimulatedPaymentDriver implements PaymentGatewayInterface, PaymentDriverInterface
+class SimulatedPaymentDriver implements PaymentGatewayInterface
 {
     /**
      * Effectuer un paiement simulé pour le lancement d'une campagne
@@ -60,7 +60,7 @@ class SimulatedPaymentDriver implements PaymentGatewayInterface, PaymentDriverIn
     }
 
     /**
-     * Traiter un virement sortant simulé (PaymentDriverInterface)
+     * Traiter un virement sortant simulé (PaymentGatewayInterface)
      */
     public function processPayout(int $amount, string $provider, string $phoneNumber, array $metadata = []): array
     {
@@ -92,7 +92,7 @@ class SimulatedPaymentDriver implements PaymentGatewayInterface, PaymentDriverIn
     }
 
     /**
-     * Traiter un dépôt / séquestre simulé (PaymentDriverInterface)
+     * Traiter un dépôt / séquestre simulé (PaymentGatewayInterface)
      */
     public function processDeposit(int $amount, string $provider, string $phoneNumber, array $metadata = []): array
     {

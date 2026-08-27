@@ -79,7 +79,7 @@ action_items:
     action: "Fusionner PaymentGatewayInterface et PaymentDriverInterface en une interface
       de paiement unique"
     owner: "backend-lead"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md"
   - id: "epic-5-retro-item-3-extraire-les-flux-d-exportation-csv-et-e"
     epic: 5

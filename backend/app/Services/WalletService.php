@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Models\WithdrawalRequest;
-use App\Services\Payment\PaymentDriverInterface;
+use App\Services\Payment\PaymentGatewayInterface;
 use App\Services\Payment\SimulatedPaymentDriver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,11 +16,11 @@ use InvalidArgumentException;
 
 class WalletService
 {
-    protected PaymentDriverInterface $paymentDriver;
+    protected PaymentGatewayInterface $paymentGateway;
 
-    public function __construct(?PaymentDriverInterface $paymentDriver = null)
+    public function __construct(?PaymentGatewayInterface $paymentGateway = null)
     {
-        $this->paymentDriver = $paymentDriver ?? new SimulatedPaymentDriver();
+        $this->paymentGateway = $paymentGateway ?? app()->make(PaymentGatewayInterface::class);
     }
 
     /**
@@ -127,8 +127,8 @@ class WalletService
             $withdrawalRef = 'WTH-' . date('Ymd') . '-' . strtoupper(Str::random(6));
             $txnRef = 'TXN-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
-            // Appel du driver de paiement simulé Mobile Money
-            $payoutResult = $this->paymentDriver->processPayout(
+            // Appel de la passerelle de paiement Mobile Money
+            $payoutResult = $this->paymentGateway->processPayout(
                 $amount,
                 $provider,
                 $phoneNumber,
