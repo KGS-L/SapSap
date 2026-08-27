@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 08-26-2026 16:27
-last_updated: 08-27-2026 15:45
+last_updated: 08-27-2026 16:27
 project: SapSap
 project_key: NOKEY
 tracking_system: file-system
@@ -65,4 +65,32 @@ development_status:
   5-1-portefeuille-contributeur-demande-de-retrait-1-000-fcfa: done
   5-2-suivi-de-campagne-en-temps-réel-carte-des-résultats: done
   5-3-exportation-des-données-de-campagne-csv-excel: done
-  epic-5-retrospective: optional
+  epic-5-retrospective: done
+action_items:
+  - id: "epic-5-retro-item-1-consolider-les-controleurs-et-routes-de"
+    epic: 5
+    action: "Consolider les controleurs et routes de l API sous le namespace unique
+      App/Http/Controllers/Api/V1"
+    owner: "dev-team"
+    status: done
+    ref: "_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md"
+  - id: "epic-5-retro-item-2-fusionner-paymentgatewayinterface-et-pay"
+    epic: 5
+    action: "Fusionner PaymentGatewayInterface et PaymentDriverInterface en une interface
+      de paiement unique"
+    owner: "backend-lead"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md"
+  - id: "epic-5-retro-item-3-extraire-les-flux-d-exportation-csv-et-e"
+    epic: 5
+    action: "Extraire les flux d exportation CSV et Excel de CampaignBusinessController
+      vers des services d export dedies"
+    owner: "backend-dev"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md"
+  - id: "epic-5-retro-item-4-ajuster-les-seuils-de-budget-de-bundle-d"
+    epic: 5
+    action: "Ajuster les seuils de budget de bundle dans web-admin/angular.json"
+    owner: "frontend-dev"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md"

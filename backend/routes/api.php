@@ -1,30 +1,33 @@
 <?php
 
-use App\Http\Controllers\Api\Admin\AdminCampaignController;
-use App\Http\Controllers\Api\Admin\AdminSubmissionController;
-use App\Http\Controllers\Api\Auth\MobileAuthController;
-use App\Http\Controllers\Api\Auth\WebAuthController;
-use App\Http\Controllers\Api\Business\CampaignController;
-use App\Http\Controllers\Api\Business\CampaignPaymentController;
-use App\Http\Controllers\Api\Business\CampaignReportController;
-use App\Http\Controllers\Api\MobileMissionController;
-use App\Http\Controllers\Api\ProfileController;
-use App\Http\Controllers\Api\WalletController;
-
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\WalletController;
+use App\Http\Controllers\Api\V1\MobileMissionController;
+
+use App\Http\Controllers\Api\V1\Auth\MobileAuthController;
+use App\Http\Controllers\Api\V1\Auth\WebAuthController;
+
+use App\Http\Controllers\Api\V1\Business\CampaignController;
+use App\Http\Controllers\Api\V1\Business\CampaignPaymentController;
+use App\Http\Controllers\Api\V1\Business\CampaignReportController;
+use App\Http\Controllers\Api\V1\Business\CampaignBusinessController;
+
+use App\Http\Controllers\Api\V1\Admin\AdminCampaignController;
+use App\Http\Controllers\Api\V1\Admin\AdminSubmissionController;
 use App\Http\Controllers\Api\V1\Admin\CampaignAdminController;
 use App\Http\Controllers\Api\V1\Admin\SubmissionAdminController;
 use App\Http\Controllers\Api\V1\Admin\FraudAdminController;
 use App\Http\Controllers\Api\V1\Admin\SchedulerAdminController;
 use App\Http\Controllers\Api\V1\Admin\FinanceAdminController;
-use App\Http\Controllers\Api\V1\Business\CampaignBusinessController;
+use App\Http\Controllers\Api\V1\Admin\UserAdminController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes - SapSap Marketplace API v1
+| API Routes - SapSap Marketplace API v1 (Unified Namespace)
 |--------------------------------------------------------------------------
 */
 
@@ -72,10 +75,10 @@ Route::prefix('v1')->group(function () {
 
         // Portefeuille & Retraits Mobile Money
         Route::prefix('wallet')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Api\V1\WalletController::class, 'show']);
+            Route::get('/', [WalletController::class, 'show']);
             Route::get('/balance', [WalletController::class, 'getBalance']);
             Route::post('/withdraw', [WalletController::class, 'withdraw']);
-            Route::get('/transactions', [\App\Http\Controllers\Api\V1\WalletController::class, 'transactions']);
+            Route::get('/transactions', [WalletController::class, 'transactions']);
         });
 
         // Découverte, Réservation et Soumission de Missions Mobile (Contributeur)
@@ -135,10 +138,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/finances/ledger', [FinanceAdminController::class, 'getLedger']);
 
             // Gestion des Utilisateurs & Rôles Spatie
-            Route::get('/users', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'index']);
-            Route::get('/users/{id}', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'show']);
-            Route::put('/users/{id}/role', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'updateRole']);
-            Route::put('/users/{id}/toggle-status', [\App\Http\Controllers\Api\V1\Admin\UserAdminController::class, 'toggleStatus']);
+            Route::get('/users', [UserAdminController::class, 'index']);
+            Route::get('/users/{id}', [UserAdminController::class, 'show']);
+            Route::put('/users/{id}/role', [UserAdminController::class, 'updateRole']);
+            Route::put('/users/{id}/toggle-status', [UserAdminController::class, 'toggleStatus']);
 
             Route::get('/test-rbac', function () {
                 return response()->json([
