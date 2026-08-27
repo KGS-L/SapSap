@@ -1,49 +1,154 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FraudAdminService } from '../../../core/services/fraud-admin.service';
+import { FraudAlert, FraudAlertType, FraudSeverity } from '../../../core/models/fraud.model';
 
 @Component({
   selector: 'app-fraud-alerts',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './fraud-alerts.component.html',
   styleUrl: './fraud-alerts.component.css'
 })
-export class FraudAlertsComponent {
-  fraudAlerts = [
-    {
-      id: 'FRD-102',
-      type: 'sha256_duplicate',
-      title: 'Empreinte SHA-256 identique détectée',
-      severity: 'high',
-      contributor: 'Salif Sanogo (+226 70 88 99 00)',
-      targetMission: 'Audit Maquis Secteur 14',
-      originalMission: 'Audit Maquis Secteur 9 (il y a 3 jours)',
-      sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-      detectedAt: '26/08/2026 15:10',
-      actionTaken: 'Soumission bloquée automatiquement'
-    },
-    {
-      id: 'FRD-101',
-      type: 'multi_account_device',
-      title: 'Multi-comptes sur un même Device ID',
-      severity: 'medium',
-      contributor: '3 comptes associés à l\'appareil #AND-99482-BF',
-      targetMission: 'Multiples réservations de missions',
-      originalMission: 'Comptes : +226 71 00 11 22, +226 72 00 11 22, +226 73 00 11 22',
-      sha256: 'N/A (Device Fingerprint ID)',
-      detectedAt: '26/08/2026 12:45',
-      actionTaken: 'Alerte administrateur levée'
-    },
-    {
-      id: 'FRD-100',
-      type: 'gps_spoofing',
-      title: 'Vitesse de déplacement anormale (Téléportation GPS)',
-      severity: 'high',
-      contributor: 'Kader Traoré (+226 60 44 55 66)',
-      targetMission: 'Relevé Panneau Billboard Somgandé',
-      originalMission: 'Mission précédente à Tampouy (18km en 3 minutes)',
-      sha256: 'N/A (Analyse télémétrie GPS)',
-      detectedAt: '25/08/2026 18:20',
-      actionTaken: 'Compte suspendu temporairement pour vérification'
+export class FraudAlertsComponent implements OnInit {
+  readonly fraudService = inject(FraudAdminService);
+
+  activeTab = signal<'all' | 'pending' | 'duplicate_image' | 'device_sharing' | 'resolved'>('all');
+
+  // Modales d'investigation et d'action
+  readonly isInvestigateModalOpen = signal<boolean>(false);
+  readonly isSanctionModalOpen = signal<boolean>(false);
+  readonly isDismissModalOpen = signal<boolean>(false);
+  readonly selectedAlert = signal<FraudAlert | null>(null);
+
+  // Formulaires d'action
+  sanctionAction: 'account_suspended' | 'score_penalized' | 'warning_issued' = 'account_suspended';
+  actionNote = '';
+  actionFeedback = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.loadAlerts();
+  }
+
+  loadAlerts(): void {
+    const tab = this.activeTab();
+    let statusFilter = 'all';
+    let typeFilter = 'all';
+
+    if (tab === 'pending') {
+      statusFilter = 'pending';
+    } else if (tab === 'resolved') {
+      statusFilter = 'resolved';
+    } else if (tab === 'duplicate_image') {
+      typeFilter = 'duplicate_image';
+    } else if (tab === 'device_sharing') {
+      typeFilter = 'device_sharing';
     }
-  ];
+
+    this.fraudService.loadAlerts(statusFilter, typeFilter).subscribe();
+  }
+
+  setTab(tab: 'all' | 'pending' | 'duplicate_image' | 'device_sharing' | 'resolved'): void {
+    this.activeTab.set(tab);
+    this.loadAlerts();
+  }
+
+  openInvestigateModal(alert: FraudAlert): void {
+    this.selectedAlert.set(alert);
+    this.isInvestigateModalOpen.set(true);
+  }
+
+  closeInvestigateModal(): void {
+    this.isInvestigateModalOpen.set(false);
+  }
+
+  openSanctionModal(alert: FraudAlert): void {
+    this.selectedAlert.set(alert);
+    this.sanctionAction = 'account_suspended';
+    this.actionNote = '';
+    this.isSanctionModalOpen.set(true);
+  }
+
+  closeSanctionModal(): void {
+    this.isSanctionModalOpen.set(false);
+  }
+
+  confirmSanction(): void {
+    const alert = this.selectedAlert();
+    if (!alert) return;
+
+    this.fraudService.resolveAlert(alert.id, this.sanctionAction, this.actionNote).subscribe({
+      next: () => {
+        this.closeSanctionModal();
+        this.closeInvestigateModal();
+        let actionLabel = 'Compte suspendu';
+        if (this.sanctionAction === 'score_penalized') actionLabel = 'Pénalité de 15 points appliquée';
+        if (this.sanctionAction === 'warning_issued') actionLabel = 'Avertissement envoyé';
+        this.showFeedback(`Sanction validée : ${actionLabel} pour ${alert.user?.name || 'le contributeur'}.`);
+        this.loadAlerts();
+      }
+    });
+  }
+
+  openDismissModal(alert: FraudAlert): void {
+    this.selectedAlert.set(alert);
+    this.actionNote = '';
+    this.isDismissModalOpen.set(true);
+  }
+
+  closeDismissModal(): void {
+    this.isDismissModalOpen.set(false);
+  }
+
+  confirmDismiss(): void {
+    const alert = this.selectedAlert();
+    if (!alert) return;
+
+    this.fraudService.dismissAlert(alert.id, this.actionNote || 'Faux positif vérifié par l\'administrateur').subscribe({
+      next: () => {
+        this.closeDismissModal();
+        this.closeInvestigateModal();
+        this.showFeedback(`L'alerte #${alert.id} a été classée sans suite (faux positif).`);
+        this.loadAlerts();
+      }
+    });
+  }
+
+  getSeverityBadge(severity?: FraudSeverity): { label: string; cssClass: string } {
+    switch (severity) {
+      case 'high':
+        return { label: 'Critique', cssClass: 'badge-danger' };
+      case 'medium':
+        return { label: 'Moyenne', cssClass: 'badge-warning' };
+      default:
+        return { label: 'Faible', cssClass: 'badge-info' };
+    }
+  }
+
+  getAlertTypeBadge(type?: FraudAlertType): { label: string; icon: string; cssClass: string } {
+    switch (type) {
+      case 'duplicate_image':
+        return { label: 'Empreinte SHA-256 Dupliquée', icon: '🖼️', cssClass: 'type-sha256' };
+      case 'device_sharing':
+        return { label: 'Multi-comptes (Device ID)', icon: '📱', cssClass: 'type-device' };
+      case 'gps_spoofing':
+        return { label: 'Écart GPS Anormal', icon: '📍', cssClass: 'type-gps' };
+      default:
+        return { label: type || 'Anomalie', icon: '⚠️', cssClass: '' };
+    }
+  }
+
+  copyHashToClipboard(hash: string): void {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(hash);
+      this.showFeedback('Hash SHA-256 copié dans le presse-papier.');
+    }
+  }
+
+  private showFeedback(msg: string): void {
+    this.actionFeedback.set(msg);
+    setTimeout(() => {
+      this.actionFeedback.set(null);
+    }, 4500);
+  }
 }

@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleAndUserSeeder::class,
             CampaignSeeder::class,
             SubmissionSeeder::class,
+            FraudAlertSeeder::class,
         ]);
     }
 }

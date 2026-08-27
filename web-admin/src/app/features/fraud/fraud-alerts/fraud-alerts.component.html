@@ -1,72 +1,515 @@
 <div class="fraud-page">
-  <!-- Page Header -->
-  <div class="page-header card">
-    <div>
-      <h2 class="section-title">Surveillance Anti-Fraude (Story 4.3)</h2>
-      <p class="section-desc">
-        Détection des empreintes d'images SHA-256 dupliquées, tracking Device ID multi-comptes et anomalies GPS sur Ouagadougou.
-      </p>
+  <!-- Toast Notification Feedback -->
+  @if (actionFeedback()) {
+    <div class="feedback-toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toast-icon">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>{{ actionFeedback() }}</span>
     </div>
-    <div class="header-badge-wrap">
-      <span class="badge badge-danger">
-        <span class="badge-dot"></span>
-        3 alertes actives
-      </span>
+  }
+
+  <!-- Page Header & Key Metrics -->
+  <div class="page-header card">
+    <div class="header-main">
+      <div class="header-titles">
+        <h2 class="section-title">Surveillance & Moteur Anti-Fraude (Story 4.3)</h2>
+        <p class="section-desc">
+          Contrôle cryptographique des signatures SHA-256, détection des fermes multi-comptes par Device ID et anomalies géospatiales à Ouagadougou.
+        </p>
+      </div>
+      <div class="header-badge-wrap">
+        <span class="badge badge-danger pulse">
+          <span class="badge-dot"></span>
+          {{ fraudService.counts().pending }} alerte(s) en attente
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-item" (click)="setTab('all')" [class.active]="activeTab() === 'all'">
+        <span class="kpi-label">Total Alertes</span>
+        <span class="kpi-value">{{ fraudService.counts().total }}</span>
+      </div>
+      <div class="kpi-item kpi-danger" (click)="setTab('pending')" [class.active]="activeTab() === 'pending'">
+        <span class="kpi-label">En Attente</span>
+        <span class="kpi-value text-danger">{{ fraudService.counts().pending }}</span>
+      </div>
+      <div class="kpi-item kpi-sha256" (click)="setTab('duplicate_image')" [class.active]="activeTab() === 'duplicate_image'">
+        <span class="kpi-label">Images SHA-256</span>
+        <span class="kpi-value text-sha256">{{ fraudService.counts().duplicate_images }}</span>
+      </div>
+      <div class="kpi-item kpi-device" (click)="setTab('device_sharing')" [class.active]="activeTab() === 'device_sharing'">
+        <span class="kpi-label">Device ID Partagés</span>
+        <span class="kpi-value text-device">{{ fraudService.counts().device_sharing }}</span>
+      </div>
+      <div class="kpi-item kpi-success" (click)="setTab('resolved')" [class.active]="activeTab() === 'resolved'">
+        <span class="kpi-label">Traitées / Résolues</span>
+        <span class="kpi-value text-success">{{ fraudService.counts().resolved }}</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-group">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'all'"
+        (click)="setTab('all')"
+      >
+        Toutes les alertes ({{ fraudService.counts().total }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'pending'"
+        (click)="setTab('pending')"
+      >
+        À traiter
+        @if (fraudService.counts().pending > 0) {
+          <span class="tab-count badge-danger-count">{{ fraudService.counts().pending }}</span>
+        }
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'duplicate_image'"
+        (click)="setTab('duplicate_image')"
+      >
+        🖼️ Photos dupliquées (SHA-256)
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'device_sharing'"
+        (click)="setTab('device_sharing')"
+      >
+        📱 Multi-comptes Device ID
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'resolved'"
+        (click)="setTab('resolved')"
+      >
+        ✓ Résolues & Sanctions
+      </button>
     </div>
   </div>
 
-  <!-- Alerts List -->
-  <div class="alerts-list">
-    @for (alert of fraudAlerts; track alert.id) {
-      <div class="alert-card card" [class.alert-high]="alert.severity === 'high'">
-        <div class="alert-top">
-          <div class="alert-type-group">
-            <span class="alert-ref">{{ alert.id }}</span>
-            <span 
-              class="badge" 
-              [class.badge-danger]="alert.severity === 'high'"
-              [class.badge-warning]="alert.severity !== 'high'"
-            >
-              {{ alert.severity === 'high' ? 'Critique' : 'Moyenne' }}
-            </span>
-          </div>
-          <span class="alert-time">{{ alert.detectedAt }}</span>
-        </div>
-
-        <h4 class="alert-title">{{ alert.title }}</h4>
-
-        <div class="alert-details-grid">
-          <div class="detail-item">
-            <span class="detail-label">Contributeur / Cible :</span>
-            <span class="detail-val">{{ alert.contributor }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Mission concernée :</span>
-            <span class="detail-val">{{ alert.targetMission }}</span>
-          </div>
-          <div class="detail-item full-width">
-            <span class="detail-label">Preuve / Contexte :</span>
-            <span class="detail-val">{{ alert.originalMission }}</span>
-          </div>
-          @if (alert.sha256 !== 'N/A') {
-            <div class="detail-item full-width">
-              <span class="detail-label">Empreinte SHA-256 :</span>
-              <code class="sha256-code">{{ alert.sha256 }}</code>
+  <!-- Alerts List Container -->
+  <div class="alerts-container">
+    @if (fraudService.isLoading()) {
+      <div class="loading-state card">
+        <div class="spinner"></div>
+        <span>Analyse des flux anti-fraude en cours...</span>
+      </div>
+    } @else if (fraudService.alerts().length === 0) {
+      <div class="empty-state card">
+        <div class="empty-icon">🛡️</div>
+        <h3>Aucune alerte dans cette vue</h3>
+        <p>Toutes les anomalies détectées ont été inspectées et traitées.</p>
+      </div>
+    } @else {
+      <div class="alerts-list">
+        @for (alert of fraudService.alerts(); track alert.id) {
+          <div class="alert-card card" [class.alert-high]="alert.severity === 'high'" [class.alert-resolved]="alert.status === 'resolved' || alert.status === 'dismissed'">
+            <!-- Alert Card Top -->
+            <div class="alert-top">
+              <div class="alert-type-group">
+                <span class="alert-ref">FRD-2026-00{{ alert.id }}</span>
+                <span class="type-badge" [class.type-sha256]="alert.alert_type === 'duplicate_image'" [class.type-device]="alert.alert_type === 'device_sharing'" [class.type-gps]="alert.alert_type === 'gps_spoofing'">
+                  {{ getAlertTypeBadge(alert.alert_type).icon }} {{ getAlertTypeBadge(alert.alert_type).label }}
+                </span>
+                <span class="badge" [class.badge-danger]="alert.severity === 'high'" [class.badge-warning]="alert.severity === 'medium'" [class.badge-info]="alert.severity === 'low'">
+                  {{ getSeverityBadge(alert.severity).label }}
+                </span>
+              </div>
+              <div class="alert-status-wrap">
+                <span class="badge" 
+                  [class.badge-danger]="alert.status === 'pending'"
+                  [class.badge-success]="alert.status === 'resolved'"
+                  [class.badge-secondary]="alert.status === 'dismissed'"
+                >
+                  <span class="badge-dot"></span>
+                  @switch (alert.status) {
+                    @case ('pending') { En attente }
+                    @case ('resolved') { Résolu / Sanctionné }
+                    @case ('dismissed') { Classé sans suite }
+                    @default { {{ alert.status }} }
+                  }
+                </span>
+                <span class="alert-time">{{ alert.created_at }}</span>
+              </div>
             </div>
-          }
-        </div>
 
-        <div class="alert-footer">
-          <div class="action-taken">
-            <span class="action-label">Action automatique :</span>
-            <span class="action-value">{{ alert.actionTaken }}</span>
+            <!-- Title & Description -->
+            <h3 class="alert-title">{{ alert.title }}</h3>
+            <p class="alert-desc">{{ alert.description }}</p>
+
+            <!-- Metadata & Technical Proof Grid -->
+            <div class="alert-details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Contributeur concerné :</span>
+                <div class="user-inline">
+                  <span class="user-avatar-mini">{{ (alert.user?.name || 'C').substring(0, 2).toUpperCase() }}</span>
+                  <span class="detail-val font-bold">{{ alert.user?.name || 'Inconnu' }}</span>
+                  @if (alert.user?.phone) {
+                    <span class="detail-sub">({{ alert.user?.phone }})</span>
+                  }
+                  <span class="score-pill" title="Score de réputation">⭐ {{ alert.user?.reputation_score || 0 }}/100</span>
+                  @if (alert.user?.is_active === false) {
+                    <span class="badge badge-danger">Compte suspendu</span>
+                  }
+                </div>
+              </div>
+
+              @if (alert.submission?.mission) {
+                <div class="detail-item">
+                  <span class="detail-label">Mission liée :</span>
+                  <span class="detail-val">{{ alert.submission?.mission?.title }} — {{ alert.submission?.mission?.location_name }}</span>
+                </div>
+              }
+
+              <!-- SHA-256 specific display -->
+              @if (alert.details?.sha256_hash) {
+                <div class="detail-item full-width hash-box">
+                  <div class="hash-header">
+                    <span class="detail-label">Empreinte cryptographique SHA-256 (64 hex) :</span>
+                    <button class="btn-copy" (click)="copyHashToClipboard(alert.details!.sha256_hash!)">📋 Copier Hash</button>
+                  </div>
+                  <code class="sha256-code">{{ alert.details?.sha256_hash }}</code>
+                  <div class="hash-meta">
+                    <span>Fichier source : <strong>{{ alert.details?.file_name || 'image.jpg' }}</strong></span>
+                    <span>Taille : <strong>{{ ((alert.details?.file_size || 0) / 1024).toFixed(1) }} Ko</strong></span>
+                    <span>Soumission d'origine : <strong>SUB-2026-00{{ alert.details?.original_submission_id }}</strong> (par {{ alert.details?.original_user_name }})</span>
+                  </div>
+                </div>
+              }
+
+              <!-- Device ID specific display -->
+              @if (alert.details?.device_id) {
+                <div class="detail-item full-width device-box">
+                  <div class="device-header">
+                    <span class="detail-label">Identifiant unique du terminal physique :</span>
+                    <span class="device-id-tag">{{ alert.details?.device_id }}</span>
+                    <span class="accounts-counter badge badge-danger">{{ alert.details?.accounts_count || 3 }} comptes associés</span>
+                  </div>
+                  @if (alert.details?.linked_accounts) {
+                    <div class="linked-accounts-table">
+                      <div class="linked-acc-header">
+                        <span>Nom du compte</span>
+                        <span>Téléphone</span>
+                        <span>Score de réputation</span>
+                      </div>
+                      @for (acc of alert.details!.linked_accounts!; track acc.phone) {
+                        <div class="linked-acc-row">
+                          <span class="font-bold">{{ acc.name }}</span>
+                          <span>{{ acc.phone }}</span>
+                          <span class="score-pill">⭐ {{ acc.score }}/100</span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Resolution note display if already resolved -->
+              @if (alert.status === 'resolved' || alert.status === 'dismissed') {
+                <div class="detail-item full-width resolution-banner">
+                  <strong>Décision prise :</strong>
+                  @switch (alert.resolution_action) {
+                    @case ('account_suspended') { <span class="badge badge-danger">Compte contributeur suspendu</span> }
+                    @case ('score_penalized') { <span class="badge badge-warning">Pénalité de 15 points appliquée</span> }
+                    @case ('warning_issued') { <span class="badge badge-info">Avertissement notifié</span> }
+                    @case ('false_positive') { <span class="badge badge-secondary">Faux positif classé sans suite</span> }
+                    @default { {{ alert.resolution_action }} }
+                  }
+                  @if (alert.resolution_note) {
+                    <p class="resolution-text">Note : {{ alert.resolution_note }}</p>
+                  }
+                  <span class="resolved-date">Traité le {{ alert.resolved_at }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Card Actions -->
+            <div class="alert-footer">
+              <div class="footer-meta">
+                <span class="badge-dot-live"></span>
+                <span>Audit automatisé en temps réel</span>
+              </div>
+              <div class="alert-actions">
+                <button class="btn btn-sm btn-secondary" (click)="openInvestigateModal(alert)">
+                  🔍 Investiguer en détail
+                </button>
+                @if (alert.status === 'pending') {
+                  <button class="btn btn-sm btn-outline-warning" (click)="openDismissModal(alert)">
+                    Classer (Faux positif)
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="openSanctionModal(alert)">
+                    ⚖️ Sanctionner
+                  </button>
+                }
+              </div>
+            </div>
           </div>
-          <div class="alert-actions">
-            <button class="btn btn-sm btn-secondary">Ignorer (Faux positif)</button>
-            <button class="btn btn-sm btn-danger">Bannir le compte</button>
-          </div>
-        </div>
+        }
       </div>
     }
   </div>
+
+  <!-- Detailed Investigation Modal -->
+  @if (isInvestigateModalOpen() && selectedAlert()) {
+    <div class="modal-backdrop" (click)="closeInvestigateModal()">
+      <div class="modal-card modal-xl" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-danger">🛡️</span>
+            <div>
+              <h3>Investigation Anti-Fraude : FRD-2026-00{{ selectedAlert()?.id }}</h3>
+              <p class="modal-subtitle">{{ selectedAlert()?.title }}</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeInvestigateModal()">✕</button>
+        </div>
+
+        <div class="modal-body inspector-grid">
+          <!-- Left Column: Technical Evidence -->
+          <div class="evidence-panel">
+            <h4 class="panel-heading">Preuves & Faisceau d'Indices</h4>
+
+            <!-- Duplicate Photo Visual Comparison -->
+            @if (selectedAlert()?.alert_type === 'duplicate_image') {
+              <div class="comparison-container">
+                <div class="comp-box">
+                  <span class="comp-title">Preuve actuelle (Suspecte)</span>
+                  <div class="photo-wrapper">
+                    <img 
+                      [src]="selectedAlert()?.submission?.photos?.[0] || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600'" 
+                      alt="Preuve suspecte" 
+                      class="evidence-img"
+                    />
+                  </div>
+                  <span class="comp-caption">Soumission SUB-2026-00{{ selectedAlert()?.submission_id }} par {{ selectedAlert()?.user?.name }}</span>
+                </div>
+
+                <div class="comp-box">
+                  <span class="comp-title">Image d'Origine Référencée</span>
+                  <div class="photo-wrapper">
+                    <img 
+                      src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600" 
+                      alt="Preuve originale" 
+                      class="evidence-img"
+                    />
+                  </div>
+                  <span class="comp-caption">Soumission SUB-2026-00{{ selectedAlert()?.details?.original_submission_id }} par {{ selectedAlert()?.details?.original_user_name }}</span>
+                </div>
+              </div>
+
+              <div class="sha-match-card">
+                <span class="match-score">Correspondance binaire : 100% (Collusion de hash)</span>
+                <code class="sha256-code">{{ selectedAlert()?.details?.sha256_hash }}</code>
+              </div>
+            }
+
+            <!-- Device ID Multi-Account Graph/List -->
+            @if (selectedAlert()?.alert_type === 'device_sharing') {
+              <div class="device-audit-full">
+                <div class="device-card-large">
+                  <span class="device-icon">📱</span>
+                  <div>
+                    <h4 class="device-title">Terminal : {{ selectedAlert()?.details?.device_id }}</h4>
+                    <p class="device-sub">{{ selectedAlert()?.details?.accounts_count }} comptes partagent l'empreinte hardware de ce smartphone.</p>
+                  </div>
+                </div>
+
+                <div class="accounts-breakdown">
+                  <h5 class="accounts-heading">Comptes identifiés sur cet appareil :</h5>
+                  <div class="accounts-grid">
+                    @for (acc of selectedAlert()?.details?.linked_accounts || []; track acc.phone) {
+                      <div class="acc-card">
+                        <div class="acc-avatar">{{ acc.name.substring(0, 2).toUpperCase() }}</div>
+                        <div class="acc-info">
+                          <span class="acc-name">{{ acc.name }}</span>
+                          <span class="acc-phone">📞 {{ acc.phone }}</span>
+                          <span class="score-pill">⭐ {{ acc.score }}/100</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- GPS Spoofing Map/Audit -->
+            @if (selectedAlert()?.alert_type === 'gps_spoofing') {
+              <div class="gps-audit-box">
+                <div class="gps-metric-row">
+                  <span class="metric-label">Écart au point cible :</span>
+                  <span class="metric-val text-danger font-bold">{{ selectedAlert()?.details?.distance_meters }} mètres</span>
+                </div>
+                <div class="gps-metric-row">
+                  <span class="metric-label">Tolérance maximum :</span>
+                  <span class="metric-val">{{ selectedAlert()?.details?.allowed_tolerance }} mètres</span>
+                </div>
+                <div class="gps-metric-row">
+                  <span class="metric-label">Zone géographique :</span>
+                  <span class="metric-val">{{ selectedAlert()?.details?.location }}</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Right Column: Contributor & Fast Action Decision -->
+          <div class="decision-panel">
+            <h4 class="panel-heading">Profil du Contributeur</h4>
+
+            <div class="contributor-card">
+              <div class="contributor-avatar">
+                <span>{{ (selectedAlert()?.user?.name || 'C').substring(0, 2).toUpperCase() }}</span>
+              </div>
+              <div class="contributor-details">
+                <span class="c-name">{{ selectedAlert()?.user?.name }}</span>
+                <span class="c-phone">📞 {{ selectedAlert()?.user?.phone }}</span>
+                <span class="c-email">✉️ {{ selectedAlert()?.user?.email }}</span>
+                <span class="c-score">⭐ Score de réputation : <strong>{{ selectedAlert()?.user?.reputation_score }}/100</strong></span>
+              </div>
+            </div>
+
+            <!-- Sanction Rules Reminder -->
+            <div class="rules-box">
+              <span class="rules-title">Politique Anti-Fraude SapSap (Burkina Faso)</span>
+              <ul class="rules-list">
+                <li><strong>Image dupliquée :</strong> Rejet immédiat de la mission + gel du paiement.</li>
+                <li><strong>Ferme multi-comptes (>2) :</strong> Suspension immédiate du terminal physique.</li>
+                <li><strong>Pénalité standard :</strong> Déduction de 15 points de réputation.</li>
+              </ul>
+            </div>
+
+            @if (selectedAlert()?.status === 'pending') {
+              <div class="quick-decision-actions">
+                <button class="btn btn-outline-warning btn-block" (click)="openDismissModal(selectedAlert()!)">
+                  Ignorer & Classer sans suite (Faux positif)
+                </button>
+                <button class="btn btn-danger btn-block" (click)="openSanctionModal(selectedAlert()!)">
+                  Appliquer une sanction immédiate
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeInvestigateModal()">Fermer l'investigation</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Sanction Application Modal -->
+  @if (isSanctionModalOpen() && selectedAlert()) {
+    <div class="modal-backdrop" (click)="closeSanctionModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-danger">⚖️</span>
+            <div>
+              <h3>Appliquer une Sanction Réglementaire</h3>
+              <p class="modal-subtitle">Contributeur : <strong>{{ selectedAlert()?.user?.name }}</strong></p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeSanctionModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Sélectionner la sanction disciplinaire :</label>
+            <div class="radio-cards">
+              <label class="radio-card" [class.selected]="sanctionAction === 'account_suspended'">
+                <input type="radio" [(ngModel)]="sanctionAction" value="account_suspended" name="sanctionOption" />
+                <div class="radio-content">
+                  <span class="radio-title text-danger">🚫 Suspension du compte</span>
+                  <span class="radio-desc">Désactive l'accès à l'application mobile et bloque les retraits.</span>
+                </div>
+              </label>
+
+              <label class="radio-card" [class.selected]="sanctionAction === 'score_penalized'">
+                <input type="radio" [(ngModel)]="sanctionAction" value="score_penalized" name="sanctionOption" />
+                <div class="radio-content">
+                  <span class="radio-title text-warning">⭐ Pénalité de réputation (-15 points)</span>
+                  <span class="radio-desc">Réduit le score de réputation et limite les missions à haute rémunération.</span>
+                </div>
+              </label>
+
+              <label class="radio-card" [class.selected]="sanctionAction === 'warning_issued'">
+                <input type="radio" [(ngModel)]="sanctionAction" value="warning_issued" name="sanctionOption" />
+                <div class="radio-content">
+                  <span class="radio-title text-info">⚠️ Avertissement officiel</span>
+                  <span class="radio-desc">Notifie le contributeur sans suspension de gain immédiate.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="sanctionNote" class="form-label">Motif de la sanction & Consigne d'audit :</label>
+            <textarea 
+              id="sanctionNote"
+              [(ngModel)]="actionNote"
+              class="form-textarea"
+              placeholder="ex: Réutilisation frauduleuse de photo sur la mission #2. Compte suspendu conformément aux CGU."
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeSanctionModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmSanction()">
+            Confirmer & Exécuter la Sanction
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Dismiss / False Positive Modal -->
+  @if (isDismissModalOpen() && selectedAlert()) {
+    <div class="modal-backdrop" (click)="closeDismissModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-info">🛡️</span>
+            <div>
+              <h3>Classer l'Alerte sans Suite</h3>
+              <p class="modal-subtitle">Alerte FRD-2026-00{{ selectedAlert()?.id }}</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeDismissModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-desc">
+            Vous êtes sur le point de marquer cette alerte comme <strong>faux positif</strong>. La soumission et le compte de <strong>{{ selectedAlert()?.user?.name }}</strong> ne seront pas pénalisés.
+          </p>
+
+          <div class="form-group">
+            <label for="dismissNote" class="form-label">Justification de classement (optionnelle) :</label>
+            <textarea 
+              id="dismissNote"
+              [(ngModel)]="actionNote"
+              class="form-textarea"
+              placeholder="ex: Écart GPS justifié par les travaux de voirie du secteur 12."
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeDismissModal()">Annuler</button>
+          <button class="btn btn-outline-warning" (click)="confirmDismiss()">
+            Classer sans Suite
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

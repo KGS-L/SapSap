@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Admin\CampaignAdminController;
 use App\Http\Controllers\Api\V1\Admin\SubmissionAdminController;
+use App\Http\Controllers\Api\V1\Admin\FraudAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,5 +37,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/submissions/{id}', [SubmissionAdminController::class, 'show']);
         Route::post('/submissions/{id}/validate', [SubmissionAdminController::class, 'validateSubmission']);
         Route::post('/submissions/{id}/reject', [SubmissionAdminController::class, 'rejectSubmission']);
+
+        // Anti-fraude
+        Route::get('/fraud/alerts', [FraudAdminController::class, 'index']);
+        Route::get('/fraud/alerts/{id}', [FraudAdminController::class, 'show']);
+        Route::post('/fraud/alerts/{id}/resolve', [FraudAdminController::class, 'resolveAlert']);
+        Route::post('/fraud/alerts/{id}/dismiss', [FraudAdminController::class, 'dismissAlert']);
     });
 });
