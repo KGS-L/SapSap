@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Log;
 
 class AutoValidationService
 {
+    protected WalletService $walletService;
+
+    public function __construct(?WalletService $walletService = null)
+    {
+        $this->walletService = $walletService ?? app(WalletService::class);
+    }
+
     /**
      * Exécute l'auto-validation des soumissions en attente depuis plus de X heures (par défaut 48h)
      *
@@ -60,6 +67,10 @@ class AutoValidationService
                 if ($submission->user && $submission->user->reputation_score < 100) {
                     $submission->user->increment('reputation_score', min(2, 100 - $submission->user->reputation_score));
                 }
+
+                // Créditer le portefeuille du contributeur (Story 5.1)
+                $this->walletService->creditMissionEarning($submission);
+
 
                 $processedSubmissions[] = [
                     'submission_id' => $submission->id,

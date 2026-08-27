@@ -1,0 +1,352 @@
+<div class="finances-page">
+  <!-- Page Header -->
+  <div class="page-header card">
+    <div>
+      <h2 class="section-title">Supervision Financière & Retraits Mobile Money (Story 5.1)</h2>
+      <p class="section-desc">Suivi des portefeuilles contributeurs, des flux Orange Money / Moov Money et du grand livre comptable immuable.</p>
+    </div>
+    <div class="header-badges">
+      <div class="live-pill">
+        <span class="pulse-live"></span>
+        <span>Passerelles Mobile Money : Actives (Simulation)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 KPI Cards Grid -->
+  <div class="grid grid-cols-4 kpi-grid">
+    <!-- KPI 1: Gains Totaux Validés -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Gains Totaux Générés</span>
+        <div class="kpi-icon icon-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ formatPrice(financeService.stats().total_earned_all) }} FCFA</span>
+        <span class="badge badge-success">Validé terrain</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-caption">Cumul missions validées</span>
+      </div>
+    </div>
+
+    <!-- KPI 2: Retraits Effectués -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Retraits Mobile Money</span>
+        <div class="kpi-icon icon-warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+            <polyline points="17 18 23 18 23 12"></polyline>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ formatPrice(financeService.stats().total_withdrawn) }} FCFA</span>
+        <span class="badge badge-warning">{{ financeService.stats().total_withdrawals_count }} virements</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-caption">Vers Orange & Moov</span>
+      </div>
+    </div>
+
+    <!-- KPI 3: Solde Disponible en Attente de Retrait -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Soldes Disponibles</span>
+        <div class="kpi-icon icon-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <line x1="6" y1="8" x2="6" y2="8"></line>
+            <line x1="10" y1="8" x2="18" y2="8"></line>
+            <line x1="6" y1="12" x2="18" y2="12"></line>
+            <line x1="6" y1="16" x2="14" y2="16"></line>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ formatPrice(financeService.stats().total_available_all) }} FCFA</span>
+        <span class="badge badge-info">&gt;= 1 000 FCFA</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-caption">Prêts à être retirés</span>
+      </div>
+    </div>
+
+    <!-- KPI 4: Portefeuilles Actifs -->
+    <div class="kpi-card card">
+      <div class="kpi-header">
+        <span class="kpi-label">Portefeuilles Actifs</span>
+        <div class="kpi-icon icon-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ financeService.stats().active_wallets_count }}</span>
+        <span class="badge badge-primary">Ouagadougou</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-caption">Seuil min : 1 000 FCFA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2-Column Overview (Operator Share & Mobile Money Rules) -->
+  <div class="grid grid-cols-2">
+    <!-- Operator Share Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--warning);">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          Répartition des Flux Mobile Money (Burkina Faso)
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="operators-breakdown">
+          <!-- Orange Money Bar -->
+          <div class="operator-row">
+            <div class="operator-header">
+              <span class="operator-badge orange-badge">🟧 Orange Money</span>
+              <span class="operator-amount font-bold">{{ formatPrice(financeService.stats().orange_money_volume) }} FCFA</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill orange-fill" style="width: 62.5%;"></div>
+            </div>
+            <span class="operator-sub">62.5% du volume total des retraits</span>
+          </div>
+
+          <!-- Moov Money Bar -->
+          <div class="operator-row">
+            <div class="operator-header">
+              <span class="operator-badge moov-badge">🟦 Moov Money</span>
+              <span class="operator-amount font-bold">{{ formatPrice(financeService.stats().moov_money_volume) }} FCFA</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill moov-fill" style="width: 37.5%;"></div>
+            </div>
+            <span class="operator-sub">37.5% du volume total des retraits</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Money Simulation & Rules Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--primary);">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Invariants Comptables & Sécurité Financière
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="rules-list">
+          <div class="rule-item">
+            <span class="rule-icon">🔒</span>
+            <div>
+              <strong>Seuil Minimal Fixe (1 000 FCFA)</strong>
+              <p>Chaque demande de virement vers un numéro Orange ou Moov Money est rejetée si le solde ou montant demandé est inférieur à 1 000 FCFA.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon">📜</span>
+            <div>
+              <strong>Grand Livre Immuable (Double-Entry Ledger)</strong>
+              <p>Aucune écriture financière n'est effaçable. Le registre <code>wallet_transactions</code> conserve les soldes avant et après chaque opération.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon">⚡</span>
+            <div>
+              <strong>Moteur de Simulation Instantané</strong>
+              <p>Le <code>SimulatedPaymentDriver</code> génère des identifiants transactionnels conformes (ex: <code>OM-BF-...</code>) avec exécution instantanée.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Width Tabs & Tables (Withdrawals & Ledger) -->
+  <div class="card table-card">
+    <div class="card-header table-header-flex">
+      <!-- Main Tabs -->
+      <div class="tabs-group">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab() === 'withdrawals'"
+          (click)="setTab('withdrawals')"
+        >
+          Demandes de Retraits Mobile Money ({{ financeService.withdrawals().length }})
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab() === 'ledger'"
+          (click)="setTab('ledger')"
+        >
+          Grand Livre Comptable (Ledger) ({{ financeService.ledger().length }})
+        </button>
+      </div>
+
+      <!-- Sub filter for providers (Withdrawals tab only) -->
+      @if (activeTab() === 'withdrawals') {
+        <div class="filter-pill-group">
+          <button 
+            class="pill-btn" 
+            [class.active]="providerFilter() === 'all'"
+            (click)="setProviderFilter('all')"
+          >
+            Tous
+          </button>
+          <button 
+            class="pill-btn" 
+            [class.active]="providerFilter() === 'orange_money'"
+            (click)="setProviderFilter('orange_money')"
+          >
+            Orange Money
+          </button>
+          <button 
+            class="pill-btn" 
+            [class.active]="providerFilter() === 'moov_money'"
+            (click)="setProviderFilter('moov_money')"
+          >
+            Moov Money
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Tab 1: Withdrawals Table -->
+    @if (activeTab() === 'withdrawals') {
+      <div class="table-container">
+        @if (filteredWithdrawals.length === 0) {
+          <div class="empty-state">
+            <span>Aucune demande de retrait trouvée.</span>
+          </div>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Réf Demande</th>
+                <th>Contributeur</th>
+                <th>Montant</th>
+                <th>Opérateur Mobile Money</th>
+                <th>Numéro Récepteur</th>
+                <th>Réf Transaction Réseau</th>
+                <th>Date & Heure</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (w of filteredWithdrawals; track w.id) {
+                <tr>
+                  <td>
+                    <span class="font-mono font-bold">{{ w.reference }}</span>
+                  </td>
+                  <td>
+                    <div class="user-cell">
+                      <span class="font-bold">{{ w.user?.name || 'Contributeur' }}</span>
+                      <span class="score-badge">⭐ {{ w.user?.reputation_score || 0 }}/100</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="amount-tag font-bold text-success">{{ formatPrice(w.amount) }} FCFA</span>
+                  </td>
+                  <td>
+                    <span 
+                      class="provider-badge"
+                      [class.badge-orange]="w.provider === 'orange_money'"
+                      [class.badge-moov]="w.provider === 'moov_money'"
+                    >
+                      {{ getProviderName(w.provider) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="font-mono">{{ w.phone_number }}</span>
+                  </td>
+                  <td>
+                    <span class="payout-id-tag font-mono">{{ w.simulated_payout_id || 'En cours' }}</span>
+                  </td>
+                  <td>
+                    <span class="font-mono text-muted">{{ formatDateTime(w.created_at) }}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-success">✓ Virement Effectué</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    }
+
+    <!-- Tab 2: General Ledger Table -->
+    @if (activeTab() === 'ledger') {
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Réf Transaction</th>
+              <th>Utilisateur</th>
+              <th>Type d'Opération</th>
+              <th>Montant</th>
+              <th>Solde Avant</th>
+              <th>Solde Après</th>
+              <th>Date & Heure</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of financeService.ledger(); track tx.id) {
+              <tr>
+                <td>
+                  <span class="font-mono font-bold">{{ tx.reference }}</span>
+                </td>
+                <td>
+                  <span class="font-bold">{{ tx.user?.name || 'Utilisateur' }}</span>
+                </td>
+                <td>
+                  <span [class]="'badge ' + getTypeLabel(tx.type).cssClass">
+                    {{ getTypeLabel(tx.type).label }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="font-bold font-mono" [class.text-success]="tx.amount > 0" [class.text-danger]="tx.amount < 0">
+                    {{ tx.amount > 0 ? '+' : '' }}{{ formatPrice(tx.amount) }} FCFA
+                  </span>
+                </td>
+                <td>
+                  <span class="font-mono text-muted">{{ formatPrice(tx.balance_before) }} FCFA</span>
+                </td>
+                <td>
+                  <span class="font-mono font-bold">{{ formatPrice(tx.balance_after) }} FCFA</span>
+                </td>
+                <td>
+                  <span class="font-mono text-muted">{{ formatDateTime(tx.created_at) }}</span>
+                </td>
+                <td>
+                  <span class="badge badge-success">Immuable (OK)</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             CampaignSeeder::class,
             SubmissionSeeder::class,
             FraudAlertSeeder::class,
+            WalletSeeder::class,
         ]);
     }
 }
+

@@ -52,4 +52,20 @@ class User extends Authenticatable
             'reputation_score' => 'integer',
         ];
     }
+
+    public function wallet(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function walletTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WalletTransaction::class)->latest();
+    }
+
+    public function withdrawalRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WithdrawalRequest::class)->latest();
+    }
 }
+

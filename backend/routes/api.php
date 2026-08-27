@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\WalletController;
+
 use App\Http\Controllers\Api\V1\Admin\CampaignAdminController;
 use App\Http\Controllers\Api\V1\Admin\SubmissionAdminController;
 use App\Http\Controllers\Api\V1\Admin\FraudAdminController;
 use App\Http\Controllers\Api\V1\Admin\SchedulerAdminController;
+use App\Http\Controllers\Api\V1\Admin\FinanceAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +26,13 @@ Route::prefix('v1')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::get('/me', [AuthController::class, 'me']);
         });
+    });
+
+    // Story 5.1 : Portefeuille Contributeur & Retraits Mobile Money
+    Route::prefix('wallet')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [WalletController::class, 'show']);
+        Route::post('/withdraw', [WalletController::class, 'withdraw']);
+        Route::get('/transactions', [WalletController::class, 'transactions']);
     });
 
     // Administration & Modération
@@ -45,10 +55,16 @@ Route::prefix('v1')->group(function () {
         Route::post('/fraud/alerts/{id}/resolve', [FraudAdminController::class, 'resolveAlert']);
         Route::post('/fraud/alerts/{id}/dismiss', [FraudAdminController::class, 'dismissAlert']);
 
-        // Story 4.4 : Planificateur Laravel & Monitoring Auto-Validation 48h
+        // Planificateur Laravel & Monitoring Auto-Validation 48h (Story 4.4)
         Route::get('/scheduler/status', [SchedulerAdminController::class, 'getStatus']);
         Route::post('/scheduler/run-auto-validation', [SchedulerAdminController::class, 'runAutoValidation']);
         Route::get('/scheduler/logs', [SchedulerAdminController::class, 'getLogs']);
+
+        // Story 5.1 : Supervision Financière, Flux Mobile Money & Registre
+        Route::get('/finances/stats', [FinanceAdminController::class, 'getStats']);
+        Route::get('/finances/withdrawals', [FinanceAdminController::class, 'getWithdrawals']);
+        Route::get('/finances/ledger', [FinanceAdminController::class, 'getLedger']);
     });
 });
+
 

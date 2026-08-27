@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Submission;
+use App\Services\WalletService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SubmissionAdminController extends Controller
 {
+    protected WalletService $walletService;
+
+    public function __construct(WalletService $walletService)
+    {
+        $this->walletService = $walletService;
+    }
+
     /**
      * Liste des soumissions pour examen par les validateurs
      */
@@ -105,12 +113,16 @@ class SubmissionAdminController extends Controller
             $submission->user->increment('reputation_score', min(2, 100 - $submission->user->reputation_score));
         }
 
+        // Créditer le portefeuille contributeur et inscrire la transaction au registre comptable (Story 5.1)
+        $this->walletService->creditMissionEarning($submission);
+
         return response()->json([
             'success' => true,
             'message' => 'Prestation validée avec succès. La rémunération et le score du contributeur ont été mis à jour.',
             'data' => $submission
         ], 200);
     }
+
 
     /**
      * Rejeter la soumission avec motif explicatif

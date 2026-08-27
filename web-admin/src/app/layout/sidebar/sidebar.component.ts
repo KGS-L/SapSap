@@ -56,9 +56,16 @@ export class SidebarComponent {
           icon: 'shield',
           badge: this.statsService.stats().fraudAlerts,
           badgeType: 'danger'
+        },
+        {
+          id: 'finances',
+          label: 'Finances & Retraits',
+          route: '/finances',
+          icon: 'wallet'
         }
       ]
     },
+
     {
       title: 'SYSTÈME & UTILISATEURS',
       items: [
