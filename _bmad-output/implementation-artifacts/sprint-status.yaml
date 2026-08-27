@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 08-26-2026 16:27
-last_updated: 08-26-2026 16:27
+last_updated: 08-27-2026 15:22
 project: SapSap
 project_key: NOKEY
 tracking_system: file-system
@@ -64,6 +64,5 @@ development_status:
   epic-5: in-progress
   5-1-portefeuille-contributeur-demande-de-retrait-1-000-fcfa: done
   5-2-suivi-de-campagne-en-temps-réel-carte-des-résultats: review
-  5-3-exportation-des-données-de-campagne-csv-excel: backlog
+  5-3-exportation-des-données-de-campagne-csv-excel: review
   epic-5-retrospective: optional
-

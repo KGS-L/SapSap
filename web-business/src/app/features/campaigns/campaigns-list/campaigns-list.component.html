@@ -138,6 +138,33 @@
         </div>
 
         <div class="card-actions">
+          <div class="card-export-dropdown">
+            <button 
+              class="btn btn-secondary btn-sm" 
+              (click)="exportCampaign(camp.id, 'csv', $event)" 
+              [disabled]="exportingCampaignId() === camp.id"
+              title="Télécharger l'export CSV">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>CSV</span>
+            </button>
+            <button 
+              class="btn btn-secondary btn-sm" 
+              (click)="exportCampaign(camp.id, 'excel', $event)" 
+              [disabled]="exportingCampaignId() === camp.id"
+              title="Télécharger l'export Excel">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Excel</span>
+            </button>
+          </div>
+
           <a [routerLink]="['/tracking', camp.id]" class="btn btn-primary btn-sm">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
@@ -148,5 +175,11 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Toast Notification Feedback -->
+  <div class="toast-notification" *ngIf="toastMessage() as msg">
+    <div class="toast-icon">✓</div>
+    <div class="toast-text">{{ msg }}</div>
   </div>
 </div>

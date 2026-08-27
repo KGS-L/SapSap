@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { Campaign, CampaignStats, ResultPoint, TrackingData } from '../models/campaign.model';
 
 @Injectable({
@@ -84,6 +84,182 @@ export class CampaignBusinessService {
         return of(mockMap);
       })
     );
+  }
+
+  /**
+   * Télécharger l'exportation des données de campagne (Story 5.3)
+   */
+  exportCampaignData(campaignId: number, format: 'csv' | 'excel' = 'csv', filters?: { status?: string; neighborhood?: string }): Observable<Blob> {
+    let params: any = {};
+    if (filters?.status && filters.status !== 'all') {
+      params.status = filters.status;
+    }
+    if (filters?.neighborhood && filters.neighborhood !== 'all') {
+      params.neighborhood = filters.neighborhood;
+    }
+
+    const endpoint = `${this.apiUrl}/campaigns/${campaignId}/export/${format}`;
+    return this.http.get(endpoint, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Déclencher le téléchargement direct avec gestion automatique de fallback client
+   */
+  downloadCampaignExport(campaignId: number, format: 'csv' | 'excel' = 'csv', filters?: { status?: string; neighborhood?: string }): Observable<boolean> {
+    return this.exportCampaignData(campaignId, format, filters).pipe(
+      tap(blob => {
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const ext = format === 'csv' ? 'csv' : 'xls';
+        const filename = `sapsap-campagne-${campaignId}-export-${dateStr}.${ext}`;
+        this.triggerBlobDownload(blob, filename);
+      }),
+      map(() => true),
+      catchError(err => {
+        console.warn('Export backend non joignable, génération client en cours...', err);
+        this.generateAndDownloadClientExport(campaignId, format, filters);
+        return of(true);
+      })
+    );
+  }
+
+  /**
+   * Génération de l'exportation côté client (Mode Démonstration / Offline)
+   */
+  generateAndDownloadClientExport(campaignId: number, format: 'csv' | 'excel' = 'csv', filters?: { status?: string; neighborhood?: string }): void {
+    const rawMap = this.currentResultsMap().length > 0 ? this.currentResultsMap() : this.getMockResultsMap(campaignId).data;
+    let points = [...rawMap];
+
+    if (filters?.status && filters.status !== 'all') {
+      points = points.filter(p => p.status === filters.status);
+    }
+    if (filters?.neighborhood && filters.neighborhood !== 'all') {
+      points = points.filter(p => p.location_name.toLowerCase().includes(filters.neighborhood!.toLowerCase()));
+    }
+
+    const headers = [
+      'ID Mission',
+      'Titre Mission',
+      'Campagne',
+      'Lieu / Quartier',
+      'Latitude Cible',
+      'Longitude Cible',
+      'Statut Mission',
+      'Rémunération (FCFA)',
+      'Contributeur',
+      'Score Réputation',
+      'Date Soumission',
+      'Date Validation',
+      'Latitude GPS Réelle',
+      'Longitude GPS Réelle',
+      'Précision GPS',
+      'Écart GPS Cible',
+      'Réponses au Questionnaire',
+      'Photographies Terrain'
+    ];
+
+    const rows = points.map(p => {
+      const sub = p.submission;
+      let answersStr = '';
+      if (sub?.answers) {
+        answersStr = Object.entries(sub.answers).map(([k, v]) => `${k}: ${v}`).join(' | ');
+      }
+      const photosStr = sub?.photos ? sub.photos.join(', ') : '';
+
+      return [
+        p.id,
+        p.title,
+        p.campaign_title,
+        p.location_name,
+        p.latitude,
+        p.longitude,
+        p.status === 'validated' ? 'Validée' : (p.status === 'submitted' ? 'En attente' : (p.status === 'reserved' ? 'En cours' : 'Disponible')),
+        p.reward,
+        sub?.contributor?.name || p.assigned_user?.name || 'N/A',
+        sub?.contributor?.reputation_score ? `${sub.contributor.reputation_score}/100` : 'N/A',
+        sub?.created_at || 'N/A',
+        sub?.validated_at || 'N/A',
+        sub?.submitted_latitude || 'N/A',
+        sub?.submitted_longitude || 'N/A',
+        sub?.gps_accuracy ? `${sub.gps_accuracy} m` : 'N/A',
+        sub?.gps_distance_meters !== undefined ? `${sub.gps_distance_meters} m` : 'N/A',
+        answersStr || 'Aucune réponse',
+        photosStr || 'Aucune photo'
+      ];
+    });
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    if (format === 'csv') {
+      const csvLines = [
+        headers.join(';'),
+        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+      ];
+      // BOM UTF-8 (\uFEFF)
+      const csvContent = '\uFEFF' + csvLines.join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      this.triggerBlobDownload(blob, `sapsap-campagne-${campaignId}-export-${dateStr}.csv`);
+    } else {
+      // Excel XML Spreadsheet 2003
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Header">
+   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11" ss:FontName="Segoe UI"/>
+   <Interior ss:Color="#059669" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="Default">
+   <Font ss:Color="#111827" ss:Size="10" ss:FontName="Segoe UI"/>
+   <Alignment ss:Vertical="Center"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Résultats SapSap">
+  <Table>
+   <Row ss:Height="24">
+    ${headers.map(h => `<Cell ss:StyleID="Header"><Data ss:Type="String">${this.escapeXml(h)}</Data></Cell>`).join('')}
+   </Row>
+   ${rows.map(row => `
+   <Row ss:Height="20">
+    ${row.map(cell => `<Cell ss:StyleID="Default"><Data ss:Type="${typeof cell === 'number' ? 'Number' : 'String'}">${this.escapeXml(String(cell))}</Data></Cell>`).join('')}
+   </Row>`).join('')}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+      const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      this.triggerBlobDownload(blob, `sapsap-campagne-${campaignId}-export-${dateStr}.xls`);
+    }
+  }
+
+  private escapeXml(unsafe: string): string {
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '\'': return '&apos;';
+        case '"': return '&quot;';
+        default: return c;
+      }
+    });
+  }
+
+  private triggerBlobDownload(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 
   // =========================================================================

@@ -28,6 +28,17 @@
         <span class="radar-live"></span>
         <span>Mise à jour en temps réel</span>
       </div>
+
+      <!-- Bouton Exporter (Story 5.3) -->
+      <button class="btn btn-emerald btn-sm" (click)="openExportModal('csv')" title="Exporter les données (CSV / Excel)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span>Exporter les données</span>
+      </button>
+
       <button class="btn btn-secondary btn-sm" (click)="loadData()" title="Rafraîchir les données">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"/>
@@ -215,6 +226,24 @@
           placeholder="Rechercher maquis, kiosque..." 
           [ngModel]="searchQuery()" 
           (ngModelChange)="searchQuery.set($event)">
+      <!-- Quick Export Pills (Story 5.3) -->
+      <div class="quick-export-group">
+        <button class="btn-export-quick csv" (click)="openExportModal('csv')" title="Exporter au format CSV">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>CSV</span>
+        </button>
+        <button class="btn-export-quick excel" (click)="openExportModal('excel')" title="Exporter au format Excel (.xls)">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Excel</span>
+        </button>
       </div>
 
       <!-- View Switch -->
@@ -519,5 +548,145 @@
         Photo certifiée avec géolocalisation native • Ouagadougou
       </div>
     </div>
+  </div>
+
+  <!-- Modal d'Exportation des Données (Story 5.3) -->
+  <div class="export-modal-backdrop" *ngIf="isExportModalOpen()" (click)="closeExportModal()">
+    <div class="card export-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-badge-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">Exporter les Données de Campagne</h2>
+            <p class="modal-subtitle">{{ tracking.campaign.title }}</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" (click)="closeExportModal()" title="Fermer">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Choix du Format -->
+        <div class="form-group">
+          <label class="form-label">Format de fichier :</label>
+          <div class="format-selector-grid">
+            <div 
+              class="format-card" 
+              [class.active]="exportFormat() === 'csv'" 
+              (click)="setExportFormat('csv')">
+              <div class="format-icon csv-icon">CSV</div>
+              <div class="format-details">
+                <div class="format-name">CSV Universel</div>
+                <div class="format-desc">Encodage UTF-8 avec BOM, compatible Excel, ERP & scripts d'importation.</div>
+              </div>
+              <div class="format-check" *ngIf="exportFormat() === 'csv'">✓</div>
+            </div>
+
+            <div 
+              class="format-card" 
+              [class.active]="exportFormat() === 'excel'" 
+              (click)="setExportFormat('excel')">
+              <div class="format-icon xls-icon">XLS</div>
+              <div class="format-details">
+                <div class="format-name">Microsoft Excel (.xls)</div>
+                <div class="format-desc">Feuille de calcul mise en forme aux couleurs SapSap avec colonnes typées.</div>
+              </div>
+              <div class="format-check" *ngIf="exportFormat() === 'excel'">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Périmètre des données -->
+        <div class="form-group">
+          <label class="form-label">Périmètre des données :</label>
+          <div class="scope-options">
+            <label class="scope-radio-label">
+              <input 
+                type="radio" 
+                name="exportScope" 
+                value="all" 
+                [checked]="exportStatusScope() === 'all'" 
+                (change)="setExportStatusScope('all')">
+              <div class="scope-info">
+                <span class="scope-title">Toutes les missions ({{ campaignService.currentResultsMap().length }} points)</span>
+                <span class="scope-sub">Inclut validées, en cours, soumises et disponibles</span>
+              </div>
+            </label>
+
+            <label class="scope-radio-label">
+              <input 
+                type="radio" 
+                name="exportScope" 
+                value="validated" 
+                [checked]="exportStatusScope() === 'validated'" 
+                (change)="setExportStatusScope('validated')">
+              <div class="scope-info">
+                <span class="scope-title">Missions validées uniquement ({{ tracking.metrics.completed_missions }} points)</span>
+                <span class="scope-sub">Recommandé pour l'analyse des résultats finaux vérifiés</span>
+              </div>
+            </label>
+
+            <label class="scope-radio-label" *ngIf="activeStatusFilter() !== 'all' && activeStatusFilter() !== 'validated'">
+              <input 
+                type="radio" 
+                name="exportScope" 
+                value="current" 
+                [checked]="exportStatusScope() === 'current'" 
+                (change)="setExportStatusScope('current')">
+              <div class="scope-info">
+                <span class="scope-title">Filtre actuel ({{ activeStatusFilter() }})</span>
+                <span class="scope-sub">Exporte uniquement les éléments correspondant à la vue filtrée</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Aperçu des colonnes incluses -->
+        <div class="columns-preview-box">
+          <div class="preview-header">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span>Données incluses dans le rapport :</span>
+          </div>
+          <div class="columns-tags">
+            <span class="col-tag">ID & Titre Mission</span>
+            <span class="col-tag">Quartier & Ville</span>
+            <span class="col-tag">Coordonnées GPS & Écart</span>
+            <span class="col-tag">Contributeur & Score</span>
+            <span class="col-tag">Réponses Questionnaire</span>
+            <span class="col-tag">Liens Photos Terrain</span>
+            <span class="col-tag">Horodatages & Validation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeExportModal()" [disabled]="isExporting()">
+          Annuler
+        </button>
+        <button class="btn btn-emerald" (click)="triggerExport()" [disabled]="isExporting()">
+          <span *ngIf="!isExporting()">
+            📥 Télécharger le fichier {{ exportFormat().toUpperCase() }}
+          </span>
+          <span *ngIf="isExporting()" class="loading-state">
+            <span class="spinner-inline"></span> Génération du fichier...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Feedback -->
+  <div class="toast-notification" *ngIf="toastMessage() as msg">
+    <div class="toast-icon">✓</div>
+    <div class="toast-text">{{ msg }}</div>
   </div>
 </div>

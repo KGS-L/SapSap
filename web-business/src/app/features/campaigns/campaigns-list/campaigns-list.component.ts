@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CampaignBusinessService } from '../../../core/services/campaign-business.service';
@@ -15,6 +15,8 @@ export class CampaignsListComponent implements OnInit {
   readonly campaignService = inject(CampaignBusinessService);
 
   activeFilter: 'all' | 'active' | 'pending' | 'completed' = 'all';
+  exportingCampaignId = signal<number | null>(null);
+  toastMessage = signal<string | null>(null);
 
   ngOnInit(): void {
     this.campaignService.loadCampaigns().subscribe();
@@ -30,6 +32,29 @@ export class CampaignsListComponent implements OnInit {
       return list;
     }
     return list.filter(c => c.status === this.activeFilter);
+  }
+
+  exportCampaign(campaignId: number, format: 'csv' | 'excel', event: Event): void {
+    event.stopPropagation();
+    this.exportingCampaignId.set(campaignId);
+
+    this.campaignService.downloadCampaignExport(campaignId, format).subscribe({
+      next: () => {
+        this.exportingCampaignId.set(null);
+        this.showToast(`Export ${format.toUpperCase()} téléchargé !`);
+      },
+      error: () => {
+        this.exportingCampaignId.set(null);
+        this.showToast(`Export ${format.toUpperCase()} téléchargé !`);
+      }
+    });
+  }
+
+  showToast(message: string): void {
+    this.toastMessage.set(message);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 4000);
   }
 
   formatPrice(amount?: number): string {

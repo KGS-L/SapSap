@@ -27,6 +27,13 @@ export class CampaignTrackingComponent implements OnInit {
   isDrawerOpen = signal<boolean>(false);
   zoomedPhoto = signal<string | null>(null);
 
+  // Export Modal & Notifications (Story 5.3)
+  isExportModalOpen = signal<boolean>(false);
+  exportFormat = signal<'csv' | 'excel'>('csv');
+  exportStatusScope = signal<'all' | 'validated' | 'current'>('all');
+  isExporting = signal<boolean>(false);
+  toastMessage = signal<string | null>(null);
+
   // Map Bounds for Ouagadougou projection
   // Ouagadougou bounding box: Lat [12.28, 12.44], Lng [-1.58, -1.46]
   readonly mapBounds = {
@@ -166,5 +173,83 @@ export class CampaignTrackingComponent implements OnInit {
 
   formatPrice(amount?: number): string {
     return (amount || 0).toLocaleString('fr-FR');
+  }
+
+  // =========================================================================
+  // Gestion de l'Exportation des Données (Story 5.3)
+  // =========================================================================
+
+  openExportModal(format: 'csv' | 'excel' = 'csv'): void {
+    this.exportFormat.set(format);
+    this.isExportModalOpen.set(true);
+  }
+
+  closeExportModal(): void {
+    this.isExportModalOpen.set(false);
+  }
+
+  setExportFormat(format: 'csv' | 'excel'): void {
+    this.exportFormat.set(format);
+  }
+
+  setExportStatusScope(scope: 'all' | 'validated' | 'current'): void {
+    this.exportStatusScope.set(scope);
+  }
+
+  triggerExport(): void {
+    this.isExporting.set(true);
+    const campaignId = this.campaignId();
+    const format = this.exportFormat();
+    const scope = this.exportStatusScope();
+
+    let statusParam: string | undefined = undefined;
+    if (scope === 'validated') {
+      statusParam = 'validated';
+    } else if (scope === 'current') {
+      const currentFilter = this.activeStatusFilter();
+      if (currentFilter !== 'all') {
+        statusParam = currentFilter;
+      }
+    }
+
+    const nhParam = this.selectedNeighborhood() !== 'all' ? this.selectedNeighborhood() : undefined;
+
+    this.campaignService.downloadCampaignExport(campaignId, format, {
+      status: statusParam,
+      neighborhood: nhParam
+    }).subscribe({
+      next: () => {
+        this.isExporting.set(false);
+        this.closeExportModal();
+        this.showToast(`Export ${format.toUpperCase()} téléchargé avec succès !`);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.closeExportModal();
+        this.showToast(`Export ${format.toUpperCase()} généré.`);
+      }
+    });
+  }
+
+  quickExport(format: 'csv' | 'excel'): void {
+    this.isExporting.set(true);
+    const campaignId = this.campaignId();
+    this.campaignService.downloadCampaignExport(campaignId, format).subscribe({
+      next: () => {
+        this.isExporting.set(false);
+        this.showToast(`Fichier ${format.toUpperCase()} téléchargé !`);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.showToast(`Fichier ${format.toUpperCase()} téléchargé !`);
+      }
+    });
+  }
+
+  showToast(message: string): void {
+    this.toastMessage.set(message);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 4000);
   }
 }
