@@ -1,0 +1,123 @@
+<div class="login-wrapper">
+  <!-- Background Glow & Shapes -->
+  <div class="glow-orb glow-top"></div>
+  <div class="glow-orb glow-bottom"></div>
+
+  <div class="login-container">
+    <!-- Brand Header -->
+    <div class="brand-header">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="brand-icon">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+      </div>
+      <h1 class="brand-title">SapSap <span>Admin</span></h1>
+      <p class="brand-subtitle">Portail d'Administration, Modération & Sécurité</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card login-card">
+      <div class="card-intro">
+        <h2>Connexion Administrateur</h2>
+        <p>Saisissez vos identifiants d'accès sécurisé pour gérer la plateforme SapSap.</p>
+      </div>
+
+      <!-- Error Alert -->
+      @if (errorMessage()) {
+        <div class="alert alert-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="alert-icon">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">Adresse Email</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              [(ngModel)]="email" 
+              class="form-input" 
+              placeholder="ex: admin@sapsap.bf" 
+              required
+              autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">Mot de passe</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              [(ngModel)]="password" 
+              class="form-input" 
+              placeholder="••••••••••••" 
+              required
+              autocomplete="current-password"
+            />
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary submit-btn" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="btn-spinner"></span>
+            <span>Connexion en cours...</span>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Se connecter à l'espace Admin</span>
+          }
+        </button>
+      </form>
+
+      <!-- Quick Demo Accounts -->
+      <div class="demo-accounts-box">
+        <span class="demo-title">Comptes de test préconfigurés :</span>
+        <div class="demo-chips">
+          <button 
+            type="button" 
+            class="demo-chip"
+            (click)="fillDemo('admin@sapsap.bf')"
+          >
+            🛡️ Super-Admin (admin&#64;sapsap.bf)
+          </button>
+          <button 
+            type="button" 
+            class="demo-chip"
+            (click)="fillDemo('validator@sapsap.bf')"
+          >
+            📋 Validateur (validator&#64;sapsap.bf)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Footer -->
+    <div class="login-footer">
+      <span>🔒 Accès réservé aux équipes autorisées de SapSap Burkina Faso</span>
+    </div>
+  </div>
+</div>

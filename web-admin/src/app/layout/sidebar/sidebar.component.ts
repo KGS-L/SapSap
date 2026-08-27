@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SidebarService } from '../../core/services/sidebar.service';
 import { AdminStatsService } from '../../core/services/admin-stats.service';
+import { AuthService } from '../../core/services/auth.service';
 import { NavSection } from '../../core/models/nav-item.model';
 
 @Component({
@@ -14,6 +15,7 @@ import { NavSection } from '../../core/models/nav-item.model';
 export class SidebarComponent {
   readonly sidebarService = inject(SidebarService);
   readonly statsService = inject(AdminStatsService);
+  readonly authService = inject(AuthService);
 
   readonly navSections: NavSection[] = [
     {
@@ -80,5 +82,9 @@ export class SidebarComponent {
     if (this.sidebarService.isMobileOpen()) {
       this.sidebarService.closeMobile();
     }
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

@@ -225,12 +225,18 @@
   padding: 14px 16px;
   border-top: 1px solid var(--sidebar-border);
   background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .user-profile {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  overflow: hidden;
 }
 
 .user-avatar {
@@ -268,6 +274,32 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.logout-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Mobile Responsiveness */
