@@ -10,22 +10,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: var(--bg-card);
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  background: var(--color-surface);
+  padding: 26px 30px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-surface-border);
 }
 
 .welcome-title {
-  font-size: 1.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: var(--color-ink);
   margin-bottom: 4px;
+  letter-spacing: -0.015em;
 }
 
 .welcome-subtitle {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
 }
 
 .intro-actions {
@@ -38,7 +40,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 22px;
+  border-radius: var(--radius-xl);
 }
 
 .kpi-header {
@@ -50,14 +53,14 @@
 
 .kpi-label {
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--color-ink-muted);
 }
 
 .kpi-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,10 +71,10 @@
   height: 18px;
 }
 
-.icon-warning { background: var(--warning-bg); color: var(--warning-text); }
-.icon-info { background: var(--info-bg); color: var(--info-text); }
+.icon-warning { background: var(--color-buttercream); color: var(--color-buttercream-dark); }
+.icon-info { background: var(--color-lilac); color: var(--color-lilac-text); }
 .icon-danger { background: var(--danger-bg); color: var(--danger-text); }
-.icon-success { background: var(--success-bg); color: var(--success-text); }
+.icon-success { background: var(--color-sage-light); color: var(--color-sage-dark); }
 
 .kpi-body {
   display: flex;
@@ -82,29 +85,29 @@
 
 .kpi-value {
   font-family: var(--font-heading);
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: var(--color-ink);
   line-height: 1;
 }
 
 .kpi-footer {
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--color-surface-border-subtle);
   padding-top: 10px;
   font-size: 0.75rem;
 }
 
 .kpi-link {
-  font-weight: 600;
-  color: var(--primary-600);
+  font-weight: 700;
+  color: var(--color-terracotta-dark);
 }
 
 .kpi-link.danger-link {
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .kpi-caption {
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
 }
 
 /* Main Content Grid */
@@ -114,8 +117,8 @@
 
 .card-action-link {
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--primary-600);
+  font-weight: 700;
+  color: var(--color-terracotta-dark);
 }
 
 /* Campaigns Mini List */
@@ -130,10 +133,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 16px;
-  background: var(--bg-muted);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  padding: 14px 18px;
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-surface-border);
 }
 
 .campaign-main-info {
@@ -149,17 +152,17 @@
 }
 
 .campaign-name {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.9375rem;
-  color: var(--text-main);
+  color: var(--color-ink);
 }
 
 .campaign-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
 }
 
 .campaign-actions {
@@ -179,27 +182,27 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
-  background: var(--bg-muted);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  padding: 14px 18px;
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-surface-border);
   transition: all var(--transition-fast);
 }
 
 .submission-mini-item.suspect {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: #fef2f2;
+  border-color: rgba(211, 47, 47, 0.4);
+  background: var(--danger-bg);
 }
 
 .submission-avatar {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 50%;
-  background: var(--accent-gradient);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: var(--radius-full);
+  background: var(--primary-gradient);
   color: #ffffff;
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,39 +222,40 @@
 }
 
 .sub-contributor {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.875rem;
-  color: var(--text-main);
+  color: var(--color-ink);
 }
 
 .sub-score {
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--warning-text);
-  background: var(--warning-bg);
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
+  font-weight: 700;
+  color: var(--color-buttercream-dark);
+  background: var(--color-buttercream);
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
 }
 
 .sub-mission-name {
   font-size: 0.8125rem;
-  color: var(--text-secondary);
+  color: var(--color-ink-muted);
 }
 
 .sub-meta-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.7rem;
+  gap: 14px;
+  font-size: 0.72rem;
 }
 
 .gps-chip {
-  color: var(--text-muted);
+  color: var(--color-ink-subtle);
+  font-family: var(--font-mono);
 }
 
 .countdown-chip {
-  color: var(--primary-700);
-  font-weight: 600;
+  color: var(--color-terracotta-dark);
+  font-weight: 700;
 }
 
 @media (max-width: 992px) {

@@ -21,11 +21,12 @@
 /* Sidebar Header */
 .sidebar-header {
   height: var(--header-height);
-  padding: 0 18px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--sidebar-border);
+  background: var(--color-canvas);
 }
 
 .brand-wrapper {
@@ -36,16 +37,16 @@
 }
 
 .logo-icon {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   border-radius: var(--radius-md);
   background: var(--primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+  box-shadow: var(--shadow-terracotta);
 }
 
 .logo-icon svg {
@@ -61,30 +62,30 @@
 
 .brand-name {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
-  color: var(--sidebar-text-bright);
+  color: var(--color-ink);
   letter-spacing: -0.02em;
 }
 
 .brand-badge {
   font-size: 0.65rem;
   font-weight: 800;
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid rgba(52, 211, 153, 0.4);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  background: var(--color-terracotta-light);
+  color: var(--color-terracotta-dark);
+  border: 1px solid rgba(241, 100, 30, 0.3);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
   letter-spacing: 0.05em;
 }
 
 .collapse-btn {
   background: transparent;
-  border: none;
-  color: var(--sidebar-text);
+  border: 1px solid var(--color-surface-border);
+  color: var(--color-ink-muted);
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,32 +94,34 @@
 }
 
 .collapse-btn:hover {
-  background: var(--sidebar-hover);
-  color: var(--sidebar-text-bright);
+  background: var(--color-surface-elevated);
+  color: var(--color-ink);
+  border-color: var(--color-ink);
 }
 
 .collapse-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 /* Sidebar Navigation */
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 12px;
+  padding: 18px 14px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .section-title {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: #64748b;
+  color: var(--color-ink-subtle);
   letter-spacing: 0.08em;
   padding: 0 10px;
   margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
 .nav-list {
@@ -132,10 +135,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  border-radius: var(--radius-full);
   color: var(--sidebar-text);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.875rem;
   transition: all var(--transition-fast);
   text-decoration: none;
@@ -144,24 +147,24 @@
 
 .nav-link:hover {
   background: var(--sidebar-hover);
-  color: var(--sidebar-text-bright);
+  color: var(--color-ink);
 }
 
 .nav-link.active {
   background: var(--sidebar-active-bg);
   color: var(--sidebar-active-text);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .nav-link.active::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
   border-radius: 0 4px 4px 0;
-  background: var(--primary-500);
+  background: var(--color-terracotta);
 }
 
 .nav-icon {
@@ -187,11 +190,11 @@
 
 /* Scheduler Live Banner */
 .scheduler-banner {
-  margin: 12px 14px;
-  padding: 12px 14px;
-  background: var(--sidebar-card);
-  border: 1px solid var(--sidebar-border);
-  border-radius: var(--radius-md);
+  margin: 10px 14px;
+  padding: 14px 16px;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-lg);
 }
 
 .scheduler-header {
@@ -204,31 +207,31 @@
 .scheduler-title {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--sidebar-text-bright);
+  color: var(--color-ink);
 }
 
 .scheduler-desc {
-  font-size: 0.7rem;
-  color: #34d399;
-  font-weight: 500;
+  font-size: 0.72rem;
+  color: var(--color-sage-dark);
+  font-weight: 600;
   margin-bottom: 2px;
 }
 
 .scheduler-time {
   font-size: 0.65rem;
-  color: #64748b;
+  color: var(--color-ink-muted);
   display: block;
 }
 
 /* Sidebar Footer */
 .sidebar-footer {
-  padding: 14px 16px;
+  padding: 14px 18px;
   border-top: 1px solid var(--sidebar-border);
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--color-canvas);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .user-profile {
@@ -243,14 +246,15 @@
   width: 38px;
   height: 38px;
   min-width: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: var(--radius-full);
+  background: var(--primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8125rem;
   font-weight: 700;
   color: #ffffff;
+  box-shadow: var(--shadow-xs);
 }
 
 .user-info {
@@ -261,8 +265,8 @@
 
 .user-name {
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--sidebar-text-bright);
+  font-weight: 700;
+  color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -270,7 +274,7 @@
 
 .user-role {
   font-size: 0.6875rem;
-  color: #94a3b8;
+  color: var(--color-ink-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -279,12 +283,12 @@
 
 .logout-btn {
   background: transparent;
-  border: none;
-  color: #94a3b8;
+  border: 1px solid var(--color-surface-border);
+  color: var(--color-ink-muted);
   width: 34px;
   height: 34px;
   min-width: 34px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -293,8 +297,9 @@
 }
 
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
 .logout-btn svg {

@@ -9,19 +9,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 20px 24px;
+  padding: 22px 26px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-xl);
 }
 
 .section-title {
-  font-size: 1.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: var(--color-ink);
   margin-bottom: 2px;
+  letter-spacing: -0.015em;
 }
 
 .section-desc {
   font-size: 0.8125rem;
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
 }
 
 .live-pill {
@@ -29,12 +34,77 @@
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 9999px;
+  background: var(--color-sage-light);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--success);
+  color: var(--color-sage-dark);
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px;
+}
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.kpi-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+}
+
+.kpi-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-warning { background: var(--color-buttercream); color: var(--color-buttercream-dark); }
+.icon-info { background: var(--color-lilac); color: var(--color-lilac-text); }
+.icon-danger { background: var(--danger-bg); color: var(--danger-text); }
+.icon-success { background: var(--color-sage-light); color: var(--color-sage-dark); }
+.icon-primary { background: var(--color-terracotta-light); color: var(--color-terracotta-dark); }
+
+.kpi-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.kpi-value {
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1.1;
+}
+
+.kpi-footer {
+  border-top: 1px solid var(--color-surface-border-subtle);
+  padding-top: 10px;
+  font-size: 0.75rem;
+}
+
+.kpi-caption {
+  color: var(--color-ink-muted);
 }
 
 .operators-breakdown {
@@ -62,34 +132,34 @@
 
 .operator-amount {
   font-size: 0.875rem;
-  color: var(--text-main);
+  color: var(--color-ink);
 }
 
 .progress-bar-bg {
   width: 100%;
   height: 10px;
-  background: var(--bg-surface-2, rgba(255, 255, 255, 0.08));
-  border-radius: 9999px;
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   transition: width 0.5s ease-in-out;
 }
 
 .orange-fill {
-  background: linear-gradient(90deg, #ff7900, #ff9a3d);
+  background: linear-gradient(90deg, #F1641E, #D34B0B);
 }
 
 .moov-fill {
-  background: linear-gradient(90deg, #0055a5, #0088ff);
+  background: linear-gradient(90deg, #484C8A, #323568);
 }
 
 .operator-sub {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--color-ink-muted);
 }
 
 .rules-list {
@@ -112,13 +182,13 @@
 .rule-item strong {
   display: block;
   font-size: 0.8125rem;
-  color: var(--text-main);
+  color: var(--color-ink);
   margin-bottom: 2px;
 }
 
 .rule-item p {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
   margin: 0;
 }
 
@@ -132,20 +202,20 @@
 
 .tabs-group {
   display: flex;
-  background: var(--bg-muted);
+  background: var(--color-surface-elevated);
   padding: 4px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   gap: 4px;
 }
 
 .tab-btn {
   border: none;
   background: transparent;
-  padding: 8px 14px;
+  padding: 8px 16px;
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-radius: var(--radius-sm);
+  font-weight: 700;
+  color: var(--color-ink-muted);
+  border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -154,8 +224,8 @@
 }
 
 .tab-btn.active {
-  background: var(--bg-card);
-  color: var(--text-main);
+  background: #FFFFFF;
+  color: var(--color-ink);
   box-shadow: var(--shadow-xs);
 }
 
@@ -165,21 +235,21 @@
 }
 
 .pill-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface-2, rgba(255, 255, 255, 0.02));
-  color: var(--text-muted);
-  padding: 5px 12px;
+  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-ink-muted);
+  padding: 5px 14px;
   font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 9999px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .pill-btn.active {
-  background: var(--primary);
+  background: var(--color-ink);
   color: #fff;
-  border-color: var(--primary);
+  border-color: var(--color-ink);
 }
 
 .user-cell {
@@ -189,8 +259,8 @@
 }
 
 .score-badge {
-  font-size: 0.6875rem;
-  color: var(--primary-700);
+  font-size: 0.72rem;
+  color: var(--color-sage-dark);
 }
 
 .amount-tag {
@@ -199,32 +269,33 @@
 
 .provider-badge {
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 700;
   display: inline-block;
 }
 
 .badge-orange {
-  background: rgba(255, 121, 0, 0.15);
-  color: #ff7900;
-  border: 1px solid rgba(255, 121, 0, 0.3);
+  background: var(--color-terracotta-light);
+  color: var(--color-terracotta-dark);
+  border: 1px solid rgba(241, 100, 30, 0.25);
 }
 
 .badge-moov {
-  background: rgba(0, 85, 165, 0.15);
-  color: #0088ff;
-  border: 1px solid rgba(0, 85, 165, 0.3);
+  background: var(--color-lilac);
+  color: var(--color-lilac-text);
+  border: 1px solid var(--info-border);
 }
 
 .payout-id-tag {
   font-size: 0.75rem;
-  background: var(--bg-surface-2, rgba(255, 255, 255, 0.04));
-  padding: 3px 6px;
-  border-radius: 3px;
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  background: var(--color-surface-elevated);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--color-ink-muted);
 }
 
 .text-danger {
-  color: var(--danger);
+  color: var(--danger-text);
 }

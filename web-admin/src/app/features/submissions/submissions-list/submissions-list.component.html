@@ -1,8 +1,8 @@
 <div class="submissions-page">
-  <!-- Toast Notification -->
+  <!-- Toast Notification Feedback -->
   @if (actionFeedback()) {
     <div class="feedback-toast">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="toast-icon">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
@@ -12,9 +12,26 @@
 
   <!-- Header & Filter Tabs -->
   <div class="page-header card">
-    <div>
-      <h2 class="section-title">Revue des Soumissions Terrain & Auto-Validation</h2>
-      <p class="section-desc">Inspectez les preuves capturées (photos natives in-app, questionnaire, contrôle GPS < 100m) et suivez les auto-validations à 48h.</p>
+    <div class="header-titles">
+      <div class="title-row">
+        <h2 class="section-title">Desk de Modération Terrain & Auto-Validation</h2>
+        <div class="desk-quick-action">
+          <button class="btn btn-primary btn-sm" (click)="openInspectModal(submissionService.submissions()[0] || null, 0)" [disabled]="submissionService.submissions().length === 0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="12" y1="3" x2="12" y2="17"></line>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span>Lancer le Desk Split-Screen</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" (click)="toggleShortcutsHelp()" title="Afficher les raccourcis clavier">
+            <kbd class="kbd-key">?</kbd>
+            <span>Raccourcis clavier</span>
+          </button>
+        </div>
+      </div>
+      <p class="section-desc">Inspectez les preuves capturées (photos natives in-app, questionnaire, contrôle GPS &lt; 100m) et arbitrez à haute vélocité avec les raccourcis clavier.</p>
     </div>
 
     <!-- Filter Tabs -->
@@ -26,7 +43,7 @@
       >
         À valider
         @if (submissionService.counts().submitted > 0) {
-          <span class="tab-count">{{ submissionService.counts().submitted }}</span>
+          <span class="tab-count badge-warning-count">{{ submissionService.counts().submitted }}</span>
         }
       </button>
       <button 
@@ -75,7 +92,7 @@
     @if (submissionService.isLoading()) {
       <div class="loading-state">
         <div class="spinner"></div>
-        <span>Chargement des soumissions...</span>
+        <span>Chargement des preuves terrain...</span>
       </div>
     } @else if (submissionService.submissions().length === 0) {
       <div class="empty-state">
@@ -97,11 +114,16 @@
           </tr>
         </thead>
         <tbody>
-          @for (sub of submissionService.submissions(); track sub.id) {
-            <tr [class.row-alert]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100" [class.row-auto]="!!sub.auto_validated_at">
+          @for (sub of submissionService.submissions(); track sub.id; let i = $index) {
+            <tr 
+              [class.row-alert]="sub.status === 'fraud_suspect' || sub.gps_distance_meters > 100" 
+              [class.row-auto]="!!sub.auto_validated_at"
+              (click)="openInspectModal(sub, i)"
+              class="clickable-row"
+            >
               <td>
                 <div class="contributor-cell">
-                  <span class="sub-ref">SUB-2026-00{{ sub.id }}</span>
+                  <span class="sub-ref font-mono">SUB-2026-00{{ sub.id }}</span>
                   <span class="contributor-name">{{ sub.user?.name || 'Contributeur' }}</span>
                   <span class="score-badge" title="Score de réputation">⭐ {{ sub.user?.reputation_score || 0 }}/100</span>
                 </div>
@@ -126,7 +148,7 @@
                   >
                     {{ sub.gps_distance_meters <= 100 ? '✓ Écart: ' + sub.gps_distance_meters + 'm' : '⚠️ Alerte GPS: ' + sub.gps_distance_meters + 'm' }}
                   </span>
-                  <span class="gps-subtext">Précision ±{{ sub.gps_accuracy }}m</span>
+                  <span class="gps-subtext font-mono">Précision ±{{ sub.gps_accuracy }}m</span>
                 </div>
               </td>
               <td>
@@ -161,12 +183,14 @@
                   </span>
                 }
               </td>
-              <td style="text-align: right;">
+              <td style="text-align: right;" (click)="$event.stopPropagation()">
                 <div class="table-actions">
-                  <button class="btn btn-sm btn-secondary" (click)="openInspectModal(sub)">Inspecter</button>
+                  <button class="btn btn-sm btn-secondary" (click)="openInspectModal(sub, i)" title="Ouvrir le Desk Split-Screen">
+                    Inspecter
+                  </button>
                   @if (sub.status === 'submitted' || sub.status === 'fraud_suspect') {
-                    <button class="btn btn-sm btn-primary" (click)="onValidate(sub)">Valider</button>
-                    <button class="btn btn-sm btn-danger" (click)="openRejectModal(sub)">Rejeter</button>
+                    <button class="btn btn-sm btn-sage" (click)="onValidate(sub)" title="Valider directement">Valider</button>
+                    <button class="btn btn-sm btn-danger" (click)="openRejectModal(sub)" title="Rejeter avec motif">Rejeter</button>
                   }
                 </div>
               </td>
@@ -177,22 +201,65 @@
     }
   </div>
 
-  <!-- Detailed Inspector Modal (Photos, GPS & Answers) -->
+  <!-- Modernized Split-Screen Moderation Desk Modal -->
   @if (isInspectModalOpen() && selectedSubmission()) {
-    <div class="modal-backdrop" (click)="closeInspectModal()">
-      <div class="modal-card modal-xl" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div class="modal-title-row">
-            <span class="modal-icon-info">🔍</span>
+    <div class="desk-backdrop" (click)="closeInspectModal()">
+      <div class="desk-container" (click)="$event.stopPropagation()">
+        <!-- Top Desk Navigation & Action Bar -->
+        <div class="desk-header">
+          <div class="desk-header-left">
+            <div class="desk-brand-badge">
+              <span>SPLIT-SCREEN</span>
+            </div>
             <div>
-              <h3>Inspection de la soumission SUB-2026-00{{ selectedSubmission()?.id }}</h3>
-              <p class="modal-subtitle">{{ selectedSubmission()?.mission?.title }} — {{ selectedSubmission()?.mission?.campaign?.company_name }}</p>
+              <h3 class="desk-sub-ref">
+                Soumission SUB-2026-00{{ selectedSubmission()?.id }}
+                <span class="queue-counter">({{ currentQueueIndex() + 1 }} / {{ submissionService.submissions().length }})</span>
+              </h3>
+              <p class="desk-sub-campaign">{{ selectedSubmission()?.mission?.title }} — {{ selectedSubmission()?.mission?.campaign?.company_name }}</p>
             </div>
           </div>
-          <button class="close-btn" (click)="closeInspectModal()">✕</button>
+
+          <!-- Queue Navigation Shortcuts -->
+          <div class="desk-queue-nav">
+            <button class="nav-arrow-btn" (click)="goToPreviousSubmission()" title="Soumission précédente (Touche K ou ←)">
+              <kbd class="kbd-shortcut">K</kbd>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <span>Précédente</span>
+            </button>
+            <button class="nav-arrow-btn" (click)="goToNextSubmission()" title="Soumission suivante (Touche J ou →)">
+              <span>Suivante</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              <kbd class="kbd-shortcut">J</kbd>
+            </button>
+          </div>
+
+          <!-- Header Right Utilities -->
+          <div class="desk-header-right">
+            <button class="icon-utility-btn" (click)="toggleZoom()" title="Agrandir la photo (Touche Z)">
+              <kbd class="kbd-shortcut">Z</kbd>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="11" y1="8" x2="11" y2="14"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </button>
+            <button class="icon-utility-btn" (click)="toggleShortcutsHelp()" title="Aide Raccourcis (Touche ?)">
+              <kbd class="kbd-shortcut">?</kbd>
+            </button>
+            <button class="close-desk-btn" (click)="closeInspectModal()" title="Fermer (Touche Echap)">
+              <kbd class="kbd-shortcut">Esc</kbd>
+              <span>✕</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Banner for Auto-Validated Submissions -->
+        <!-- Auto-Validated Notification Banner if applicable -->
         @if (selectedSubmission()?.auto_validated_at) {
           <div class="auto-validated-banner">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="auto-banner-icon">
@@ -200,154 +267,238 @@
             </svg>
             <div>
               <strong>Soumission Auto-Validée à 48h</strong>
-              <p>Cette soumission a été validée automatiquement par le planificateur Laravel Scheduler le {{ formatDateTimeFull(selectedSubmission()?.auto_validated_at) }} suite au délai d'inactivité de 48 heures. Les gains ({{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA) ont été crédités au portefeuille du contributeur.</p>
+              <p>Cette soumission a été validée automatiquement par le planificateur Laravel Scheduler le {{ formatDateTimeFull(selectedSubmission()?.auto_validated_at) }}. Les fonds ({{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA) ont été crédités.</p>
             </div>
           </div>
         }
 
-        <div class="modal-body inspector-grid">
-          <!-- Left Column: Photos Gallery & Zoom -->
-          <div class="photos-panel">
-            <h4 class="panel-heading">Photos Natives Capturées</h4>
-            
-            <div class="main-photo-view">
-              @if (zoomedPhoto()) {
-                <img [src]="zoomedPhoto()" alt="Preuve terrain" class="zoomed-image" />
-              } @else {
-                <div class="no-photo">Aucune photo</div>
-              }
+        <!-- Split-Screen Body Grid (50% / 50%) -->
+        <div class="split-screen-grid">
+          <!-- LEFT PANE: Mission Reference & Guidelines -->
+          <div class="pane-column left-pane">
+            <div class="pane-header">
+              <span class="pane-badge">CONSIGNE & RÉFÉRENCE</span>
+              <span class="reward-pill">{{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA</span>
             </div>
 
-            @if (selectedSubmission()?.photos && selectedSubmission()!.photos!.length > 1) {
-              <div class="thumbnails-row">
-                @for (photo of selectedSubmission()!.photos!; track $index) {
-                  <img 
-                    [src]="photo" 
-                    alt="Vignette" 
-                    class="thumb-img"
-                    [class.active]="zoomedPhoto() === photo"
-                    (click)="setZoomedPhoto(photo)"
-                  />
-                }
-              </div>
-            }
-          </div>
-
-          <!-- Right Column: GPS Verification & Form Answers -->
-          <div class="data-panel">
-            <!-- GPS Audit Card -->
-            <div class="audit-card" [class.audit-alert]="selectedSubmission()!.gps_distance_meters > 100">
-              <div class="audit-header">
-                <span class="audit-title">Contrôle de Proximité Géographique (GPS)</span>
-                <span 
-                  class="badge"
-                  [class.badge-success]="selectedSubmission()!.gps_distance_meters <= 100"
-                  [class.badge-danger]="selectedSubmission()!.gps_distance_meters > 100"
-                >
-                  {{ selectedSubmission()!.gps_distance_meters <= 100 ? '✓ Conforme (<100m)' : '⚠️ Écart non conforme' }}
-                </span>
-              </div>
-              <div class="audit-metrics">
-                <div class="metric">
-                  <span class="metric-label">Écart au point cible :</span>
-                  <span class="metric-value font-bold" [class.text-danger]="selectedSubmission()!.gps_distance_meters > 100">
-                    {{ selectedSubmission()?.gps_distance_meters }} mètres
-                  </span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Précision du capteur :</span>
-                  <span class="metric-value">±{{ selectedSubmission()?.gps_accuracy }} mètres</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-label">Device ID :</span>
-                  <span class="metric-value font-mono">{{ selectedSubmission()?.device_id || 'N/A' }}</span>
-                </div>
+            <!-- Mission Details Card -->
+            <div class="mission-reference-card">
+              <h4 class="mission-headline">{{ selectedSubmission()?.mission?.title }}</h4>
+              <div class="mission-meta-tags">
+                <span class="meta-tag">🏢 {{ selectedSubmission()?.mission?.campaign?.company_name }}</span>
+                <span class="meta-tag">📍 {{ selectedSubmission()?.mission?.location_name }}</span>
+                <span class="meta-tag">🏷️ {{ selectedSubmission()?.mission?.campaign?.type }}</span>
               </div>
             </div>
 
-            <!-- Contributor Profile Snippet -->
-            <div class="contributor-card">
-              <div class="contributor-avatar">
-                <span>{{ (selectedSubmission()?.user?.name || 'C').substring(0, 2).toUpperCase() }}</span>
+            <!-- Target Location & Allowed Radius Card -->
+            <div class="target-location-card">
+              <div class="target-header">
+                <span class="target-title">Point Cible & Périmètre de Tolérance</span>
+                <span class="badge badge-primary font-mono">Max 100m</span>
               </div>
-              <div class="contributor-details">
-                <span class="c-name">{{ selectedSubmission()?.user?.name }}</span>
-                <span class="c-phone">📞 {{ selectedSubmission()?.user?.phone }}</span>
-                <span class="c-score">⭐ Score de réputation : {{ selectedSubmission()?.user?.reputation_score }}/100</span>
+              <div class="target-coords font-mono">
+                <span>Latitude Cible : 12.3716° N</span>
+                <span>Longitude Cible : -1.5195° O</span>
               </div>
-              <div class="reward-box">
-                <span class="reward-label">Gain versé :</span>
-                <span class="reward-amount">{{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA</span>
-              </div>
+              <p class="target-hint">La prise de vue doit être effectuée in-situ via l'application mobile native avec géolocalisation haute précision.</p>
             </div>
 
-            <!-- Answers List -->
-            <div class="answers-panel">
-              <h4 class="panel-heading">Réponses au Questionnaire Terrain</h4>
+            <!-- Guidelines & Quality Checklist -->
+            <div class="guidelines-card">
+              <h5 class="guidelines-title">Critères d'Acceptation de la Campagne</h5>
+              <ul class="guidelines-list">
+                <li>📸 <strong>Lisibilité Photo :</strong> La façade ou la PLV doit être nette, de face et sans reflet obstruant.</li>
+                <li>📡 <strong>Contrôle GPS :</strong> L'écart géospatial doit être inférieur à 100 mètres du point de vente répertorié.</li>
+                <li>🕒 <strong>Horodatage in-app :</strong> La preuve doit provenir d'une capture native directe (aucun upload de galerie).</li>
+              </ul>
+            </div>
+
+            <!-- Questionnaire Answers from Mobile -->
+            <div class="answers-card">
+              <h5 class="answers-title">Questionnaire Rempli par le Contributeur</h5>
               <div class="answers-list">
                 @for (item of getAnswerEntries(selectedSubmission()?.answers); track item.key) {
                   <div class="answer-item">
-                    <span class="question-text">{{ item.key }}</span>
-                    <span class="answer-text">{{ item.value }}</span>
+                    <span class="q-label">{{ item.key }}</span>
+                    <span class="a-val">{{ item.value }}</span>
                   </div>
                 }
               </div>
             </div>
+          </div>
 
-            <!-- Rejection Reason if any -->
+          <!-- RIGHT PANE: Native Submitted Proof & Sensor HUD -->
+          <div class="pane-column right-pane">
+            <div class="pane-header">
+              <span class="pane-badge">PREUVE TERRAIN CAPTURÉE</span>
+              <span 
+                class="badge"
+                [class.badge-success]="selectedSubmission()!.gps_distance_meters <= 100"
+                [class.badge-danger]="selectedSubmission()!.gps_distance_meters > 100"
+              >
+                {{ selectedSubmission()!.gps_distance_meters <= 100 ? '✓ GPS Conforme' : '⚠️ Écart non conforme' }}
+              </span>
+            </div>
+
+            <!-- Photo Viewer with Integrated HUD Badge Overlay -->
+            <div class="photo-viewer-container" [class.zoom-active]="isZoomed()">
+              <div class="main-photo-stage">
+                @if (zoomedPhoto()) {
+                  <img [src]="zoomedPhoto()" alt="Preuve terrain capturée in-app" class="hero-image" />
+                } @else {
+                  <div class="no-photo">Aucune photo transmise</div>
+                }
+
+                <!-- Floating Live HUD Overlay on Photo -->
+                <div class="photo-hud-overlay">
+                  <div class="hud-item" [class.hud-alert]="selectedSubmission()!.gps_distance_meters > 100">
+                    <span class="hud-label">Écart GPS</span>
+                    <span class="hud-val font-mono">{{ selectedSubmission()?.gps_distance_meters }} m</span>
+                  </div>
+                  <div class="hud-item">
+                    <span class="hud-label">Précision</span>
+                    <span class="hud-val font-mono">±{{ selectedSubmission()?.gps_accuracy }} m</span>
+                  </div>
+                  <div class="hud-item">
+                    <span class="hud-label">Terminal</span>
+                    <span class="hud-val font-mono">{{ selectedSubmission()?.device_id }}</span>
+                  </div>
+                  <div class="hud-item">
+                    <span class="hud-label">Date certifiée</span>
+                    <span class="hud-val font-mono">{{ formatDateShort(selectedSubmission()?.created_at) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Thumbnails row if multiple photos -->
+              @if (selectedSubmission()?.photos && selectedSubmission()!.photos!.length > 1) {
+                <div class="multi-photos-strip">
+                  @for (photo of selectedSubmission()!.photos!; track $index) {
+                    <img 
+                      [src]="photo" 
+                      alt="Vignette" 
+                      class="strip-thumb"
+                      [class.active]="zoomedPhoto() === photo"
+                      (click)="setZoomedPhoto(photo)"
+                    />
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Contributor Reputation & Identity Card -->
+            <div class="contributor-profile-box">
+              <div class="c-avatar-large">
+                <span>{{ (selectedSubmission()?.user?.name || 'C').substring(0, 2).toUpperCase() }}</span>
+              </div>
+              <div class="c-info-block">
+                <div class="c-name-row">
+                  <span class="c-name-text">{{ selectedSubmission()?.user?.name }}</span>
+                  <span class="c-score-badge">⭐ Score : {{ selectedSubmission()?.user?.reputation_score }}/100</span>
+                </div>
+                <div class="c-contact-row">
+                  <span>📞 {{ selectedSubmission()?.user?.phone }}</span>
+                  <span>✉️ {{ selectedSubmission()?.user?.email }}</span>
+                </div>
+              </div>
+              <div class="c-reward-summary">
+                <span class="reward-title">Gain à débloquer</span>
+                <span class="reward-val">{{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA</span>
+              </div>
+            </div>
+
+            <!-- If already rejected, show reason -->
             @if (selectedSubmission()?.rejection_reason) {
-              <div class="rejection-box">
-                <strong>Motif de refus :</strong> {{ selectedSubmission()?.rejection_reason }}
+              <div class="rejection-box-note">
+                <strong>Motif de refus consigné :</strong> {{ selectedSubmission()?.rejection_reason }}
               </div>
             }
           </div>
         </div>
 
-        <div class="modal-footer">
-          @if (selectedSubmission()?.status === 'submitted' || selectedSubmission()?.status === 'fraud_suspect') {
-            <button class="btn btn-danger" (click)="openRejectModal(selectedSubmission()!)">Rejeter avec motif</button>
-            <button class="btn btn-primary" (click)="onValidate(selectedSubmission()!)">Valider manuellement</button>
-          } @else {
-            <button class="btn btn-secondary" (click)="closeInspectModal()">Fermer</button>
-          }
+        <!-- High-Velocity Bottom Action Bar with Visual Keyboard Shortcuts -->
+        <div class="desk-footer-action-bar">
+          <div class="shortcuts-legend">
+            <span class="legend-item"><kbd class="kbd-key">E</kbd> Valider & Payer</span>
+            <span class="legend-item"><kbd class="kbd-key">R</kbd> Rejeter</span>
+            <span class="legend-item"><kbd class="kbd-key">F</kbd> Fraude</span>
+            <span class="legend-item"><kbd class="kbd-key">J</kbd> / <kbd class="kbd-key">K</kbd> Naviguer</span>
+            <span class="legend-item"><kbd class="kbd-key">Z</kbd> Zoom</span>
+          </div>
+
+          <div class="desk-action-buttons">
+            @if (selectedSubmission()?.status === 'submitted' || selectedSubmission()?.status === 'fraud_suspect') {
+              <button class="btn btn-outline-warning" (click)="openFraudModal(selectedSubmission()!)" title="Signaler en fraude (Touche F)">
+                <kbd class="kbd-key">F</kbd>
+                <span>Alerte Fraude</span>
+              </button>
+              <button class="btn btn-danger" (click)="openRejectModal(selectedSubmission()!)" title="Rejeter avec motif (Touche R)">
+                <kbd class="kbd-key">R</kbd>
+                <span>Rejeter avec motif</span>
+              </button>
+              <button class="btn btn-sage" (click)="onValidate(selectedSubmission()!)" title="Valider & Payer immédiatement (Touche E)">
+                <kbd class="kbd-key">E</kbd>
+                <span>Valider & Payer ({{ formatPrice(selectedSubmission()?.mission?.reward) }} FCFA)</span>
+              </button>
+            } @else {
+              <button class="btn btn-secondary" (click)="closeInspectModal()">
+                <kbd class="kbd-key">Esc</kbd>
+                <span>Fermer l'inspection</span>
+              </button>
+            }
+          </div>
         </div>
       </div>
     </div>
   }
 
-  <!-- Rejection Modal -->
+  <!-- Fast Rejection Modal with 1-Click Presets -->
   @if (isRejectModalOpen() && selectedSubmission()) {
     <div class="modal-backdrop" (click)="closeRejectModal()">
-      <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-card modal-md" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <div class="modal-title-row">
             <span class="modal-icon-danger">⚠️</span>
-            <h3>Rejeter la soumission</h3>
+            <div>
+              <h3>Rejeter la soumission SUB-2026-00{{ selectedSubmission()?.id }}</h3>
+              <p class="modal-subtitle">Contributeur : <strong>{{ selectedSubmission()?.user?.name }}</strong></p>
+            </div>
           </div>
           <button class="close-btn" (click)="closeRejectModal()">✕</button>
         </div>
 
         <div class="modal-body">
-          <p class="modal-desc">
-            Veuillez indiquer le motif du rejet de la soumission de <strong>{{ selectedSubmission()?.user?.name }}</strong>.
-            Le contributeur recevra cette explication.
-          </p>
+          <label class="form-label">Motifs fréquents en 1 clic :</label>
+          <div class="quick-presets-grid">
+            @for (preset of quickRejectionPresets; track preset.label) {
+              <button 
+                type="button" 
+                class="preset-chip" 
+                [class.selected]="rejectionReason === preset.text"
+                (click)="applyQuickReason(preset.text)"
+              >
+                {{ preset.label }}
+              </button>
+            }
+          </div>
 
-          <div class="form-group">
-            <label for="subRejectReason" class="form-label">Motif du rejet (obligatoire)</label>
+          <div class="form-group" style="margin-top: 14px;">
+            <label for="subRejectReason" class="form-label">Explication détaillée pour le contributeur :</label>
             <textarea 
               id="subRejectReason" 
               [(ngModel)]="rejectionReason" 
               class="form-textarea" 
-              placeholder="ex: La photo de l'enseigne est floue et l'écart GPS dépasse la tolérance de 100m."
+              placeholder="Saisissez la raison du refus..."
               rows="4"
               required
             ></textarea>
+            <small class="form-hint">Astuce : Appuyez sur <kbd class="kbd-key">Ctrl</kbd>+<kbd class="kbd-key">Enter</kbd> pour confirmer immédiatement.</small>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler</button>
+          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler (<kbd>Esc</kbd>)</button>
           <button 
             class="btn btn-danger" 
             [disabled]="!rejectionReason.trim()"
@@ -355,6 +506,107 @@
           >
             Confirmer le Rejet
           </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Fast Fraud Signal Modal -->
+  @if (isFraudModalOpen() && selectedSubmission()) {
+    <div class="modal-backdrop" (click)="closeFraudModal()">
+      <div class="modal-card modal-md" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-danger">🛡️</span>
+            <div>
+              <h3>Signaler en Alerte Anti-Fraude</h3>
+              <p class="modal-subtitle">Soumission SUB-2026-00{{ selectedSubmission()?.id }}</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeFraudModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-desc">
+            Le signalement rejettera la soumission et ouvrira une alerte anti-fraude prioritaire pour <strong>{{ selectedSubmission()?.user?.name }}</strong> (Terminal : <code>{{ selectedSubmission()?.device_id }}</code>).
+          </p>
+
+          <div class="form-group">
+            <label for="fraudReasonInput" class="form-label">Motif de suspicion :</label>
+            <textarea 
+              id="fraudReasonInput" 
+              [(ngModel)]="fraudReason" 
+              class="form-textarea" 
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeFraudModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmFraud()">
+            Déclencher l'Alerte Fraude
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Keyboard Shortcuts Help Modal -->
+  @if (isShortcutsHelpOpen()) {
+    <div class="modal-backdrop" (click)="toggleShortcutsHelp()">
+      <div class="modal-card modal-md" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-info">⌨️</span>
+            <h3>Raccourcis Clavier du Desk de Modération</h3>
+          </div>
+          <button class="close-btn" (click)="toggleShortcutsHelp()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="shortcuts-table">
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">E</kbd> ou <kbd class="kbd-key">V</kbd></span>
+              <span class="action-desc">Valider la soumission et créditer le gain FCFA</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">R</kbd></span>
+              <span class="action-desc">Ouvrir le dialogue de rejet avec motifs rapides</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">F</kbd></span>
+              <span class="action-desc">Déclarer un signalement Anti-Fraude</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">J</kbd> ou <kbd class="kbd-key">→</kbd> / <kbd class="kbd-key">N</kbd></span>
+              <span class="action-desc">Passer à la soumission suivante de la file</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">K</kbd> ou <kbd class="kbd-key">←</kbd> / <kbd class="kbd-key">P</kbd></span>
+              <span class="action-desc">Revenir à la soumission précédente</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">Z</kbd></span>
+              <span class="action-desc">Agrandir / Réduire la photo en grand format</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">Ctrl</kbd> + <kbd class="kbd-key">Enter</kbd></span>
+              <span class="action-desc">Confirmer le formulaire de rejet ou de fraude</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">Esc</kbd></span>
+              <span class="action-desc">Fermer l'inspection ou la boîte de dialogue</span>
+            </div>
+            <div class="shortcut-row">
+              <span class="key-combo"><kbd class="kbd-key">?</kbd> ou <kbd class="kbd-key">H</kbd></span>
+              <span class="action-desc">Afficher / Masquer ce guide des raccourcis</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" (click)="toggleShortcutsHelp()">Compris, retour au Desk</button>
         </div>
       </div>
     </div>
