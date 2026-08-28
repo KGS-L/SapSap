@@ -1,0 +1,178 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="craft-toolbar">
+    <ion-title class="font-serif">Mon Portefeuille</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="wallet-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadWalletData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Hero Balance Card -->
+  <div class="wallet-hero-card">
+    <div class="hero-top-row">
+      <span class="wallet-type-label">Solde disponible</span>
+      <span class="badge-pill badge-sage">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        Sécurisé
+      </span>
+    </div>
+
+    <div class="hero-amount-wrap">
+      <span class="hero-number font-sans">{{ (walletData?.available_balance || 0) | number }}</span>
+      <span class="hero-currency">FCFA</span>
+    </div>
+
+    <div class="stats-split-row">
+      <div class="stat-box">
+        <span class="stat-label">Total gagné</span>
+        <span class="stat-val">+{{ (walletData?.total_earned || 0) | number }} F</span>
+      </div>
+      <div class="divider"></div>
+      <div class="stat-box">
+        <span class="stat-label">Total retiré</span>
+        <span class="stat-val">-{{ (walletData?.total_withdrawn || 0) | number }} F</span>
+      </div>
+    </div>
+
+    <div class="hero-action-btn">
+      <ion-button
+        expand="block"
+        class="btn-terracotta btn-withdraw"
+        (click)="openWithdraw()"
+      >
+        <ion-icon slot="start" name="cash-outline"></ion-icon>
+        <span>Demander un retrait Mobile Money</span>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Trust & Payout Notice -->
+  <div class="payout-rules-banner craft-card">
+    <div class="rule-icon">⚡</div>
+    <div class="rule-text">
+      <strong>Retrait instantané dès 1 000 FCFA</strong>
+      <span>Orange Money, Moov Money et Telecel Cash supportés sans frais de plateforme.</span>
+    </div>
+  </div>
+
+  <!-- Transaction History -->
+  <div class="transactions-section">
+    <h3 class="section-title font-serif">Historique des Transactions</h3>
+
+    <div class="transactions-list">
+      <div class="craft-card tx-card" *ngFor="let tx of transactions">
+        <div class="tx-left">
+          <div class="tx-icon-wrap" [class.is-payout]="tx.transaction_type === 'contributor_payout'">
+            <ion-icon [name]="tx.transaction_type === 'contributor_payout' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
+          </div>
+          <div class="tx-info">
+            <h4 class="tx-title">
+              {{ tx.transaction_type === 'contributor_payout' ? (tx.metadata?.mission_title || 'Gain Mission terrain') : 'Retrait Mobile Money' }}
+            </h4>
+            <span class="tx-date">{{ tx.created_at | date:'dd/MM/yyyy à HH:mm' }}</span>
+            <span class="tx-ref font-mono" *ngIf="tx.payment_reference">Réf: {{ tx.payment_reference }}</span>
+          </div>
+        </div>
+
+        <div class="tx-right">
+          <span class="tx-amount" [class.positive]="tx.transaction_type === 'contributor_payout'">
+            {{ tx.transaction_type === 'contributor_payout' ? '+' : '-' }}{{ tx.amount | number }} F
+          </span>
+          <span class="badge-pill badge-sage tx-badge">Complété</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Withdrawal Modal -->
+<ion-modal [isOpen]="showWithdrawModal" (didDismiss)="closeWithdraw()" [initialBreakpoint]="0.75" [breakpoints]="[0, 0.75, 1]">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="modal-toolbar">
+        <ion-title class="font-serif">Retrait Mobile Money</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeWithdraw()">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <div class="modal-body">
+        <form [formGroup]="withdrawForm" (ngSubmit)="onConfirmWithdrawal()">
+          <!-- Available Balance Reminder -->
+          <div class="avail-balance-reminder">
+            <span>Solde disponible :</span>
+            <strong>{{ (walletData?.available_balance || 0) | number }} FCFA</strong>
+          </div>
+
+          <!-- Operator Selector -->
+          <div class="form-section-title">1. Choisissez votre opérateur</div>
+          <div class="operators-grid">
+            <div
+              *ngFor="let op of operators"
+              class="op-card"
+              [class.selected]="selectedOperator === op.id"
+              (click)="selectOperator(op.id)"
+            >
+              <div class="op-badge" [style.background-color]="op.color">{{ op.logoText }}</div>
+              <span class="op-name">{{ op.label }}</span>
+            </div>
+          </div>
+
+          <!-- Amount Input & Presets -->
+          <div class="form-section-title">2. Montant à retirer (min 1 000 FCFA)</div>
+          <div class="amount-input-box">
+            <input
+              type="number"
+              formControlName="amount"
+              class="amount-input font-sans"
+              min="1000"
+              step="500"
+            />
+            <span class="amount-cur">FCFA</span>
+          </div>
+
+          <div class="presets-row">
+            <button type="button" class="btn-preset" (click)="setPresetAmount(1000)">1 000 F</button>
+            <button type="button" class="btn-preset" (click)="setPresetAmount(2000)">2 000 F</button>
+            <button type="button" class="btn-preset" (click)="setPresetAmount(5000)">5 000 F</button>
+            <button
+              type="button"
+              class="btn-preset max"
+              (click)="setPresetAmount(walletData?.available_balance || 1000)"
+            >
+              Tout retirer
+            </button>
+          </div>
+
+          <!-- Destination Phone Number -->
+          <div class="form-section-title">3. Numéro de compte destinataire</div>
+          <div class="phone-input-wrap">
+            <ion-icon name="call-outline"></ion-icon>
+            <input
+              type="tel"
+              formControlName="phone_number"
+              class="phone-input"
+              placeholder="+226 70 00 00 00"
+            />
+          </div>
+
+          <ion-button
+            expand="block"
+            type="submit"
+            class="btn-terracotta btn-modal-submit"
+            [disabled]="withdrawForm.invalid || isWithdrawing"
+          >
+            <span>Confirmer le transfert</span>
+            <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+          </ion-button>
+        </form>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

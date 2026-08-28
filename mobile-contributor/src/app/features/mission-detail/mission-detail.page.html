@@ -1,0 +1,122 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="detail-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/explore" text="" icon="arrow-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="font-serif">Détail de la Mission</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="detail-content" *ngIf="mission">
+  <!-- Mission Header Hero Card -->
+  <div class="hero-header-card">
+    <div class="badges-row">
+      <span class="badge-pill badge-terracotta">
+        {{ mission.mission_type === 'price_check' ? 'Relevé de prix' : 'Audit terrain' }}
+      </span>
+      <span class="badge-pill badge-buttercream">
+        <ion-icon name="time-outline"></ion-icon>
+        Verrou 45 min
+      </span>
+    </div>
+
+    <h1 class="mission-main-title font-serif">{{ mission.title }}</h1>
+
+    <div class="reward-box">
+      <div class="reward-label">Rémunération garantie</div>
+      <div class="price-hero">
+        {{ mission.reward_amount | number }}
+        <span class="currency">FCFA</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-body">
+    <!-- Location & Distance Card -->
+    <div class="craft-card section-card">
+      <h3 class="section-title">
+        <ion-icon name="location-outline" color="primary"></ion-icon>
+        <span>Lieu d'intervention</span>
+      </h3>
+      <div class="location-details">
+        <div class="loc-name">{{ mission.address || mission.district || 'Ouagadougou' }}</div>
+        <div class="loc-meta">
+          <span class="distance-tag badge-pill badge-sage">
+            <ion-icon name="navigate-outline"></ion-icon>
+            À {{ mission.distance_km || 0.8 }} km de vous
+          </span>
+          <span class="radius-tag badge-pill badge-muted">
+            Rayon requis : < {{ mission.radius_meters || 100 }}m
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description & Context -->
+    <div class="craft-card section-card" *ngIf="mission.description">
+      <h3 class="section-title">
+        <ion-icon name="document-text-outline" color="primary"></ion-icon>
+        <span>Objectif de la mission</span>
+      </h3>
+      <p class="section-text">{{ mission.description }}</p>
+    </div>
+
+    <!-- Requirements Checklist -->
+    <div class="craft-card section-card">
+      <h3 class="section-title">
+        <ion-icon name="checkmark-done-circle-outline" color="primary"></ion-icon>
+        <span>Consignes & Éléments requis</span>
+      </h3>
+
+      <div class="guidelines-list">
+        <div class="guideline-item" *ngFor="let g of mission.guidelines">
+          <div class="check-icon">✓</div>
+          <span class="guide-text">{{ g }}</span>
+        </div>
+
+        <div class="guideline-item">
+          <div class="check-icon">📸</div>
+          <span class="guide-text">
+            <strong>{{ mission.required_photos_count || 1 }} photo(s) nette(s)</strong> obligatoirement prises dans l'application
+          </span>
+        </div>
+
+        <div class="guideline-item">
+          <div class="check-icon">🛡️</div>
+          <span class="guide-text">
+            Validation automatique à <strong>48h max</strong> si aucune revue manuelle
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Escrow & Trust Information -->
+    <div class="trust-box">
+      <div class="trust-icon">🔒</div>
+      <div class="trust-info">
+        <strong>Fonds sécurisés en séquestre</strong>
+        <span>Les {{ mission.reward_amount | number }} FCFA sont déjà provisionnés par l'entreprise et crédités sur votre portefeuille dès validation.</span>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Bottom Sticky Action Bar -->
+<ion-footer class="ion-no-border sticky-footer" *ngIf="mission">
+  <div class="footer-action-wrapper">
+    <div class="footer-price">
+      <span class="label">Total à gagner</span>
+      <span class="amount">{{ mission.reward_amount | number }} FCFA</span>
+    </div>
+
+    <ion-button
+      expand="block"
+      class="btn-terracotta btn-reserve-action"
+      [disabled]="isReserving"
+      (click)="onReserveMission()"
+    >
+      <span>Accepter & Réserver (45 min)</span>
+      <ion-icon slot="end" name="lock-closed-outline"></ion-icon>
+    </ion-button>
+  </div>
+</ion-footer>

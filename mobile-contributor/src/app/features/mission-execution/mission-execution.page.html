@@ -1,0 +1,171 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="cockpit-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/activity" text="" icon="close-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="font-serif">Exécution Terrain</ion-title>
+    <ion-buttons slot="end">
+      <span class="reward-pill">{{ mission?.reward_amount | number }} F</span>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="cockpit-content" *ngIf="mission">
+  <div class="cockpit-container">
+    <!-- Step 1: GPS Proximity Radar Check -->
+    <div class="craft-card radar-card" [class.verified]="isWithinRadius">
+      <div class="radar-header">
+        <div class="radar-step-badge">Étape 1 sur 3</div>
+        <span class="status-indicator" [ngClass]="isWithinRadius ? 'status-green' : 'status-orange'">
+          <ion-icon [name]="isWithinRadius ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+          {{ isWithinRadius ? 'Proximité GPS Validée (< 100m)' : 'Hors de portée GPS' }}
+        </span>
+      </div>
+
+      <div class="radar-visual">
+        <div class="radar-circle pulse-radar" [class.radar-ok]="isWithinRadius">
+          <div class="radar-inner-dot"></div>
+        </div>
+
+        <div class="distance-info">
+          <div class="distance-number font-mono">{{ distanceMeters }} m</div>
+          <div class="distance-label">du point d'intérêt</div>
+        </div>
+      </div>
+
+      <div class="radar-footer">
+        <p class="radar-hint" *ngIf="!isWithinRadius">
+          Vous devez vous trouver à moins de <strong>100m</strong> du point de vente pour certifier la preuve.
+        </p>
+        <p class="radar-hint ok" *ngIf="isWithinRadius">
+          Position certifiée à {{ mission.address || mission.district }}. Vous pouvez prendre les photos.
+        </p>
+
+        <div class="gps-actions-row">
+          <button class="btn-secondary-craft btn-refresh-gps" (click)="checkProximity()">
+            <ion-icon name="refresh-outline"></ion-icon>
+            <span>Actualiser GPS</span>
+          </button>
+
+          <!-- Dev Simulator Shortcut -->
+          <button *ngIf="!isWithinRadius" class="btn-demo-sim" (click)="simulateNearby()">
+            ⚡ Simuler proximité (<100m)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Native Camera Proof Capture -->
+    <div class="craft-card camera-card">
+      <div class="card-step-header">
+        <div class="step-badge">Étape 2 sur 3</div>
+        <h3 class="step-title font-serif">Prise de Vue In-App Obligatoire</h3>
+      </div>
+      <p class="step-desc">
+        Prenez au moins <strong>{{ requiredPhotosCount }} photo(s)</strong> en direct. (Accès galerie désactivé).
+      </p>
+
+      <!-- Photos Grid -->
+      <div class="photos-grid">
+        <div class="photo-thumbnail-card" *ngFor="let p of capturedPhotos; let i = index">
+          <img [src]="p.dataUrl" alt="Preuve terrain" />
+          <button class="btn-delete-photo" (click)="removePhoto(i)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+          <div class="photo-timestamp font-mono">{{ p.timestamp | date:'HH:mm:ss' }}</div>
+        </div>
+
+        <!-- Camera Trigger Button -->
+        <button
+          class="camera-trigger-box"
+          *ngIf="capturedPhotos.length < 4"
+          [disabled]="!isWithinRadius"
+          (click)="takePhoto()"
+        >
+          <div class="cam-icon-circle">
+            <ion-icon name="camera"></ion-icon>
+          </div>
+          <span class="trigger-label">
+            {{ capturedPhotos.length === 0 ? 'Prendre la photo 1' : 'Ajouter une photo' }}
+          </span>
+          <span class="trigger-req">({{ capturedPhotos.length }}/{{ requiredPhotosCount }} requise)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Mission Questionnaire Form -->
+    <div class="craft-card form-card">
+      <div class="card-step-header">
+        <div class="step-badge">Étape 3 sur 3</div>
+        <h3 class="step-title font-serif">Informations Constatées</h3>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Le produit / l'enseigne est-il présent ?</label>
+        <ion-radio-group [(ngModel)]="productFound" class="custom-radio-group">
+          <div class="radio-row">
+            <ion-radio value="yes" labelPlacement="end">Oui, présent</ion-radio>
+            <ion-radio value="no" labelPlacement="end">Non, absent</ion-radio>
+          </div>
+        </ion-radio-group>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Prix relevé (en FCFA)</label>
+        <div class="custom-input-wrap">
+          <input
+            type="number"
+            [(ngModel)]="priceObserved"
+            placeholder="Ex: 1250"
+            class="price-input font-mono"
+          />
+          <span class="input-suffix">FCFA</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">État du stock</label>
+        <ion-select [(ngModel)]="stockStatus" interface="action-sheet" class="custom-select">
+          <ion-select-option value="in_stock">En stock abondant (> 5 unités)</ion-select-option>
+          <ion-select-option value="low_stock">Stock faible (< 3 unités)</ion-select-option>
+          <ion-select-option value="out_of_stock">Rupture totale</ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Commentaires complémentaires (facultatif)</label>
+        <textarea
+          [(ngModel)]="contributorComments"
+          rows="2"
+          placeholder="Ex: Boutique ouverte, étiquette bien visible..."
+          class="custom-textarea"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Bottom Sticky Submission Action -->
+<ion-footer class="ion-no-border cockpit-footer" *ngIf="mission">
+  <div class="submit-action-box">
+    <div class="validation-status-summary" *ngIf="!canSubmit()">
+      <span *ngIf="!isWithinRadius" class="warning-text">
+        ⚠️ Proximité GPS requise (< 100m)
+      </span>
+      <span *ngIf="isWithinRadius && capturedPhotos.length < requiredPhotosCount" class="warning-text">
+        📷 Prenez au moins {{ requiredPhotosCount }} photo
+      </span>
+    </div>
+
+    <ion-button
+      expand="block"
+      class="btn-terracotta btn-submit-mission"
+      [disabled]="!canSubmit() || isSubmitting"
+      (click)="onSubmitProof()"
+    >
+      <span *ngIf="!isSubmitting">Transmettre la Preuve Terrain</span>
+      <span *ngIf="isSubmitting">Envoi en cours...</span>
+      <ion-icon slot="end" name="paper-plane-outline" *ngIf="!isSubmitting"></ion-icon>
+    </ion-button>
+  </div>
+</ion-footer>

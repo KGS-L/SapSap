@@ -1,2 +1,112 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// ==========================================================================
+// SapSap Contributor Mobile — Etsy Craft & Field Design System Variables
+// ==========================================================================
+
+:root {
+  /** Etsy DNA Palette Tokens **/
+  --color-terracotta: #F1641E;
+  --color-terracotta-dark: #D34B0B;
+  --color-terracotta-light: #FFEDE5;
+  --color-terracotta-subtle: #FFF6F2;
+
+  --color-sage: #4D6B53;
+  --color-sage-light: #EBF2EC;
+  --color-sage-dark: #2F4735;
+
+  --color-buttercream: #FDF0CD;
+  --color-buttercream-dark: #B88219;
+
+  --color-lilac: #E8E9FF;
+  --color-lilac-text: #484C8A;
+
+  --color-canvas: #FAF8F5;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #F5F1EB;
+  --color-surface-border: #E8E2D9;
+  --color-surface-border-subtle: #F0ECE4;
+
+  --color-ink: #222222;
+  --color-ink-muted: #595959;
+  --color-ink-subtle: #757575;
+
+  /** Fonts **/
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /** Ionic Custom Overrides **/
+  --ion-font-family: var(--font-sans);
+  
+  --ion-background-color: var(--color-canvas);
+  --ion-background-color-rgb: 250, 248, 245;
+
+  --ion-text-color: var(--color-ink);
+  --ion-text-color-rgb: 34, 34, 34;
+
+  --ion-item-background: var(--color-surface);
+  --ion-card-background: var(--color-surface);
+
+  /** Primary: Terracotta **/
+  --ion-color-primary: #F1641E;
+  --ion-color-primary-rgb: 241, 100, 30;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #D34B0B;
+  --ion-color-primary-tint: #F78453;
+
+  /** Secondary: Sauge Végétale **/
+  --ion-color-secondary: #4D6B53;
+  --ion-color-secondary-rgb: 77, 107, 83;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #2F4735;
+  --ion-color-secondary-tint: #64856a;
+
+  /** Tertiary: Buttercream Ocre **/
+  --ion-color-tertiary: #B88219;
+  --ion-color-tertiary-rgb: 184, 130, 25;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #9a6d14;
+  --ion-color-tertiary-tint: #ca9730;
+
+  /** Success: Sauge **/
+  --ion-color-success: #4D6B53;
+  --ion-color-success-rgb: 77, 107, 83;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #2F4735;
+  --ion-color-success-tint: #628269;
+
+  /** Warning: Ocre **/
+  --ion-color-warning: #B88219;
+  --ion-color-warning-rgb: 184, 130, 25;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #9a6d14;
+  --ion-color-warning-tint: #d89f2a;
+
+  /** Danger **/
+  --ion-color-danger: #D32F2F;
+  --ion-color-danger-rgb: 211, 47, 47;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #ba2626;
+  --ion-color-danger-tint: #dc4d4d;
+
+  /** Light / Canvas **/
+  --ion-color-light: #FAF8F5;
+  --ion-color-light-rgb: 250, 248, 245;
+  --ion-color-light-contrast: #222222;
+  --ion-color-light-contrast-rgb: 34, 34, 34;
+  --ion-color-light-shade: #E8E2D9;
+  --ion-color-light-tint: #FFFFFF;
+
+  /** Dark **/
+  --ion-color-dark: #222222;
+  --ion-color-dark-rgb: 34, 34, 34;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #171717;
+  --ion-color-dark-tint: #383838;
+}

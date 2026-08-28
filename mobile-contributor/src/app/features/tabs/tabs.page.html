@@ -1,0 +1,30 @@
+<ion-tabs>
+  <!-- Offline Alert Strip -->
+  <div class="offline-banner" *ngIf="(isOnline$ | async) === false">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    <span>Mode hors-ligne : les soumissions seront enregistrées et envoyées dès reconnexion.</span>
+  </div>
+
+  <ion-tab-bar slot="bottom" class="custom-tab-bar">
+    <ion-tab-button tab="explore">
+      <ion-icon name="compass-outline"></ion-icon>
+      <ion-label>Explorer</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="activity">
+      <ion-icon name="list-circle-outline"></ion-icon>
+      <ion-label>Activité</ion-label>
+      <ion-badge *ngIf="activeReservation$ | async" color="primary" class="tab-active-badge">1</ion-badge>
+    </ion-tab-button>
+
+    <ion-tab-button tab="wallet">
+      <ion-icon name="wallet-outline"></ion-icon>
+      <ion-label>Gains</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="profile">
+      <ion-icon name="person-circle-outline"></ion-icon>
+      <ion-label>Profil</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

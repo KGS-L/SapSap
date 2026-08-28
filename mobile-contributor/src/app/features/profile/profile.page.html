@@ -1,0 +1,151 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="craft-toolbar">
+    <ion-title class="font-serif">Mon Profil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openEditModal()" color="primary">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="profile-content">
+  <!-- Profile Avatar Hero Card -->
+  <div class="craft-card profile-hero-card">
+    <div class="avatar-ring">
+      <div class="avatar-inner font-serif">
+        {{ (user?.name || 'C').charAt(0).toUpperCase() }}
+      </div>
+    </div>
+
+    <h2 class="user-fullname font-serif">{{ user?.name || 'Contributeur SapSap' }}</h2>
+    <div class="user-phone font-mono">{{ user?.phone_number || '+226 70 00 00 00' }}</div>
+
+    <div class="user-district-tag">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{ user?.district || 'Somgandé' }}, Ouagadougou</span>
+    </div>
+
+    <!-- Reputation Score Hero Box -->
+    <div class="reputation-hero-box">
+      <div class="rep-header">
+        <span class="rep-title">Score de Réputation</span>
+        <span class="badge-pill" [ngClass]="getReputationTier(user?.reputation_score || 100).class">
+          {{ getReputationTier(user?.reputation_score || 100).label }}
+        </span>
+      </div>
+
+      <div class="rep-score-row">
+        <div class="rep-number-box">
+          <span class="rep-big font-sans">{{ user?.reputation_score || 100 }}</span>
+          <span class="rep-denom">/100</span>
+        </div>
+        <div class="rep-bar-wrap">
+          <div class="rep-bar-fill" [style.width.%]="user?.reputation_score || 100"></div>
+        </div>
+      </div>
+
+      <p class="rep-desc">
+        Un score élevé (> 90) vous donne un accès prioritaire aux missions premium à haute rémunération.
+      </p>
+    </div>
+  </div>
+
+  <!-- Trust & Badges Section -->
+  <div class="craft-card trust-card">
+    <h3 class="section-title font-serif">Certifications Terrain</h3>
+
+    <div class="cert-list">
+      <div class="cert-item">
+        <div class="cert-icon-box sage">
+          <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        <div class="cert-details">
+          <strong class="cert-name">Numéro Burkinabè Vérifié</strong>
+          <span class="cert-sub">Compte certifié par OTP SMS</span>
+        </div>
+        <span class="badge-pill badge-sage">Actif</span>
+      </div>
+
+      <div class="cert-item">
+        <div class="cert-icon-box terracotta">
+          <ion-icon name="camera"></ion-icon>
+        </div>
+        <div class="cert-details">
+          <strong class="cert-name">Capture In-App Conforme</strong>
+          <span class="cert-sub">Empreinte photo SHA-256</span>
+        </div>
+        <span class="badge-pill badge-sage">Actif</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Actions & Logout -->
+  <div class="account-actions-card craft-card">
+    <div class="action-item" (click)="openEditModal()">
+      <div class="act-left">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Modifier mes informations</span>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="chev"></ion-icon>
+    </div>
+
+    <div class="action-item" routerLink="/tabs/wallet">
+      <div class="act-left">
+        <ion-icon name="card-outline"></ion-icon>
+        <span>Comptes Mobile Money</span>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="chev"></ion-icon>
+    </div>
+
+    <div class="action-item logout" (click)="confirmLogout()">
+      <div class="act-left">
+        <ion-icon name="log-out-outline" color="danger"></ion-icon>
+        <span class="danger-text">Se déconnecter</span>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Edit Profile Modal -->
+<ion-modal [isOpen]="showEditModal" (didDismiss)="closeEditModal()" [initialBreakpoint]="0.7" [breakpoints]="[0, 0.7, 1]">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="modal-toolbar">
+        <ion-title class="font-serif">Modifier mon Profil</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeEditModal()">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <div class="modal-body">
+        <form [formGroup]="editForm" (ngSubmit)="onSaveProfile()">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input type="text" formControlName="firstName" class="custom-input" placeholder="Ex: Moussa" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nom de famille</label>
+            <input type="text" formControlName="lastName" class="custom-input" placeholder="Ex: Ouédraogo" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Quartier de résidence à Ouagadougou</label>
+            <ion-select formControlName="district" interface="action-sheet" class="custom-select">
+              <ion-select-option *ngFor="let d of ouagaDistricts" [value]="d">{{ d }}</ion-select-option>
+            </ion-select>
+          </div>
+
+          <ion-button expand="block" type="submit" class="btn-terracotta btn-modal-save">
+            <span>Enregistrer les modifications</span>
+          </ion-button>
+        </form>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

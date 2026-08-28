@@ -1,0 +1,205 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="craft-toolbar">
+    <div class="toolbar-content">
+      <div class="brand-badge-mini">
+        <span class="bolt">⚡</span>
+        <span class="brand-text font-serif">SapSap</span>
+      </div>
+
+      <div class="user-greeting" *ngIf="authService.currentUser$ | async as user">
+        <span class="rep-pill badge-sage">
+          <ion-icon name="shield-checkmark"></ion-icon>
+          <span>Score: {{ user.reputation_score }}/100</span>
+        </span>
+      </div>
+    </div>
+  </ion-toolbar>
+
+  <!-- Search & View Toggle Header -->
+  <div class="header-search-strip">
+    <div class="search-box">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="applyFilters()"
+        placeholder="Rechercher par quartier, boutique, mission..."
+        class="search-input"
+      />
+      <button *ngIf="searchQuery" (click)="searchQuery = ''; applyFilters()" class="clear-search">
+        <ion-icon name="close-circle"></ion-icon>
+      </button>
+    </div>
+
+    <div class="view-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode === 'list'"
+        (click)="toggleViewMode('list')"
+      >
+        <ion-icon name="list-outline"></ion-icon>
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode === 'map'"
+        (click)="toggleViewMode('map')"
+      >
+        <ion-icon name="map-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Filter Pills -->
+  <div class="category-scroll-bar">
+    <div
+      *ngFor="let cat of categories"
+      class="cat-chip"
+      [class.active]="selectedCategory === cat.id"
+      (click)="selectCategory(cat.id)"
+    >
+      <ion-icon [name]="cat.icon"></ion-icon>
+      <span>{{ cat.label }}</span>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="explore-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadMissions($event)">
+    <ion-refresher-content pullingIcon="chevron-down-circle-outline"></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading Skeletons -->
+  <div class="skeleton-wrapper" *ngIf="isLoading">
+    <div class="craft-card shimmer-card" *ngFor="let i of [1, 2, 3]">
+      <div class="shimmer-placeholder" style="height: 18px; width: 65%; margin-bottom: 12px;"></div>
+      <div class="shimmer-placeholder" style="height: 14px; width: 90%; margin-bottom: 8px;"></div>
+      <div class="shimmer-placeholder" style="height: 24px; width: 40%; margin-top: 14px;"></div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div class="missions-list-container" *ngIf="!isLoading && viewMode === 'list'">
+    <div class="results-meta" *ngIf="filteredMissions.length > 0">
+      <span class="count-badge">{{ filteredMissions.length }} missions disponibles</span>
+      <span class="location-tag">
+        <ion-icon name="navigate-circle-outline"></ion-icon>
+        Ouagadougou
+      </span>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredMissions.length === 0">
+      <div class="empty-icon">📍</div>
+      <h3 class="empty-title font-serif">Aucune mission trouvée</h3>
+      <p class="empty-desc">Élargissez votre recherche ou sélectionnez une autre catégorie.</p>
+      <button class="btn-terracotta btn-reset" (click)="selectedCategory = 'all'; searchQuery = ''; applyFilters()">
+        Réinitialiser les filtres
+      </button>
+    </div>
+
+    <!-- Mission Cards -->
+    <div
+      class="craft-card mission-card"
+      *ngFor="let mission of filteredMissions"
+      (click)="openMissionDetail(mission)"
+    >
+      <div class="card-top-row">
+        <span class="badge-pill badge-terracotta">
+          {{ getCategoryLabel(mission.mission_type) }}
+        </span>
+        <span class="badge-pill badge-sage" *ngIf="mission.distance_km !== undefined">
+          <ion-icon name="navigate-outline"></ion-icon>
+          {{ mission.distance_km }} km
+        </span>
+      </div>
+
+      <h2 class="mission-title font-serif">{{ mission.title }}</h2>
+
+      <p class="mission-desc" *ngIf="mission.description">
+        {{ mission.description }}
+      </p>
+
+      <div class="mission-location-info">
+        <ion-icon name="location-outline" class="loc-icon"></ion-icon>
+        <span class="loc-text">{{ mission.address || mission.district || 'Ouagadougou' }}</span>
+      </div>
+
+      <div class="card-bottom-row">
+        <div class="price-hero">
+          {{ mission.reward_amount | number }}
+          <span class="currency">FCFA</span>
+        </div>
+
+        <div class="action-trigger">
+          <span class="action-label">Voir la mission</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Map View -->
+  <div class="map-view-container" *ngIf="!isLoading && viewMode === 'map'">
+    <!-- Custom Map Canvas / SVG Interactive Ouagadougou Map -->
+    <div class="ouaga-map-container">
+      <div class="map-grid-bg"></div>
+
+      <!-- Ouagadougou Geographic Districts Markers -->
+      <div class="district-zone zone-somgande">Somgandé</div>
+      <div class="district-zone zone-koulouba">Koulouba</div>
+      <div class="district-zone zone-gounghin">Gounghin</div>
+      <div class="district-zone zone-ouaga2000">Ouaga 2000</div>
+      <div class="district-zone zone-dassasgho">Dassasgho</div>
+
+      <!-- Contributor Live GPS Position Pin -->
+      <div class="contributor-gps-pin pulse-radar" title="Votre position actuelle">
+        <div class="pin-inner"></div>
+      </div>
+
+      <!-- Mission Map Pins -->
+      <div
+        *ngFor="let m of filteredMissions; let idx = index"
+        class="mission-map-pin"
+        [class.selected]="selectedMission?.id === m.id"
+        [style.top.%]="30 + (idx * 14)"
+        [style.left.%]="25 + ((idx % 3) * 26)"
+        (click)="selectMission(m)"
+      >
+        <div class="pin-bubble">
+          <span class="pin-price">{{ m.reward_amount | number }} F</span>
+        </div>
+        <div class="pin-pointer"></div>
+      </div>
+    </div>
+
+    <!-- Floating Selected Mission Preview Card -->
+    <div class="map-floating-card craft-card" *ngIf="selectedMission">
+      <div class="card-top-row">
+        <span class="badge-pill badge-terracotta">
+          {{ getCategoryLabel(selectedMission.mission_type) }}
+        </span>
+        <span class="badge-pill badge-sage">
+          À {{ selectedMission.distance_km || 1.2 }} km
+        </span>
+      </div>
+
+      <h3 class="floating-title font-serif">{{ selectedMission.title }}</h3>
+      <p class="floating-address">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ selectedMission.address || selectedMission.district }}
+      </p>
+
+      <div class="floating-actions">
+        <div class="price-hero">
+          {{ selectedMission.reward_amount | number }}
+          <span class="currency">FCFA</span>
+        </div>
+
+        <button class="btn-terracotta btn-open-detail" (click)="openMissionDetail(selectedMission)">
+          <span>Consulter & Réserver</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</ion-content>

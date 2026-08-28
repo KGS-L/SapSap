@@ -1,0 +1,128 @@
+<ion-content [fullscreen]="true" class="auth-content">
+  <div class="auth-wrapper">
+    <!-- Brand Hero Header -->
+    <div class="brand-hero">
+      <div class="logo-badge">
+        <span class="logo-icon">⚡</span>
+      </div>
+      <h1 class="brand-title">SapSap</h1>
+      <p class="brand-subtitle">Collecte terrain simple, rapide & rémunérée</p>
+      <div class="location-pill">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>Ouagadougou, Burkina Faso</span>
+      </div>
+    </div>
+
+    <!-- Phone Step Form -->
+    <div class="craft-card auth-card" *ngIf="step === 'phone'">
+      <div class="card-header-clean">
+        <h2 class="form-title">Connexion Contributeur</h2>
+        <p class="form-desc">Entrez votre numéro de téléphone pour recevoir un code d'accès sécurisé par SMS.</p>
+      </div>
+
+      <form [formGroup]="phoneForm" (ngSubmit)="onRequestOtp()">
+        <div class="phone-input-group">
+          <div class="country-prefix">
+            <span class="flag">🇧🇫</span>
+            <span class="code">+226</span>
+          </div>
+          <ion-input
+            type="tel"
+            formControlName="phoneNumber"
+            placeholder="70 00 00 00"
+            class="custom-phone-input"
+            maxlength="12"
+          ></ion-input>
+        </div>
+
+        <div class="quick-helpers">
+          <span class="helper-text">Réseaux acceptés : Orange, Moov, Telecel</span>
+        </div>
+
+        <ion-button
+          expand="block"
+          type="submit"
+          class="btn-terracotta btn-submit"
+          [disabled]="phoneForm.invalid || isLoading"
+        >
+          <span>Continuer</span>
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+      </form>
+    </div>
+
+    <!-- OTP Step Form -->
+    <div class="craft-card auth-card" *ngIf="step === 'otp'">
+      <div class="card-header-clean">
+        <div class="back-link" (click)="backToPhone()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+          <span>Modifier le numéro</span>
+        </div>
+        <h2 class="form-title">Vérification SMS</h2>
+        <p class="form-desc">
+          Entrez le code à 6 chiffres envoyé au <strong class="phone-highlight">{{ submittedPhone }}</strong>
+        </p>
+      </div>
+
+      <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()">
+        <div class="otp-input-box">
+          <ion-input
+            type="tel"
+            formControlName="otpCode"
+            placeholder="123456"
+            class="custom-otp-input font-mono"
+            maxlength="6"
+            inputmode="numeric"
+          ></ion-input>
+        </div>
+
+        <!-- Dev Simulator Shortcut -->
+        <div class="demo-helper-box" *ngIf="demoOtp">
+          <div class="demo-info">
+            <ion-icon name="information-circle-outline" color="warning"></ion-icon>
+            <span>Mode démo : code <strong>{{ demoOtp }}</strong></span>
+          </div>
+          <button type="button" class="btn-chip-demo" (click)="fillDemoOtp()">
+            Insérer le code démo
+          </button>
+        </div>
+
+        <ion-button
+          expand="block"
+          type="submit"
+          class="btn-terracotta btn-submit"
+          [disabled]="otpForm.invalid || isLoading"
+        >
+          <span>Valider & Accéder</span>
+          <ion-icon slot="end" name="checkmark-circle-outline"></ion-icon>
+        </ion-button>
+
+        <div class="resend-row">
+          <span *ngIf="resendCountdown > 0" class="resend-timer">
+            Renvoyer le code dans {{ resendCountdown }}s
+          </span>
+          <button
+            *ngIf="resendCountdown === 0"
+            type="button"
+            class="btn-text-resend"
+            (click)="onRequestOtp()"
+          >
+            Renvoyer un nouveau code
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Security & Trust Footer -->
+    <div class="auth-trust-footer">
+      <div class="trust-item">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Paiements Mobile Money garantis</span>
+      </div>
+      <div class="trust-item">
+        <ion-icon name="time-outline"></ion-icon>
+        <span>Validation 48h automatique</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

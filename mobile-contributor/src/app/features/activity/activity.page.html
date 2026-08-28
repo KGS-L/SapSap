@@ -1,0 +1,105 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="craft-toolbar">
+    <ion-title class="font-serif">Mes Activités</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="activity-content">
+  <!-- Active Reservation Card (Hero) -->
+  <div class="active-mission-section" *ngIf="activeReservation">
+    <div class="section-badge-header">
+      <span class="pulse-dot"></span>
+      <span class="header-text">Mission actuellement réservée</span>
+    </div>
+
+    <div class="craft-card active-card">
+      <div class="active-card-top">
+        <span class="badge-pill badge-terracotta">Verrou en cours</span>
+        <div class="timer-display" [class.urgent]="remainingMinutes < 15">
+          <ion-icon name="timer-outline"></ion-icon>
+          <span class="timer-digits font-mono">{{ timerString }}</span>
+        </div>
+      </div>
+
+      <h2 class="active-mission-title font-serif">{{ activeReservation.title }}</h2>
+
+      <p class="active-mission-hint">
+        Rendez-vous sur le lieu de la mission pour valider votre position GPS (< 100m) et prendre les photos.
+      </p>
+
+      <div class="active-actions-row">
+        <button class="btn-cancel" (click)="confirmCancelReservation()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          <span>Libérer</span>
+        </button>
+
+        <button class="btn-terracotta btn-start" (click)="startMissionExecution()">
+          <span>Démarrer l'exécution</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty Active Mission Reminder -->
+  <div class="no-active-banner craft-card" *ngIf="!activeReservation">
+    <div class="banner-icon">🎯</div>
+    <div class="banner-content">
+      <strong>Aucune mission en cours</strong>
+      <span>Consultez les missions disponibles à Ouagadougou pour en réserver une.</span>
+    </div>
+    <ion-button size="small" class="btn-terracotta" routerLink="/tabs/explore">
+      Explorer
+    </ion-button>
+  </div>
+
+  <!-- History Section -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3 class="history-title font-serif">Historique des Preuves</h3>
+    </div>
+
+    <ion-segment [value]="selectedSegment" (ionChange)="segmentChanged($event)" mode="md" class="custom-segment">
+      <ion-segment-button value="all">
+        <ion-label>Toutes</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="pending_review">
+        <ion-label>En attente (48h)</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="validated">
+        <ion-label>Validées</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Submissions List -->
+    <div class="submissions-list">
+      <div class="craft-card submission-card" *ngFor="let s of filteredSubmissions">
+        <div class="sub-top">
+          <span class="badge-pill" [ngClass]="getStatusBadge(s.status).class">
+            {{ getStatusBadge(s.status).label }}
+          </span>
+          <span class="sub-date">{{ s.submitted_at | date:'dd/MM HH:mm' }}</span>
+        </div>
+
+        <h4 class="sub-title">{{ s.mission_title || 'Mission de collecte SapSap' }}</h4>
+
+        <div class="sub-meta-row">
+          <div class="meta-item">
+            <ion-icon name="images-outline"></ion-icon>
+            <span>{{ s.photos_count || 1 }} photo(s) certifiée(s)</span>
+          </div>
+          <div class="meta-item">
+            <ion-icon name="pin-outline"></ion-icon>
+            <span>Écart GPS : {{ s.distance_from_target_meters }}m</span>
+          </div>
+        </div>
+
+        <div class="sub-bottom" *ngIf="s.reward_amount">
+          <span class="reward-gain">+{{ s.reward_amount | number }} FCFA</span>
+          <span class="payout-note" *ngIf="s.status === 'validated'">Crédité sur portefeuille</span>
+          <span class="payout-note-pending" *ngIf="s.status === 'pending_review'">Auto-validation sous 48h</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
