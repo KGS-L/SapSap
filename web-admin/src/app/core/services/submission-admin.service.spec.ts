@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { SubmissionAdminService } from './submission-admin.service';
 import { AdminStatsService } from './admin-stats.service';
 import { environment } from '../../../environments/environment';
@@ -12,8 +13,12 @@ describe('SubmissionAdminService (QA Automation Test)', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [SubmissionAdminService, AdminStatsService]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        SubmissionAdminService,
+        AdminStatsService
+      ]
     });
 
     service = TestBed.inject(SubmissionAdminService);
@@ -60,7 +65,7 @@ describe('SubmissionAdminService (QA Automation Test)', () => {
       }
     };
 
-    service.loadSubmissions('submitted').subscribe((res) => {
+    service.loadSubmissions('submitted').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       expect(service.submissions().length).toBe(1);
       expect(service.submissions()[0].id).toBe(101);
@@ -69,7 +74,7 @@ describe('SubmissionAdminService (QA Automation Test)', () => {
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/admin/submissions?status=submitted`);
-    expect(req.request.method).toBe('GET');
+    expect((req.request as any).method).toBe('GET');
     req.flush(mockApiResponse);
   });
 
@@ -81,19 +86,21 @@ describe('SubmissionAdminService (QA Automation Test)', () => {
         mission_id: 1,
         user_id: 1,
         status: 'validated',
+        gps_accuracy: 5.0,
+        gps_distance_meters: 10.0,
         created_at: '2026-08-27 10:00:00',
         updated_at: '2026-08-27 10:00:00'
       },
       message: 'Soumission validée avec succès.'
     };
 
-    service.validateSubmission(1).subscribe((res) => {
+    service.validateSubmission(1).subscribe((res: any) => {
       expect(res.success).toBeTrue();
       done();
     });
 
     const validateReq = httpMock.expectOne(`${environment.apiUrl}/admin/submissions/1/validate`);
-    expect(validateReq.request.method).toBe('POST');
+    expect((validateReq.request as any).method).toBe('POST');
     validateReq.flush(mockDetail);
 
     // validateSubmission triggers loadSubmissions on success
@@ -110,20 +117,22 @@ describe('SubmissionAdminService (QA Automation Test)', () => {
         user_id: 1,
         status: 'rejected',
         rejection_reason: 'Photo floue illisible',
+        gps_accuracy: 5.0,
+        gps_distance_meters: 10.0,
         created_at: '2026-08-27 10:00:00',
         updated_at: '2026-08-27 10:00:00'
       },
       message: 'Soumission rejetée avec succès.'
     };
 
-    service.rejectSubmission(1, 'Photo floue illisible').subscribe((res) => {
+    service.rejectSubmission(1, 'Photo floue illisible').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       done();
     });
 
     const rejectReq = httpMock.expectOne(`${environment.apiUrl}/admin/submissions/1/reject`);
-    expect(rejectReq.request.method).toBe('POST');
-    expect(rejectReq.request.body).toEqual({ reason: 'Photo floue illisible' });
+    expect((rejectReq.request as any).method).toBe('POST');
+    expect((rejectReq.request as any).body).toEqual({ reason: 'Photo floue illisible' });
     rejectReq.flush(mockDetail);
 
     const refreshReq = httpMock.expectOne(`${environment.apiUrl}/admin/submissions`);

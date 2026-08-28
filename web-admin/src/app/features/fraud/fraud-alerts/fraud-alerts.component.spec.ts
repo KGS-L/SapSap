@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { FraudAlertsComponent } from './fraud-alerts.component';
 import { FraudAdminService } from '../../../core/services/fraud-admin.service';
@@ -19,7 +20,12 @@ describe('FraudAlertsComponent (QA UI / E2E Workflow Test)', () => {
     severity: 'high',
     title: 'Image dupliquée détectée',
     description: 'SHA-256 collision',
+    details: null,
     status: 'pending',
+    resolution_action: null,
+    resolution_note: null,
+    resolved_by: null,
+    resolved_at: null,
     created_at: '2026-08-27 10:00:00',
     updated_at: '2026-08-27 10:00:00',
     user: {
@@ -34,8 +40,12 @@ describe('FraudAlertsComponent (QA UI / E2E Workflow Test)', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, FormsModule, FraudAlertsComponent],
-      providers: [FraudAdminService]
+      imports: [FormsModule, FraudAlertsComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        FraudAdminService
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FraudAlertsComponent);

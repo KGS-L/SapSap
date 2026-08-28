@@ -9,7 +9,7 @@ implementation_artifacts: "{project-root}/_bmad-output/implementation-artifacts"
 project_knowledge: "{project-root}/docs"
 
 # Core Configuration Values
-user_name: Jonas-dev
+user_name: Mr Steve
 project_name: SapSap
 communication_language: Francais
 document_output_language: Francais

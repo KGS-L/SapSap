@@ -2,7 +2,7 @@
 title: "Extraction des flux d'exportation CSV et Excel de CampaignBusinessController vers CampaignExportService"
 type: 'refactor'
 created: '2026-08-27'
-status: 'draft'
+status: 'done'
 review_loop_iteration: 0
 context: []
 ---
@@ -50,10 +50,10 @@ context: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `backend/app/Services/Export/CampaignExportService.php` -- Créer le service avec les méthodes `prepareRows`, `getHeaders`, `exportCsv` et `exportExcel` -- Encapsulation du domaine d'export
-- [ ] `backend/app/Http/Controllers/Api/V1/Business/CampaignBusinessController.php` -- Injecter `CampaignExportService`, supprimer `prepareExportRows` et déléguer les exports au service -- Découplage et allégement du contrôleur
-- [ ] `_bmad-output/implementation-artifacts/sprint-status.yaml` -- Marquer `epic-5-retro-item-3-extraire-les-flux-d-exportation-csv-et-e` comme `done` -- Synchronisation de sprint
-- [ ] `_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md` -- Mettre à jour le tableau des Action Items avec le statut `done` -- Clôture du point de rétro
+- [x] `backend/app/Services/Export/CampaignExportService.php` -- Créer le service avec les méthodes `prepareRows`, `getHeaders`, `exportCsv` et `exportExcel` -- Encapsulation du domaine d'export
+- [x] `backend/app/Http/Controllers/Api/V1/Business/CampaignBusinessController.php` -- Injecter `CampaignExportService`, supprimer `prepareExportRows` et déléguer les exports au service -- Découplage et allégement du contrôleur
+- [x] `_bmad-output/implementation-artifacts/sprint-status.yaml` -- Marquer `epic-5-retro-item-3-extraire-les-flux-d-exportation-csv-et-e` comme `done` -- Synchronisation de sprint
+- [x] `_bmad-output/implementation-artifacts/epic-5-retro-2026-08-27.md` -- Mettre à jour le tableau des Action Items avec le statut `done` -- Clôture du point de rétro
 
 **Acceptance Criteria:**
 - Given `CampaignExportService`, when on appelle `exportCsv` ou `exportExcel`, then le flux retourné contient l'intégralité des données de missions/soumissions structurées selon le format attendu.

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { FraudAdminService } from './fraud-admin.service';
 import { AdminStatsService } from './admin-stats.service';
 import { environment } from '../../../environments/environment';
@@ -12,8 +13,12 @@ describe('FraudAdminService (QA Automation Test)', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [FraudAdminService, AdminStatsService]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        FraudAdminService,
+        AdminStatsService
+      ]
     });
 
     service = TestBed.inject(FraudAdminService);
@@ -43,7 +48,12 @@ describe('FraudAdminService (QA Automation Test)', () => {
           severity: 'high',
           title: 'Photo dupliquée',
           description: 'SHA-256 collision',
+          details: null,
           status: 'pending',
+          resolution_action: null,
+          resolution_note: null,
+          resolved_by: null,
+          resolved_at: null,
           created_at: '2026-08-27 10:00:00',
           updated_at: '2026-08-27 10:00:00'
         }
@@ -57,7 +67,7 @@ describe('FraudAdminService (QA Automation Test)', () => {
       }
     };
 
-    service.loadAlerts('pending', 'duplicate_image').subscribe((res) => {
+    service.loadAlerts('pending', 'duplicate_image').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       expect(service.alerts().length).toBe(1);
       expect(service.alerts()[0].id).toBe(10);
@@ -67,12 +77,12 @@ describe('FraudAdminService (QA Automation Test)', () => {
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/admin/fraud/alerts?status=pending&type=duplicate_image`);
-    expect(req.request.method).toBe('GET');
+    expect((req.request as any).method).toBe('GET');
     req.flush(mockApiResponse);
   });
 
   it('should gracefully fallback to local mock alerts when API is offline', (done) => {
-    service.loadAlerts('all', 'all').subscribe((res) => {
+    service.loadAlerts('all', 'all').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       expect(service.alerts().length).toBeGreaterThan(0);
       expect(service.isLoading()).toBeFalse();
@@ -88,26 +98,32 @@ describe('FraudAdminService (QA Automation Test)', () => {
       success: true,
       data: {
         id: 1,
+        user_id: 1,
+        submission_id: 1,
         alert_type: 'duplicate_image',
         severity: 'high',
         title: 'Image dupliquée',
         description: 'Test description',
+        details: null,
         status: 'resolved',
         resolution_action: 'account_suspended',
+        resolution_note: 'Compte sanctionné',
+        resolved_by: 1,
+        resolved_at: '2026-08-27 10:00:00',
         created_at: '2026-08-27 10:00:00',
         updated_at: '2026-08-27 10:00:00'
       },
       message: 'Alerte résolue avec succès.'
     };
 
-    service.resolveAlert(1, 'account_suspended', 'Compte sanctionné').subscribe((res) => {
+    service.resolveAlert(1, 'account_suspended', 'Compte sanctionné').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       done();
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/admin/fraud/alerts/1/resolve`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ action: 'account_suspended', note: 'Compte sanctionné' });
+    expect((req.request as any).method).toBe('POST');
+    expect((req.request as any).body).toEqual({ action: 'account_suspended', note: 'Compte sanctionné' });
     req.flush(mockDetailResponse);
   });
 
@@ -116,25 +132,32 @@ describe('FraudAdminService (QA Automation Test)', () => {
       success: true,
       data: {
         id: 2,
+        user_id: 2,
+        submission_id: 2,
         alert_type: 'device_sharing',
         severity: 'medium',
         title: 'Device sharing',
         description: 'Test',
+        details: null,
         status: 'dismissed',
+        resolution_action: null,
+        resolution_note: 'Faux positif',
+        resolved_by: 1,
+        resolved_at: '2026-08-27 10:00:00',
         created_at: '2026-08-27 10:00:00',
         updated_at: '2026-08-27 10:00:00'
       },
       message: 'Alerte classée sans suite.'
     };
 
-    service.dismissAlert(2, 'Faux positif').subscribe((res) => {
+    service.dismissAlert(2, 'Faux positif').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       done();
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/admin/fraud/alerts/2/dismiss`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ note: 'Faux positif' });
+    expect((req.request as any).method).toBe('POST');
+    expect((req.request as any).body).toEqual({ note: 'Faux positif' });
     req.flush(mockDismissResponse);
   });
 });

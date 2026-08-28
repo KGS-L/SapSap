@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { CampaignAdminService } from './campaign-admin.service';
 import { AdminStatsService } from './admin-stats.service';
 import { environment } from '../../../environments/environment';
@@ -12,8 +13,12 @@ describe('CampaignAdminService (QA Automation Test)', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [CampaignAdminService, AdminStatsService]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        CampaignAdminService,
+        AdminStatsService
+      ]
     });
 
     service = TestBed.inject(CampaignAdminService);
@@ -31,15 +36,17 @@ describe('CampaignAdminService (QA Automation Test)', () => {
       data: [
         {
           id: 1,
+          user_id: 10,
           title: 'Campagne Sobbra',
           description: 'Audit maquis',
           type: 'Audit',
           status: 'pending',
-          budget_total: 50000,
+          total_budget: 50000,
           reward_per_mission: 2500,
           missions_count: 20,
           city: 'Ouagadougou',
-          created_at: '2026-08-27'
+          created_at: '2026-08-27',
+          updated_at: '2026-08-27'
         }
       ],
       counts: {
@@ -50,7 +57,7 @@ describe('CampaignAdminService (QA Automation Test)', () => {
       }
     };
 
-    service.loadCampaigns('pending').subscribe((res) => {
+    service.loadCampaigns('pending').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       expect(service.campaigns().length).toBe(1);
       expect(service.counts().pending).toBe(1);
@@ -59,7 +66,7 @@ describe('CampaignAdminService (QA Automation Test)', () => {
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/admin/campaigns?status=pending`);
-    expect(req.request.method).toBe('GET');
+    expect((req.request as any).method).toBe('GET');
     req.flush(mockResponse);
   });
 
@@ -68,19 +75,26 @@ describe('CampaignAdminService (QA Automation Test)', () => {
       success: true,
       data: {
         id: 1,
+        user_id: 10,
         title: 'Campagne Sobbra',
+        type: 'Audit',
+        city: 'Ouagadougou',
+        missions_count: 20,
+        reward_per_mission: 2500,
+        total_budget: 50000,
         status: 'active',
-        created_at: '2026-08-27'
+        created_at: '2026-08-27',
+        updated_at: '2026-08-27'
       }
     };
 
-    service.approveCampaign(1).subscribe((res) => {
+    service.approveCampaign(1).subscribe((res: any) => {
       expect(res.success).toBeTrue();
       done();
     });
 
     const approveReq = httpMock.expectOne(`${environment.apiUrl}/admin/campaigns/1/approve`);
-    expect(approveReq.request.method).toBe('POST');
+    expect((approveReq.request as any).method).toBe('POST');
     approveReq.flush(mockApprove);
 
     const refreshReq = httpMock.expectOne(`${environment.apiUrl}/admin/campaigns`);
@@ -92,21 +106,28 @@ describe('CampaignAdminService (QA Automation Test)', () => {
       success: true,
       data: {
         id: 2,
+        user_id: 10,
         title: 'Campagne Invalide',
+        type: 'Audit',
+        city: 'Ouagadougou',
+        missions_count: 20,
+        reward_per_mission: 2500,
+        total_budget: 50000,
         status: 'rejected',
         rejection_reason: 'Non-conforme aux règles de modération',
-        created_at: '2026-08-27'
+        created_at: '2026-08-27',
+        updated_at: '2026-08-27'
       }
     };
 
-    service.rejectCampaign(2, 'Non-conforme aux règles de modération').subscribe((res) => {
+    service.rejectCampaign(2, 'Non-conforme aux règles de modération').subscribe((res: any) => {
       expect(res.success).toBeTrue();
       done();
     });
 
     const rejectReq = httpMock.expectOne(`${environment.apiUrl}/admin/campaigns/2/reject`);
-    expect(rejectReq.request.method).toBe('POST');
-    expect(rejectReq.request.body).toEqual({ reason: 'Non-conforme aux règles de modération' });
+    expect((rejectReq.request as any).method).toBe('POST');
+    expect((rejectReq.request as any).body).toEqual({ reason: 'Non-conforme aux règles de modération' });
     rejectReq.flush(mockReject);
 
     const refreshReq = httpMock.expectOne(`${environment.apiUrl}/admin/campaigns`);
