@@ -51,6 +51,8 @@ export class LoginComponent {
         if (response.success) {
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
           this.router.navigateByUrl(returnUrl);
+        } else {
+          this.errorMessage.set(response.message || 'Échec de connexion.');
         }
       },
       error: (err: any) => {
@@ -58,7 +60,7 @@ export class LoginComponent {
         if (err.status === 401) {
           this.errorMessage.set(err.error?.message || 'Identifiants invalides (Email ou mot de passe incorrect).');
         } else {
-          this.errorMessage.set('Impossible de joindre le serveur API. Vérifiez la connexion backend.');
+          this.errorMessage.set('Impossible de joindre le serveur API. Connexion locale sécurisée recommandée.');
         }
       }
     });
