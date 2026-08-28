@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CampaignBusinessService } from '../../../core/services/campaign-business.service';
 import { Campaign } from '../../../core/models/campaign.model';
+import { CampaignWizardComponent } from '../campaign-wizard/campaign-wizard.component';
 
 @Component({
   selector: 'app-campaigns-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, CampaignWizardComponent],
   templateUrl: './campaigns-list.component.html',
   styleUrl: './campaigns-list.component.css'
 })
@@ -15,10 +16,24 @@ export class CampaignsListComponent implements OnInit {
   readonly campaignService = inject(CampaignBusinessService);
 
   activeFilter: 'all' | 'active' | 'pending' | 'completed' = 'all';
+  isWizardOpen = signal<boolean>(false);
   exportingCampaignId = signal<number | null>(null);
   toastMessage = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.campaignService.loadCampaigns().subscribe();
+  }
+
+  openWizard(): void {
+    this.isWizardOpen.set(true);
+  }
+
+  closeWizard(): void {
+    this.isWizardOpen.set(false);
+  }
+
+  onCampaignCreated(campaignId: number): void {
+    this.showToast('Campagne créée avec succès et soumise à modération !');
     this.campaignService.loadCampaigns().subscribe();
   }
 

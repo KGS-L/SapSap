@@ -125,3 +125,29 @@ export interface ResultsMapResponse {
   };
   data: ResultPoint[];
 }
+
+export interface QuestionnaireField {
+  id: string;
+  label: string;
+  type: 'text' | 'select' | 'number' | 'boolean' | 'photo';
+  required: boolean;
+  options?: string[];
+  help_text?: string;
+}
+
+export interface CreateCampaignDto {
+  title: string;
+  description: string;
+  mission_type: 'verification' | 'audit' | 'mystery_shopper' | 'pricing';
+  location_city: string;
+  target_district: string;
+  questionnaire_schema: QuestionnaireField[];
+  required_photos_count: number;
+  total_missions_requested: number;
+  reward_per_mission: number;
+}
+
+export interface PayCampaignDto {
+  payment_method: 'orange_money' | 'moov_money';
+  phone_number: string;
+}

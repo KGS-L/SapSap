@@ -1,0 +1,528 @@
+<div class="wizard-backdrop" (click)="closeModal()">
+  <div class="wizard-modal" (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="wizard-header">
+      <div class="header-content">
+        <div class="header-badge">
+          <span class="badge-dot"></span>
+          <span>Assistant de Création de Campagne</span>
+        </div>
+        <h2 class="wizard-title">Lancer une Nouvelle Mission Terrain</h2>
+        <p class="wizard-subtitle">Déployez des centaines de contributeurs vérifiés à Ouagadougou en quelques clics.</p>
+      </div>
+      <button class="btn-close" (click)="closeModal()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Stepper Navigation Bar -->
+    <div class="stepper-bar">
+      <div 
+        class="step-item" 
+        [class.active]="currentStep() === 1" 
+        [class.completed]="currentStep() > 1"
+        (click)="goToStep(1)">
+        <div class="step-num">
+          <span *ngIf="currentStep() <= 1">1</span>
+          <svg *ngIf="currentStep() > 1" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-text">Type & Titre</span>
+      </div>
+
+      <div class="step-connector" [class.filled]="currentStep() > 1"></div>
+
+      <div 
+        class="step-item" 
+        [class.active]="currentStep() === 2" 
+        [class.completed]="currentStep() > 2"
+        (click)="goToStep(2)">
+        <div class="step-num">
+          <span *ngIf="currentStep() <= 2">2</span>
+          <svg *ngIf="currentStep() > 2" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-text">Ciblage Ouaga</span>
+      </div>
+
+      <div class="step-connector" [class.filled]="currentStep() > 2"></div>
+
+      <div 
+        class="step-item" 
+        [class.active]="currentStep() === 3" 
+        [class.completed]="currentStep() > 3"
+        (click)="goToStep(3)">
+        <div class="step-num">
+          <span *ngIf="currentStep() <= 3">3</span>
+          <svg *ngIf="currentStep() > 3" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-text">Questionnaire</span>
+      </div>
+
+      <div class="step-connector" [class.filled]="currentStep() > 3"></div>
+
+      <div 
+        class="step-item" 
+        [class.active]="currentStep() === 4" 
+        [class.completed]="currentStep() > 4"
+        (click)="goToStep(4)">
+        <div class="step-num">
+          <span *ngIf="currentStep() <= 4">4</span>
+          <svg *ngIf="currentStep() > 4" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="step-text">Devis & Séquestre</span>
+      </div>
+
+      <div class="step-connector" [class.filled]="currentStep() === 5"></div>
+
+      <div 
+        class="step-item" 
+        [class.active]="currentStep() === 5" 
+        [class.completed]="currentStep() === 5">
+        <div class="step-num">
+          <span>5</span>
+        </div>
+        <span class="step-text">Confirmation</span>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div class="error-banner" *ngIf="errorMessage() as err">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>{{ err }}</span>
+    </div>
+
+    <!-- Modal Body / Steps -->
+    <div class="wizard-body">
+
+      <!-- ==================== ÉTAPE 1 : INFOS GÉNÉRALES & TYPE ==================== -->
+      <div class="step-content" *ngIf="currentStep() === 1">
+        <h3 class="section-heading">1. Définissez les objectifs de votre campagne</h3>
+        <p class="section-desc">Sélectionnez le type d'audit terrain adapté à vos besoins commerciaux ou opérationnels.</p>
+
+        <!-- Types Grid -->
+        <div class="types-grid">
+          <div 
+            class="type-card" 
+            *ngFor="let opt of missionTypes"
+            [class.selected]="missionType() === opt.id"
+            (click)="selectMissionType(opt.id)">
+            <div class="type-header">
+              <span class="type-icon">{{ opt.icon }}</span>
+              <span class="type-badge">{{ opt.badge }}</span>
+            </div>
+            <div class="type-title">{{ opt.title }}</div>
+            <div class="type-desc">{{ opt.subtitle }}</div>
+            <div class="type-footer">
+              <span class="rec-label">Rémunération suggérée :</span>
+              <span class="rec-val">{{ formatPrice(opt.defaultReward) }} FCFA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form fields -->
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="camp-title">Titre de la campagne <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="camp-title" 
+              class="form-control" 
+              placeholder="Ex: Audit PLV & Visibilité Boissons Sobbra — Ouaga" 
+              [ngModel]="title()" 
+              (ngModelChange)="title.set($event)"/>
+            <span class="form-hint">Ce titre sera visible par les contributeurs sur l'application mobile SapSap.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="camp-desc">Description & Consignes générales</label>
+            <textarea 
+              id="camp-desc" 
+              rows="3" 
+              class="form-control" 
+              placeholder="Expliquez brièvement le contexte et les attentes envers les contributeurs..."
+              [ngModel]="description()" 
+              (ngModelChange)="description.set($event)"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ÉTAPE 2 : CIBLAGE OUAGADOUGOU ==================== -->
+      <div class="step-content" *ngIf="currentStep() === 2">
+        <h3 class="section-heading">2. Périmètre géographique & Volume cible</h3>
+        <p class="section-desc">Ciblez les quartiers prioritaires de la capitale et ajustez le nombre de missions à accomplir.</p>
+
+        <div class="neighborhood-picker">
+          <div class="picker-header">
+            <div class="picker-title">
+              <span>Quartiers de Ouagadougou sélectionnés ({{ selectedNeighborhoods().length }})</span>
+            </div>
+            <div class="picker-actions">
+              <button type="button" class="btn-text" (click)="selectAllNeighborhoods()">Tout sélectionner</button>
+              <span class="sep">•</span>
+              <button type="button" class="btn-text" (click)="resetNeighborhoods()">Réinitialiser</button>
+            </div>
+          </div>
+
+          <!-- Neighborhoods Tags -->
+          <div class="neighborhood-tags">
+            <button 
+              type="button" 
+              class="tag-btn" 
+              *ngFor="let nh of allNeighborhoods"
+              [class.active]="selectedNeighborhoods().includes(nh)"
+              (click)="toggleNeighborhood(nh)">
+              <span class="tag-check" *ngIf="selectedNeighborhoods().includes(nh)">✓</span>
+              <span>{{ nh }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="volume-grid">
+          <div class="form-group">
+            <label class="form-label" for="total-missions">Nombre total de points / missions <span class="required">*</span></label>
+            <div class="input-with-stepper">
+              <button type="button" class="btn-stepper" (click)="totalMissions.set(totalMissions() > 5 ? totalMissions() - 5 : 1)">-</button>
+              <input 
+                type="number" 
+                id="total-missions" 
+                min="1" 
+                class="form-control text-center font-bold" 
+                [ngModel]="totalMissions()" 
+                (ngModelChange)="totalMissions.set(+$event)"/>
+              <button type="button" class="btn-stepper" (click)="totalMissions.set(totalMissions() + 5)">+</button>
+            </div>
+            <span class="form-hint">Répartition estimée : ~{{ (totalMissions() / (selectedNeighborhoods().length || 1)) | number:'1.0-1' }} points par quartier sélectionné.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="photos-count">Photos obligatoires par mission</label>
+            <div class="input-with-stepper">
+              <button type="button" class="btn-stepper" (click)="requiredPhotosCount.set(requiredPhotosCount() > 1 ? requiredPhotosCount() - 1 : 1)">-</button>
+              <input 
+                type="number" 
+                id="photos-count" 
+                min="1" 
+                max="10" 
+                class="form-control text-center font-bold" 
+                [ngModel]="requiredPhotosCount()" 
+                (ngModelChange)="requiredPhotosCount.set(+$event)"/>
+              <button type="button" class="btn-stepper" (click)="requiredPhotosCount.set(requiredPhotosCount() < 10 ? requiredPhotosCount() + 1 : 10)">+</button>
+            </div>
+            <span class="form-hint">Les contributeurs devront obligatoirement uploader {{ requiredPhotosCount() }} photo(s) géolocalisée(s).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ÉTAPE 3 : QUESTIONNAIRE DYNAMIQUE ==================== -->
+      <div class="step-content" *ngIf="currentStep() === 3">
+        <h3 class="section-heading">3. Construisez le formulaire de collecte terrain</h3>
+        <p class="section-desc">Définissez les questions que les contributeurs devront remplir sur leur smartphone.</p>
+
+        <!-- Current Questions List -->
+        <div class="questions-list">
+          <div class="question-card" *ngFor="let q of questions(); let i = index">
+            <div class="q-header">
+              <span class="q-index">Question {{ i + 1 }}</span>
+              <span class="q-type-badge">{{ q.type }}</span>
+              <span class="q-req" *ngIf="q.required">Obligatoire</span>
+              <button class="btn-del" (click)="removeQuestion(i)" title="Supprimer cette question">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+            <div class="q-label">{{ q.label }}</div>
+            <div class="q-help" *ngIf="q.help_text">💡 {{ q.help_text }}</div>
+            <div class="q-options" *ngIf="q.options && q.options.length">
+              <span class="opt-tag" *ngFor="let opt of q.options">{{ opt }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Question Box -->
+        <div class="add-question-box">
+          <h4 class="box-title">➕ Ajouter une question personnalisée</h4>
+          <div class="add-q-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Libellé de la question</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Ex: Le logo Sobbra est-il visible sur la façade principale ?" 
+                [ngModel]="newQuestionLabel()" 
+                (ngModelChange)="newQuestionLabel.set($event)"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Type de réponse</label>
+              <select 
+                class="form-control" 
+                [ngModel]="newQuestionType()" 
+                (ngModelChange)="newQuestionType.set($event)">
+                <option value="text">Texte libre (Court / Long)</option>
+                <option value="boolean">Oui / Non (Binaire)</option>
+                <option value="select">Choix unique dans une liste</option>
+                <option value="number">Montant numérique / Prix</option>
+                <option value="photo">Photo / Preuve dédiée</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="newQuestionType() === 'select'">
+              <label class="form-label">Options possibles (séparées par une virgule)</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Option A, Option B, Option C" 
+                [ngModel]="newQuestionOptionsStr()" 
+                (ngModelChange)="newQuestionOptionsStr.set($event)"/>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [ngModel]="newQuestionRequired()" 
+                  (ngModelChange)="newQuestionRequired.set($event)"/>
+                <span>Réponse obligatoire pour valider la mission</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="add-q-actions">
+            <button type="button" class="btn btn-secondary btn-sm" (click)="addQuestion()">
+              <span>Insérer la question</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ÉTAPE 4 : CALCULATEUR BUDGET & DEVIS ==================== -->
+      <div class="step-content" *ngIf="currentStep() === 4">
+        <h3 class="section-heading">4. Devis estimatif & Rémunération des contributeurs</h3>
+        <p class="section-desc">Ajustez la rémunération versée pour chaque mission terrain validée à Ouagadougou.</p>
+
+        <div class="budget-layout">
+          <!-- Left: Reward setting -->
+          <div class="budget-form">
+            <div class="form-group">
+              <label class="form-label" for="reward-input">Rémunération par mission validée (FCFA) <span class="required">*</span></label>
+              <div class="reward-presets">
+                <button 
+                  type="button" 
+                  class="preset-btn" 
+                  [class.active]="rewardPerMission() === 1500" 
+                  (click)="rewardPerMission.set(1500)">1 500 F</button>
+                <button 
+                  type="button" 
+                  class="preset-btn" 
+                  [class.active]="rewardPerMission() === 2000" 
+                  (click)="rewardPerMission.set(2000)">2 000 F</button>
+                <button 
+                  type="button" 
+                  class="preset-btn" 
+                  [class.active]="rewardPerMission() === 2500" 
+                  (click)="rewardPerMission.set(2500)">2 500 F</button>
+                <button 
+                  type="button" 
+                  class="preset-btn" 
+                  [class.active]="rewardPerMission() === 3500" 
+                  (click)="rewardPerMission.set(3500)">3 500 F</button>
+                <button 
+                  type="button" 
+                  class="preset-btn" 
+                  [class.active]="rewardPerMission() === 5000" 
+                  (click)="rewardPerMission.set(5000)">5 000 F</button>
+              </div>
+
+              <input 
+                type="number" 
+                id="reward-input" 
+                min="500" 
+                step="250" 
+                class="form-control font-bold" 
+                [ngModel]="rewardPerMission()" 
+                (ngModelChange)="rewardPerMission.set(+$event)"/>
+              <span class="form-hint">Plus la rémunération est attractive, plus la collecte est rapide (< 24h).</span>
+            </div>
+
+            <!-- Payment details input -->
+            <div class="payment-method-box">
+              <h4 class="box-title">Règlement et Séquestre Garanti</h4>
+              <p class="box-desc">Les fonds sont bloqués sur un compte séquestre sécurisé et ne sont débloqués qu'après validation de la conformité des audits.</p>
+              
+              <div class="payment-radios">
+                <label class="pay-radio" [class.selected]="paymentMethod() === 'orange_money'">
+                  <input type="radio" name="pay-method" value="orange_money" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)"/>
+                  <span class="pay-logo orange-logo">🟠 Orange Money</span>
+                </label>
+                <label class="pay-radio" [class.selected]="paymentMethod() === 'moov_money'">
+                  <input type="radio" name="pay-method" value="moov_money" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)"/>
+                  <span class="pay-logo moov-logo">🔵 Moov Money</span>
+                </label>
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label" for="phone-input">Numéro Mobile Money (Burkina Faso)</label>
+                <input 
+                  type="text" 
+                  id="phone-input" 
+                  class="form-control" 
+                  placeholder="+22670123456" 
+                  [ngModel]="phoneNumber()" 
+                  (ngModelChange)="phoneNumber.set($event)"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Live Devis Summary Card -->
+          <div class="devis-card">
+            <div class="devis-header">
+              <span class="devis-badge">Récapitulatif Financier</span>
+              <h4 class="devis-title">{{ title() || 'Nouvelle Campagne Terrain' }}</h4>
+            </div>
+
+            <div class="devis-lines">
+              <div class="devis-line">
+                <span class="line-label">Quartiers ciblés</span>
+                <span class="line-val">{{ selectedNeighborhoods().length }} zones</span>
+              </div>
+              <div class="devis-line">
+                <span class="line-label">Points / missions</span>
+                <span class="line-val">{{ totalMissions() }} audits</span>
+              </div>
+              <div class="devis-line">
+                <span class="line-label">Rémunération unitaire</span>
+                <span class="line-val">{{ formatPrice(rewardPerMission()) }} FCFA</span>
+              </div>
+
+              <div class="devis-divider"></div>
+
+              <div class="devis-line">
+                <span class="line-label">Sous-total contributeurs</span>
+                <span class="line-val">{{ formatPrice(subtotal()) }} FCFA</span>
+              </div>
+
+              <div class="devis-line">
+                <span class="line-label">Commission plateforme (15%)</span>
+                <span class="line-val text-muted">+ {{ formatPrice(platformFee()) }} FCFA</span>
+              </div>
+
+              <div class="devis-divider"></div>
+
+              <div class="devis-total-line">
+                <span class="total-label">Budget Total Séquestre</span>
+                <span class="total-amount">{{ formatPrice(totalBudget()) }} <span class="currency">FCFA</span></span>
+              </div>
+            </div>
+
+            <div class="devis-guarantee">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>Garantie SapSap : Remboursement intégral sur les missions non exécutées ou non conformes.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ÉTAPE 5 : CONFIRMATION SUCCÈS ==================== -->
+      <div class="step-content text-center" *ngIf="currentStep() === 5">
+        <div class="success-icon-container">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+        </div>
+
+        <h3 class="success-title">Campagne Déployée avec Succès !</h3>
+        <p class="success-desc">
+          Votre campagne <strong>« {{ title() }} »</strong> a été enregistrée. 
+          Le budget de <strong>{{ formatPrice(totalBudget()) }} FCFA</strong> a été placé sous séquestre sécurisé via {{ paymentMethod() === 'orange_money' ? 'Orange Money' : 'Moov Money' }}.
+        </p>
+
+        <div class="success-details-box">
+          <div class="detail-col">
+            <span class="d-label">Statut Actuel</span>
+            <span class="d-val badge badge-pending">En Modération Express (< 2h)</span>
+          </div>
+          <div class="detail-col">
+            <span class="d-label">Missions Créées</span>
+            <span class="d-val">{{ totalMissions() }} points à Ouagadougou</span>
+          </div>
+          <div class="detail-col">
+            <span class="d-label">Rémunération / Point</span>
+            <span class="d-val">{{ formatPrice(rewardPerMission()) }} FCFA</span>
+          </div>
+        </div>
+
+        <div class="success-actions">
+          <button type="button" class="btn btn-primary" (click)="closeModal()">
+            <span>Accéder à mes campagnes & Suivi Live</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer / Navigation Buttons -->
+    <div class="wizard-footer" *ngIf="currentStep() < 5">
+      <button 
+        type="button" 
+        class="btn btn-secondary" 
+        (click)="prevStep()" 
+        [disabled]="currentStep() === 1 || isSubmitting()">
+        <span>Précédent</span>
+      </button>
+
+      <div class="footer-right">
+        <button 
+          type="button" 
+          class="btn btn-outline" 
+          (click)="closeModal()" 
+          [disabled]="isSubmitting()">
+          <span>Annuler</span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          *ngIf="currentStep() < 4" 
+          (click)="nextStep()">
+          <span>Continuer</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-primary btn-submit" 
+          *ngIf="currentStep() === 4" 
+          (click)="submitCampaign()" 
+          [disabled]="isSubmitting()">
+          <span *ngIf="!isSubmitting()">Valider & Payer {{ formatPrice(totalBudget()) }} FCFA</span>
+          <span *ngIf="isSubmitting()" class="spinner-inline">Traitement en cours...</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

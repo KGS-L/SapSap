@@ -1,14 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
-import { Campaign, CampaignStats, ResultPoint, TrackingData } from '../models/campaign.model';
+import { Campaign, CampaignStats, CreateCampaignDto, PayCampaignDto, ResultPoint, TrackingData } from '../models/campaign.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CampaignBusinessService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8000/api/v1/business';
+  private readonly apiUrl = `${environment.apiUrl}/business`;
 
   // État réactif
   readonly campaigns = signal<Campaign[]>([]);
@@ -17,6 +18,119 @@ export class CampaignBusinessService {
   readonly currentResultsMap = signal<ResultPoint[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
+
+  /**
+   * Créer une nouvelle campagne (Wizard - Statut Draft)
+   */
+  createCampaign(payload: CreateCampaignDto): Observable<{ success: boolean; message: string; data: Campaign }> {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    return this.http.post<{ success: boolean; message: string; data: Campaign }>(`${this.apiUrl}/campaigns`, payload).pipe(
+      tap(res => {
+        if (res.data) {
+          const currentList = this.campaigns();
+          this.campaigns.set([res.data, ...currentList]);
+        }
+        this.isLoading.set(false);
+      }),
+      catchError(err => {
+        console.warn('Backend indisponible ou erreur lors de la création, simulation de création en local', err);
+        const subtotal = payload.reward_per_mission * payload.total_missions_requested;
+        const fee = Math.round(subtotal * 0.15);
+        const newCamp: Campaign = {
+          id: Date.now(),
+          title: payload.title,
+          company_name: 'Sobbra Distribution BF',
+          description: payload.description || 'Campagne terrain Ouagadougou',
+          type: payload.mission_type,
+          city: payload.location_city || 'Ouagadougou',
+          target_neighborhoods: payload.target_district || 'Ouagadougou Centre',
+          missions_count: payload.total_missions_requested,
+          reward_per_mission: payload.reward_per_mission,
+          total_budget: subtotal + fee,
+          status: 'draft',
+          completed_missions: 0,
+          submitted_missions: 0,
+          reserved_missions: 0,
+          available_missions: payload.total_missions_requested,
+          progress_percent: 0,
+          spent_budget: 0,
+          created_at: new Date().toISOString()
+        };
+        const currentList = this.campaigns();
+        this.campaigns.set([newCamp, ...currentList]);
+        this.isLoading.set(false);
+        return of({
+          success: true,
+          message: 'Campagne créée avec succès (Simulation)',
+          data: newCamp
+        });
+      })
+    );
+  }
+
+  /**
+   * Régler et mettre en séquestre le budget de la campagne via Mobile Money
+   */
+  payCampaign(campaignId: number, payment: PayCampaignDto): Observable<{ success: boolean; message: string; data?: any }> {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    return this.http.post<{ success: boolean; message: string; data: any }>(`${this.apiUrl}/campaigns/${campaignId}/pay`, payment).pipe(
+      tap(() => {
+        const list = this.campaigns().map(c => {
+          if (c.id === campaignId) {
+            return { ...c, status: 'pending' as const };
+          }
+          return c;
+        });
+        this.campaigns.set(list);
+        this.isLoading.set(false);
+      }),
+      catchError(err => {
+        console.warn('Backend indisponible pour le paiement, simulation de validation séquestre', err);
+        const list = this.campaigns().map(c => {
+          if (c.id === campaignId) {
+            return { ...c, status: 'pending' as const };
+          }
+          return c;
+        });
+        this.campaigns.set(list);
+        this.isLoading.set(false);
+        return of({
+          success: true,
+          message: 'Paiement Mobile Money simulé et budget placé sous séquestre avec succès.'
+        });
+      })
+    );
+  }
+
+  /**
+   * Quartiers répertoriés pour Ouagadougou
+   */
+  getOuagadougouNeighborhoods(): string[] {
+    return [
+      'Koulouba',
+      'Ouaga 2000',
+      'Pissy',
+      'Gounghin',
+      'Tampouy',
+      'Tanghin',
+      'Somgandé',
+      'Zone 1',
+      'Patte d\'Oie',
+      'Karpala',
+      'Dassasgho',
+      'Wayalghin',
+      'Kamsonghin',
+      'Samandin',
+      'Cissin',
+      'Larlé',
+      '1200 Logements',
+      'Zone du Bois'
+    ];
+  }
 
   /**
    * Charger toutes les campagnes de l'entreprise

@@ -6,7 +6,14 @@
       <p class="page-subtitle">Suivez vos études de marché, audits PLV et vérifications de points de vente à Ouagadougou.</p>
     </div>
     <div class="header-actions">
-      <a routerLink="/tracking/1" class="btn btn-primary">
+      <button class="btn btn-primary" (click)="openWizard()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>Nouvelle Campagne</span>
+      </button>
+      <a routerLink="/tracking/1" class="btn btn-secondary">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
           <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
@@ -182,4 +189,11 @@
     <div class="toast-icon">✓</div>
     <div class="toast-text">{{ msg }}</div>
   </div>
+
+  <!-- Campaign Creation Wizard Modal -->
+  <app-campaign-wizard 
+    *ngIf="isWizardOpen()" 
+    (close)="closeWizard()" 
+    (created)="onCampaignCreated($event)">
+  </app-campaign-wizard>
 </div>
