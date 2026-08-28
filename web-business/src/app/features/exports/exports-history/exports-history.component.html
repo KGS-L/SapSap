@@ -1,0 +1,125 @@
+<div class="exports-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Centre d'Exportation des Données</h1>
+      <p class="page-subtitle">Téléchargez les relevés géolocalisés, questionnaires et preuves photos sous formats CSV et Excel compatibles PowerBI/Tableau.</p>
+    </div>
+  </div>
+
+  <!-- Format Info Banner -->
+  <div class="format-cards-grid">
+    <div class="card format-card">
+      <div class="format-icon icon-csv">CSV</div>
+      <div class="format-details">
+        <h3 class="format-title">Format CSV (UTF-8 avec BOM)</h3>
+        <p class="format-desc">Idéal pour intégration dans Excel sans problème d'accents ni décalage de séparateurs (;). Contient les coordonnées GPS cibles et réelles.</p>
+      </div>
+    </div>
+
+    <div class="card format-card">
+      <div class="format-icon icon-excel">XLS</div>
+      <div class="format-details">
+        <h3 class="format-title">Format Excel XML (SpreadsheetML)</h3>
+        <p class="format-desc">Feuille de calcul prête avec colonnes formatées, styles d'en-têtes et liens directs vers les photos stockées sur le serveur sécurisé.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Campaigns Quick Export Section -->
+  <div class="card section-card">
+    <div class="card-header">
+      <h2 class="card-title">Générer un Export Direct par Campagne</h2>
+    </div>
+
+    <div class="campaigns-export-list">
+      <div class="export-row" *ngFor="let camp of campaignService.campaigns()">
+        <div class="export-campaign-info">
+          <div class="camp-badge">{{ camp.type }}</div>
+          <h4 class="camp-title">{{ camp.title }}</h4>
+          <span class="camp-meta">
+            {{ camp.city }} • {{ camp.completed_missions || 0 }} / {{ camp.missions_count }} points validés ({{ camp.progress_percent || 0 }}%)
+          </span>
+        </div>
+
+        <div class="export-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary btn-sm" 
+            (click)="downloadExport(camp.id, 'csv')"
+            [disabled]="exportingId() === camp.id">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Télécharger CSV</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="btn btn-primary btn-sm" 
+            (click)="downloadExport(camp.id, 'excel')"
+            [disabled]="exportingId() === camp.id">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Télécharger Excel</span>
+          </button>
+
+          <a [routerLink]="['/tracking', camp.id]" class="btn btn-outline btn-sm">
+            <span>Visualiser Carte</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export History Table -->
+  <div class="card section-card mt-4">
+    <div class="card-header">
+      <h2 class="card-title">Historique des Téléchargements Récents</h2>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Réf Export</th>
+            <th>Campagne</th>
+            <th>Format</th>
+            <th>Points Inclus</th>
+            <th>Taille</th>
+            <th>Date de Génération</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of exportHistory()">
+            <td class="font-mono font-bold">{{ item.id }}</td>
+            <td class="font-bold">{{ item.campaign_title }}</td>
+            <td>
+              <span class="badge" [class.badge-active]="item.format === 'csv'" [class.badge-completed]="item.format === 'excel'">
+                {{ item.format.toUpperCase() }}
+              </span>
+            </td>
+            <td>{{ item.records_count }} lignes</td>
+            <td>{{ item.file_size_kb }} kB</td>
+            <td class="text-muted">{{ item.generated_at }}</td>
+            <td>
+              <span class="badge badge-active">Téléchargé</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notification" *ngIf="toastMessage() as msg">
+    <div class="toast-icon">✓</div>
+    <div class="toast-text">{{ msg }}</div>
+  </div>
+</div>

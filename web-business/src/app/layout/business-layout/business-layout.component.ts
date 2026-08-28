@@ -28,11 +28,9 @@ export class BusinessLayoutComponent {
   }
 
   switchCompany(company: 'sobbra' | 'orange'): void {
-    if (company === 'orange') {
-      this.authService.login('business@orange.bf');
-    } else {
-      this.authService.login('business@sobbra.bf');
-    }
-    this.campaignService.loadCampaigns().subscribe();
+    const email = company === 'orange' ? 'business@orange.bf' : 'business@sobbra.bf';
+    this.authService.login({ email, password: 'Password123!' }).subscribe(() => {
+      this.campaignService.loadCampaigns().subscribe();
+    });
   }
 }

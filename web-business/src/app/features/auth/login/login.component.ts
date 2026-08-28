@@ -17,6 +17,7 @@ export class LoginComponent {
 
   email = 'business@sobbra.bf';
   password = 'Password123!';
+  isLoading = false;
   errorMessage = '';
 
   onLogin(): void {
@@ -25,8 +26,23 @@ export class LoginComponent {
       return;
     }
 
-    this.authService.login(this.email);
-    this.router.navigate(['/campaigns']);
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.login({ email: this.email, password: this.password }).subscribe({
+      next: success => {
+        this.isLoading = false;
+        if (success) {
+          this.router.navigate(['/campaigns']);
+        } else {
+          this.errorMessage = 'Identifiants invalides. Veuillez réessayer.';
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'Une erreur est survenue lors de la connexion.';
+      }
+    });
   }
 
   loginWithPreset(presetEmail: string): void {

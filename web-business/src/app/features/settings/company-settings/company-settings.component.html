@@ -1,0 +1,264 @@
+<div class="settings-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Paramètres de l'Entreprise</h1>
+      <p class="page-subtitle">Gérez vos informations légales, coordonnées de facturation, notifications et intégrations API.</p>
+    </div>
+  </div>
+
+  <!-- Settings Container with Tabs -->
+  <div class="settings-container card">
+    <!-- Sidebar Navigation Tabs -->
+    <div class="settings-nav">
+      <button 
+        type="button" 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'profile'" 
+        (click)="activeTab.set('profile')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Profil Entreprise</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'billing'" 
+        (click)="activeTab.set('billing')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        <span>Facturation & Séquestre</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'notifications'" 
+        (click)="activeTab.set('notifications')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span>Notifications</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'api'" 
+        (click)="activeTab.set('api')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 18 22 12 16 6"/>
+          <polyline points="8 6 2 12 8 18"/>
+        </svg>
+        <span>Clés API & Webhooks</span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="settings-content">
+
+      <!-- ==================== TAB 1 : PROFIL ==================== -->
+      <div class="tab-pane" *ngIf="activeTab() === 'profile'">
+        <div class="pane-header">
+          <h2 class="pane-title">Identité & Coordonnées de l'Entreprise</h2>
+          <p class="pane-desc">Ces informations figureront sur vos récapitulatifs fiscaux et rapports de missions.</p>
+        </div>
+
+        <form (ngSubmit)="saveProfile()" class="form-layout">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Raison Sociale / Nom</label>
+              <input type="text" class="form-control" [ngModel]="companyName()" (ngModelChange)="companyName.set($event)" name="companyName"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Responsable du compte</label>
+              <input type="text" class="form-control" [ngModel]="managerName()" (ngModelChange)="managerName.set($event)" name="managerName"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email professionnel</label>
+              <input type="email" class="form-control" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Téléphone standard</label>
+              <input type="text" class="form-control" [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Numéro IFU / NIF</label>
+              <input type="text" class="form-control" [ngModel]="nif()" (ngModelChange)="nif.set($event)" name="nif"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Numéro RCCM</label>
+              <input type="text" class="form-control" [ngModel]="rccm()" (ngModelChange)="rccm.set($event)" name="rccm"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Ville du siège</label>
+              <input type="text" class="form-control" [ngModel]="city()" (ngModelChange)="city.set($event)" name="city"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Adresse / Secteur</label>
+              <input type="text" class="form-control" [ngModel]="address()" (ngModelChange)="address.set($event)" name="address"/>
+            </div>
+          </div>
+
+          <div class="pane-footer">
+            <button type="submit" class="btn btn-primary">
+              <span>Enregistrer les modifications</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ==================== TAB 2 : FACTURATION ==================== -->
+      <div class="tab-pane" *ngIf="activeTab() === 'billing'">
+        <div class="pane-header">
+          <h2 class="pane-title">Règlement & Comptes Mobile Money</h2>
+          <p class="pane-desc">Configurez vos numéros de prélèvement automatique pour alimenter les séquestres de campagnes.</p>
+        </div>
+
+        <form (ngSubmit)="saveBilling()" class="form-layout">
+          <div class="form-group">
+            <label class="form-label">Opérateur Mobile Money par défaut</label>
+            <div class="provider-cards">
+              <label class="provider-card" [class.selected]="defaultProvider() === 'orange'">
+                <input type="radio" name="provider" value="orange" [ngModel]="defaultProvider()" (ngModelChange)="defaultProvider.set($event)"/>
+                <span>🟠 Orange Money Burkina</span>
+              </label>
+              <label class="provider-card" [class.selected]="defaultProvider() === 'moov'">
+                <input type="radio" name="provider" value="moov" [ngModel]="defaultProvider()" (ngModelChange)="defaultProvider.set($event)"/>
+                <span>🔵 Moov Money Burkina</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Numéro Mobile Money de référence</label>
+            <input type="text" class="form-control" [ngModel]="defaultMobileMoney()" (ngModelChange)="defaultMobileMoney.set($event)" name="mobileMoney"/>
+            <span class="form-hint">Ce numéro sera pré-sélectionné lors de la création de nouvelles campagnes.</span>
+          </div>
+
+          <div class="pane-footer">
+            <button type="submit" class="btn btn-primary">
+              <span>Mettre à jour les paramètres de facturation</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ==================== TAB 3 : NOTIFICATIONS ==================== -->
+      <div class="tab-pane" *ngIf="activeTab() === 'notifications'">
+        <div class="pane-header">
+          <h2 class="pane-title">Alertes & Notifications en Temps Réel</h2>
+          <p class="pane-desc">Choisissez les événements opérationnels qui vous déclenchent un email ou un SMS.</p>
+        </div>
+
+        <form (ngSubmit)="saveNotifications()" class="form-layout">
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <input type="checkbox" [ngModel]="notifyOnSubmission()" (ngModelChange)="notifyOnSubmission.set($event)" name="n1"/>
+              <div class="toggle-text">
+                <strong>Nouvelle soumission reçue</strong>
+                <span>Recevoir un récapitulatif lorsqu'un contributeur termine un audit.</span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <input type="checkbox" [ngModel]="notifyOnAutoValidation()" (ngModelChange)="notifyOnAutoValidation.set($event)" name="n2"/>
+              <div class="toggle-text">
+                <strong>Auto-validation à 48h</strong>
+                <span>Alerte lorsque des missions sont automatiquement approuvées par le planificateur.</span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <input type="checkbox" [ngModel]="notifyOnLowBudget()" (ngModelChange)="notifyOnLowBudget.set($event)" name="n3"/>
+              <div class="toggle-text">
+                <strong>Alerte de complétion de campagne</strong>
+                <span>Notification quand 100% des points d'une campagne sont validés.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="pane-footer">
+            <button type="submit" class="btn btn-primary">
+              <span>Enregistrer les préférences</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ==================== TAB 4 : API ==================== -->
+      <div class="tab-pane" *ngIf="activeTab() === 'api'">
+        <div class="pane-header">
+          <h2 class="pane-title">Intégration API & Synchronisation SI</h2>
+          <p class="pane-desc">Connectez vos systèmes ERP, CRM ou PowerBI directement à l'API SapSap via vos clés sécurisées.</p>
+        </div>
+
+        <div class="api-box">
+          <label class="form-label">Clé API Entreprise (Production)</label>
+          <div class="api-key-row">
+            <input 
+              [type]="showKey() ? 'text' : 'password'" 
+              class="form-control font-mono" 
+              [value]="apiKey()" 
+              readonly/>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="showKey.set(!showKey())">
+              <span>{{ showKey() ? 'Masquer' : 'Afficher' }}</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="copyApiKey()">
+              <span>Copier</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm text-danger" (click)="regenerateApiKey()">
+              <span>Régénérer</span>
+            </button>
+          </div>
+          <span class="form-hint">Ne partagez jamais votre clé secrète. Elle permet d'accéder à l'ensemble des résultats de vos campagnes.</span>
+        </div>
+
+        <div class="endpoint-guide mt-4">
+          <h4 class="guide-title">Documentation des Endpoints REST</h4>
+          <div class="endpoint-item">
+            <span class="method get">GET</span>
+            <span class="url">/api/v1/business/campaigns</span>
+            <span class="desc">Liste des campagnes et KPIs</span>
+          </div>
+          <div class="endpoint-item">
+            <span class="method get">GET</span>
+            <span class="url">/api/v1/business/campaigns/&#123;id&#125;/results-map</span>
+            <span class="desc">Données géographiques et réponses</span>
+          </div>
+          <div class="endpoint-item">
+            <span class="method get">GET</span>
+            <span class="url">/api/v1/business/campaigns/&#123;id&#125;/export/csv</span>
+            <span class="desc">Flux d'exportation UTF-8</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notification" *ngIf="toastMessage() as msg">
+    <div class="toast-icon">✓</div>
+    <div class="toast-text">{{ msg }}</div>
+  </div>
+</div>
