@@ -128,7 +128,7 @@ export class MissionExecutionPage implements OnInit {
         stock_status: this.stockStatus,
         comments: this.contributorComments
       },
-      device_id: 'device_' + (localStorage.getItem('sapsap_device_id') || Math.random().toString(36).substr(2, 9))
+      device_id: 'device_' + (localStorage.getItem('sapsap_device_id') || Math.random().toString(36).substring(2, 11))
     };
 
     const loader = await this.loadingCtrl.create({

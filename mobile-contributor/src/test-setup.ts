@@ -14,3 +14,25 @@ if (!window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+
+// Polyfill for navigator.geolocation in jsdom
+if (typeof navigator !== 'undefined' && !navigator.geolocation) {
+  (navigator as any).geolocation = {
+    getCurrentPosition: (success: (pos: any) => void, _error?: (err: any) => void) => {
+      success({
+        coords: {
+          latitude: 12.37142,
+          longitude: -1.5197,
+          accuracy: 10,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null
+        },
+        timestamp: Date.now()
+      });
+    },
+    watchPosition: () => 1,
+    clearWatch: () => undefined
+  };
+}

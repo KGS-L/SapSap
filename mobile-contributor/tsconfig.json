@@ -9,6 +9,9 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "types": [
+      "vitest/globals"
+    ],
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,

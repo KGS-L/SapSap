@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/auth.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -10,10 +11,11 @@ import { User } from '../../core/models/auth.model';
   styleUrls: ['./profile.page.scss'],
   standalone: false
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage implements OnInit, OnDestroy {
   user: User | null = null;
   showEditModal = false;
   editForm!: FormGroup;
+  private authSubscription: Subscription | null = null;
 
   ouagaDistricts: string[] = [
     'Somgandé',
@@ -43,7 +45,7 @@ export class ProfilePage implements OnInit {
       district: ['Somgandé']
     });
 
-    this.authService.currentUser$.subscribe(u => {
+    this.authSubscription = this.authService.currentUser$.subscribe(u => {
       this.user = u;
       if (u) {
         this.editForm.patchValue({
@@ -55,6 +57,12 @@ export class ProfilePage implements OnInit {
     });
 
     this.loadProfileFromApi();
+  }
+
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   loadProfileFromApi(): void {

@@ -52,7 +52,7 @@ export class OfflineQueueService {
 
   public enqueue(missionId: number, missionTitle: string, payload: SubmissionPayload, lastError?: string): QueuedSubmission {
     const item: QueuedSubmission = {
-      id: 'queue_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      id: 'queue_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       missionId,
       missionTitle,
       payload,
