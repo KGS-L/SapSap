@@ -48,7 +48,7 @@ class RoleAndUserSeeder extends Seeder
         // 3. Création des comptes administrateurs et entreprises de test
 
         // Super-Admin SapSap
-        $superAdmin = User::firstOrCreate(
+        $superAdmin = User::updateOrCreate(
             ['email' => 'admin@sapsap.bf'],
             [
                 'name' => 'Ousmane Traoré (Super-Admin)',
@@ -62,7 +62,7 @@ class RoleAndUserSeeder extends Seeder
         $superAdmin->assignRole('super-admin');
 
         // Validateur Terrain SapSap
-        $validator = User::firstOrCreate(
+        $validator = User::updateOrCreate(
             ['email' => 'validator@sapsap.bf'],
             [
                 'name' => 'Fatimata Zongo (Validatrice)',
@@ -76,7 +76,7 @@ class RoleAndUserSeeder extends Seeder
         $validator->assignRole('validator');
 
         // Admin Entreprise Sobbra BF
-        $companyAdmin = User::firstOrCreate(
+        $companyAdmin = User::updateOrCreate(
             ['email' => 'business@sobbra.bf'],
             [
                 'name' => 'Jean-Marc Somé (Sobbra Distribution)',
