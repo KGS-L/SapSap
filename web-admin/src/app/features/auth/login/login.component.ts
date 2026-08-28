@@ -18,8 +18,23 @@ export class LoginComponent {
 
   email = 'admin@sapsap.bf';
   password = 'Password123!';
+  showPassword = signal<boolean>(false);
+  selectedRole = signal<'admin' | 'validator'>('admin');
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
+
+  selectRole(role: 'admin' | 'validator'): void {
+    this.selectedRole.set(role);
+    if (role === 'admin') {
+      this.fillDemo('admin@sapsap.bf');
+    } else {
+      this.fillDemo('validator@sapsap.bf');
+    }
+  }
 
   onSubmit(): void {
     if (!this.email || !this.password) {

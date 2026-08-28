@@ -1,204 +1,212 @@
 <div class="tracking-page" *ngIf="campaignService.currentTracking() as tracking">
   <!-- Top Navigation & Campaign Selector Bar -->
-  <div class="tracking-topbar">
+  <header class="tracking-topbar">
     <div class="topbar-left">
       <a routerLink="/campaigns" class="back-link">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
-        <span>Toutes les campagnes</span>
+        <span>Retour aux campagnes</span>
       </a>
 
       <div class="campaign-selector-wrapper">
-        <label for="campaign-select" class="selector-label">Campagne active :</label>
-        <select 
-          id="campaign-select" 
-          class="campaign-select" 
-          [value]="campaignId()" 
-          (change)="onCampaignChange($event)">
-          <option *ngFor="let c of campaignService.campaigns()" [value]="c.id">
-            {{ c.title }} ({{ c.city }})
-          </option>
-        </select>
+        <span class="selector-label">Campagne :</span>
+        <div class="custom-select-wrap">
+          <select 
+            id="campaign-select" 
+            class="campaign-select" 
+            [value]="campaignId()" 
+            (change)="onCampaignChange($event)">
+            <option *ngFor="let c of campaignService.campaigns()" [value]="c.id">
+              {{ c.title }} ({{ c.city }})
+            </option>
+          </select>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="select-arrow">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
       </div>
     </div>
 
     <div class="topbar-right">
-      <div class="live-pill">
-        <span class="radar-live"></span>
-        <span>Mise à jour en temps réel</span>
+      <div class="telemetry-live-pill">
+        <span class="pulse-telemetry"></span>
+        <span class="telemetry-text">Télémétrie terrain en direct</span>
       </div>
 
-      <!-- Bouton Exporter (Story 5.3) -->
-      <button class="btn btn-emerald btn-sm" (click)="openExportModal('csv')" title="Exporter les données (CSV / Excel)">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        <span>Exporter les données</span>
-      </button>
+      <!-- Quick Export Actions -->
+      <div class="export-actions-group">
+        <button class="btn btn-export-primary" (click)="openExportModal('csv')" title="Exporter au format CSV / Excel">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Exporter le rapport</span>
+        </button>
 
-      <button class="btn btn-secondary btn-sm" (click)="loadData()" title="Rafraîchir les données">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="23 4 23 10 17 10"/>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-        </svg>
-        <span>Actualiser</span>
-      </button>
+        <button class="btn btn-refresh-subtle" (click)="loadData()" title="Actualiser les données du terrain">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Hero Campaign Progress Banner (Story 5.2 AC) -->
-  <div class="card progress-hero-card">
+  <!-- Hero Campaign Progress Banner -->
+  <section class="card progress-hero-card">
     <div class="hero-header">
       <div class="hero-title-group">
-        <div class="hero-badges">
-          <span class="badge badge-active">{{ tracking.campaign.type }}</span>
-          <span class="badge badge-success">Ouagadougou & Quartiers</span>
-          <span class="badge badge-info">{{ tracking.campaign.reward_per_mission }} FCFA / mission</span>
+        <div class="hero-badges-row">
+          <span class="badge-brand-type">{{ tracking.campaign.type }}</span>
+          <span class="badge-geo-zone">📍 Ouagadougou & Environs</span>
+          <span class="badge-reward-rate">{{ tracking.campaign.reward_per_mission }} FCFA / mission</span>
         </div>
         <h1 class="hero-campaign-title">{{ tracking.campaign.title }}</h1>
         <p class="hero-campaign-desc">{{ tracking.campaign.description }}</p>
       </div>
 
-      <!-- Main Completion Gauge -->
+      <!-- Main Completion Gauge Box -->
       <div class="hero-gauge-box">
-        <div class="gauge-value">{{ tracking.metrics.progress_percent }}%</div>
-        <div class="gauge-label">d'avancement global</div>
-        <div class="gauge-sub">{{ tracking.metrics.completed_missions }} sur {{ tracking.metrics.total_missions }} points validés</div>
-      </div>
-    </div>
-
-    <!-- Progress Bar & Budget Overview -->
-    <div class="hero-progress-row">
-      <div class="progress-bar-container large">
-        <div class="progress-bar-fill" [style.width.%]="tracking.metrics.progress_percent"></div>
-      </div>
-
-      <div class="hero-budget-pills">
-        <div class="budget-pill">
-          <span class="pill-title">Budget Consommé</span>
-          <span class="pill-value text-emerald">{{ formatPrice(tracking.metrics.spent_budget) }} FCFA</span>
-        </div>
-        <div class="budget-pill">
-          <span class="pill-title">Budget Séquestre Restant</span>
-          <span class="pill-value">{{ formatPrice(tracking.metrics.escrow_remaining) }} FCFA</span>
-        </div>
-        <div class="budget-pill">
-          <span class="pill-title">Budget Total Alloué</span>
-          <span class="pill-value text-muted">{{ formatPrice(tracking.campaign.total_budget) }} FCFA</span>
+        <div class="gauge-number">{{ tracking.metrics.progress_percent }}%</div>
+        <div class="gauge-caption">Taux d'accomplissement</div>
+        <div class="gauge-subdetail">
+          <strong>{{ tracking.metrics.completed_missions }}</strong> sur {{ tracking.metrics.total_missions }} points validés
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Real-Time KPI Grid -->
-  <div class="kpi-grid">
-    <div class="card kpi-card" (click)="setStatusFilter('validated')" [class.selected]="activeStatusFilter() === 'validated'">
-      <div class="kpi-icon icon-emerald">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <!-- Progress Line & Financial Ledger Pills -->
+    <div class="hero-progress-footer">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill-terracotta" [style.width.%]="tracking.metrics.progress_percent"></div>
+      </div>
+
+      <div class="budget-overview-pills">
+        <div class="budget-card-pill">
+          <span class="budget-pill-label">Budget Consommé</span>
+          <span class="budget-pill-val val-consumed">{{ formatPrice(tracking.metrics.spent_budget) }} FCFA</span>
+        </div>
+        <div class="budget-card-pill">
+          <span class="budget-pill-label">Séquestre Restant</span>
+          <span class="budget-pill-val val-escrow">{{ formatPrice(tracking.metrics.escrow_remaining) }} FCFA</span>
+        </div>
+        <div class="budget-card-pill">
+          <span class="budget-pill-label">Budget Total Garanti</span>
+          <span class="budget-pill-val val-total">{{ formatPrice(tracking.campaign.total_budget) }} FCFA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI Quick Grid -->
+  <section class="kpi-grid">
+    <div class="card kpi-metric-card" (click)="setStatusFilter('validated')" [class.active-kpi]="activeStatusFilter() === 'validated'">
+      <div class="kpi-icon-box icon-sage">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
-      <div class="kpi-info">
-        <div class="kpi-num text-emerald">{{ tracking.metrics.completed_missions }}</div>
-        <div class="kpi-title">Missions Validées</div>
+      <div class="kpi-metric-info">
+        <div class="kpi-val text-sage">{{ tracking.metrics.completed_missions }}</div>
+        <div class="kpi-lbl">Missions Validées</div>
       </div>
     </div>
 
-    <div class="card kpi-card" (click)="setStatusFilter('submitted')" [class.selected]="activeStatusFilter() === 'submitted'">
-      <div class="kpi-icon icon-amber">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="card kpi-metric-card" (click)="setStatusFilter('submitted')" [class.active-kpi]="activeStatusFilter() === 'submitted'">
+      <div class="kpi-icon-box icon-buttercream">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
       </div>
-      <div class="kpi-info">
-        <div class="kpi-num text-amber">{{ tracking.metrics.submitted_missions }}</div>
-        <div class="kpi-title">En attente de revue</div>
+      <div class="kpi-metric-info">
+        <div class="kpi-val text-buttercream">{{ tracking.metrics.submitted_missions }}</div>
+        <div class="kpi-lbl">En attente d'audit</div>
       </div>
     </div>
 
-    <div class="card kpi-card" (click)="setStatusFilter('reserved')" [class.selected]="activeStatusFilter() === 'reserved'">
-      <div class="kpi-icon icon-blue">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="card kpi-metric-card" (click)="setStatusFilter('reserved')" [class.active-kpi]="activeStatusFilter() === 'reserved'">
+      <div class="kpi-icon-box icon-terracotta">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
       </div>
-      <div class="kpi-info">
-        <div class="kpi-num text-blue">{{ tracking.metrics.reserved_missions }}</div>
-        <div class="kpi-title">En cours terrain</div>
+      <div class="kpi-metric-info">
+        <div class="kpi-val text-terracotta">{{ tracking.metrics.reserved_missions }}</div>
+        <div class="kpi-lbl">En cours terrain</div>
       </div>
     </div>
 
-    <div class="card kpi-card" (click)="setStatusFilter('available')" [class.selected]="activeStatusFilter() === 'available'">
-      <div class="kpi-icon icon-gray">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="card kpi-metric-card" (click)="setStatusFilter('available')" [class.active-kpi]="activeStatusFilter() === 'available'">
+      <div class="kpi-icon-box icon-neutral">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
           <circle cx="12" cy="12" r="3"/>
         </svg>
       </div>
-      <div class="kpi-info">
-        <div class="kpi-num">{{ tracking.metrics.available_missions }}</div>
-        <div class="kpi-title">Disponibles</div>
+      <div class="kpi-metric-info">
+        <div class="kpi-val">{{ tracking.metrics.available_missions }}</div>
+        <div class="kpi-lbl">Points Disponibles</div>
       </div>
     </div>
 
-    <div class="card kpi-card">
-      <div class="kpi-icon icon-purple">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="card kpi-metric-card">
+      <div class="kpi-icon-box icon-lilac">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="12 2 2 7 12 12 22 7 12 2"/>
           <polyline points="2 17 12 22 22 17"/>
           <polyline points="2 12 12 17 22 12"/>
         </svg>
       </div>
-      <div class="kpi-info">
-        <div class="kpi-num">{{ tracking.metrics.average_gps_accuracy_m }} m</div>
-        <div class="kpi-title">Écart GPS Moyen</div>
+      <div class="kpi-metric-info">
+        <div class="kpi-val">{{ tracking.metrics.average_gps_accuracy_m }} m</div>
+        <div class="kpi-lbl">Écart GPS Moyen</div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- Workspace Controls & Filters -->
-  <div class="workspace-filters card">
-    <div class="filter-left">
+  <div class="workspace-filters-bar card">
+    <div class="filters-left">
       <!-- Status Tabs -->
-      <div class="filter-pills">
+      <div class="status-pills-group">
         <button 
-          class="pill-btn" 
+          class="status-pill-btn" 
           [class.active]="activeStatusFilter() === 'all'" 
           (click)="setStatusFilter('all')">
           Tous ({{ campaignService.currentResultsMap().length }})
         </button>
         <button 
-          class="pill-btn" 
+          class="status-pill-btn" 
           [class.active]="activeStatusFilter() === 'validated'" 
           (click)="setStatusFilter('validated')">
-          <span class="dot dot-success"></span>
+          <span class="dot-indicator dot-sage"></span>
           Validés ({{ tracking.metrics.completed_missions }})
         </button>
         <button 
-          class="pill-btn" 
+          class="status-pill-btn" 
           [class.active]="activeStatusFilter() === 'submitted'" 
           (click)="setStatusFilter('submitted')">
-          <span class="dot dot-warning"></span>
-          En revue ({{ tracking.metrics.submitted_missions }})
+          <span class="dot-indicator dot-buttercream"></span>
+          En attente ({{ tracking.metrics.submitted_missions }})
         </button>
         <button 
-          class="pill-btn" 
+          class="status-pill-btn" 
           [class.active]="activeStatusFilter() === 'reserved'" 
           (click)="setStatusFilter('reserved')">
-          <span class="dot dot-info"></span>
+          <span class="dot-indicator dot-terracotta"></span>
           En cours ({{ tracking.metrics.reserved_missions }})
         </button>
       </div>
 
       <!-- Neighborhood Dropdown -->
-      <div class="neighborhood-filter-wrapper">
+      <div class="neighborhood-select-wrap">
         <select 
-          class="nh-select" 
+          class="neighborhood-select" 
           [ngModel]="selectedNeighborhood()" 
           (ngModelChange)="setNeighborhoodFilter($event)">
           <option value="all">📍 Tous les quartiers de Ouagadougou</option>
@@ -214,21 +222,23 @@
       </div>
     </div>
 
-    <div class="filter-right">
+    <div class="filters-right">
       <!-- Search Input -->
-      <div class="search-box">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
         <input 
           type="text" 
-          placeholder="Rechercher maquis, kiosque..." 
+          placeholder="Rechercher maquis, kiosque, quartier..." 
           [ngModel]="searchQuery()" 
           (ngModelChange)="searchQuery.set($event)">
-      <!-- Quick Export Pills (Story 5.3) -->
-      <div class="quick-export-group">
-        <button class="btn-export-quick csv" (click)="openExportModal('csv')" title="Exporter au format CSV">
+      </div>
+
+      <!-- Quick Export Pills -->
+      <div class="quick-export-pills">
+        <button class="export-pill-btn" (click)="openExportModal('csv')" title="Exporter en CSV">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
@@ -236,7 +246,7 @@
           </svg>
           <span>CSV</span>
         </button>
-        <button class="btn-export-quick excel" (click)="openExportModal('excel')" title="Exporter au format Excel (.xls)">
+        <button class="export-pill-btn" (click)="openExportModal('excel')" title="Exporter en Excel (.xls)">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
@@ -247,13 +257,13 @@
       </div>
 
       <!-- View Switch -->
-      <div class="view-toggle-group">
+      <div class="view-switch-tabs">
         <button 
-          class="toggle-btn" 
+          class="view-tab-btn" 
           [class.active]="viewMode() === 'map'" 
           (click)="viewMode.set('map')"
           title="Vue Carte Interactive">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
             <line x1="8" y1="2" x2="8" y2="18"/>
             <line x1="16" y1="6" x2="16" y2="22"/>
@@ -261,11 +271,11 @@
           <span>Carte</span>
         </button>
         <button 
-          class="toggle-btn" 
+          class="view-tab-btn" 
           [class.active]="viewMode() === 'grid'" 
           (click)="viewMode.set('grid')"
-          title="Vue Grille">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          title="Vue Grille des résultats">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"/>
             <rect x="14" y="3" width="7" height="7"/>
             <rect x="14" y="14" width="7" height="7"/>
@@ -279,59 +289,80 @@
 
   <!-- Interactive Map Workspace (Split View with Side Drawer) -->
   <div class="workspace-layout" *ngIf="viewMode() === 'map'">
-    <!-- Left Canvas: Interactive Ouagadougou Map -->
+    <!-- Left Canvas: Stylized Ouagadougou Geospatial Map -->
     <div class="map-viewport-card card">
       <div class="map-canvas-container">
-        <!-- Styled Vector Map of Ouagadougou -->
+        <!-- Styled Vector Map of Ouagadougou with Warm Sahel Aesthetic -->
         <div class="ouaga-map-background">
-          <!-- Background Grid & Major Arteries SVG -->
+          <!-- Background SVG Vector Road Arteries -->
           <svg class="map-roads-svg" viewBox="0 0 1000 700" preserveAspectRatio="none">
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,0,0,0.03)" stroke-width="1"/>
+              <pattern id="ouaga-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+                <path d="M 48 0 L 0 0 0 48" fill="none" stroke="rgba(120, 80, 40, 0.05)" stroke-width="1"/>
               </pattern>
+              <!-- Gradient Barrage de Tanghin / Eau -->
+              <linearGradient id="water-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E2EAFD" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#C5D7F8" stop-opacity="0.8"/>
+              </linearGradient>
             </defs>
-            <rect width="100%" height="100%" fill="#f8fafc" />
-            <rect width="100%" height="100%" fill="url(#grid)" />
-            
-            <!-- Major Roads / Arteries of Ouagadougou -->
-            <!-- Circulaire / Boulevard Charles de Gaulle -->
-            <circle cx="500" cy="350" r="260" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-dasharray="8,4" />
-            <circle cx="500" cy="350" r="180" fill="none" stroke="#cbd5e1" stroke-width="6" />
 
-            <!-- RN1 Avenue Kadiogo (Ouest -> Centre) -->
-            <path d="M 50 350 Q 280 340 500 350" fill="none" stroke="#94a3b8" stroke-width="6" />
-            <!-- RN4 Route de Fada (Centre -> Est) -->
-            <path d="M 500 350 Q 750 360 950 380" fill="none" stroke="#94a3b8" stroke-width="6" />
-            <!-- RN3 Route de Kaya (Centre -> Nord-Est) -->
-            <path d="M 500 350 Q 650 200 850 80" fill="none" stroke="#94a3b8" stroke-width="6" />
-            <!-- RN2 Route de Ouahigouya (Centre -> Nord-Ouest) -->
-            <path d="M 500 350 Q 350 200 150 70" fill="none" stroke="#94a3b8" stroke-width="6" />
-            <!-- Boulevard Mouammar Kadhafi / Ouaga 2000 (Centre -> Sud) -->
-            <path d="M 500 350 Q 520 520 550 680" fill="none" stroke="#94a3b8" stroke-width="7" />
+            <!-- Base Canvas -->
+            <rect width="100%" height="100%" fill="#FAF7F2"/>
+            <rect width="100%" height="100%" fill="url(#ouaga-grid)"/>
             
-            <!-- Échangeurs -->
+            <!-- Barrage de Tanghin (Zone d'eau Nord) -->
+            <path d="M 400 150 Q 550 130 680 160 Q 750 180 700 200 Q 550 170 420 180 Z" fill="url(#water-gradient)" stroke="#B4CCF4" stroke-width="2"/>
+            
+            <!-- Quartier Parcelles / Densité Urbaine -->
+            <circle cx="500" cy="350" r="280" fill="none" stroke="#EAE3D8" stroke-width="18" />
+            <circle cx="500" cy="350" r="180" fill="none" stroke="#E2D9CB" stroke-width="12" />
+
+            <!-- Circulaire / Boulevard Charles de Gaulle -->
+            <circle cx="500" cy="350" r="260" fill="none" stroke="#D3C7B6" stroke-width="6" stroke-dasharray="10,5" />
+            <circle cx="500" cy="350" r="180" fill="none" stroke="#C4B6A2" stroke-width="5" />
+
+            <!-- RN1 Avenue Kadiogo (Ouest Gounghin -> Centre) -->
+            <path d="M 40 350 Q 280 340 500 350" fill="none" stroke="#A89985" stroke-width="7" stroke-linecap="round"/>
+            <!-- RN4 Route de Fada (Centre -> Est Dassasgho) -->
+            <path d="M 500 350 Q 750 360 960 380" fill="none" stroke="#A89985" stroke-width="7" stroke-linecap="round"/>
+            <!-- RN3 Route de Kaya (Centre -> Nord-Est Somgandé) -->
+            <path d="M 500 350 Q 650 200 860 70" fill="none" stroke="#A89985" stroke-width="7" stroke-linecap="round"/>
+            <!-- RN2 Route de Ouahigouya (Centre -> Nord-Ouest Tampouy) -->
+            <path d="M 500 350 Q 350 200 140 60" fill="none" stroke="#A89985" stroke-width="7" stroke-linecap="round"/>
+            <!-- Boulevard Mouammar Kadhafi / Ouaga 2000 (Centre -> Sud) -->
+            <path d="M 500 350 Q 520 520 560 690" fill="none" stroke="#A89985" stroke-width="8" stroke-linecap="round"/>
+
+            <!-- Avenue Babanguida & Rue de l'Aéroport -->
+            <path d="M 320 500 Q 500 480 680 500" fill="none" stroke="#C9BDB0" stroke-width="4"/>
+            <path d="M 350 220 Q 500 240 650 220" fill="none" stroke="#C9BDB0" stroke-width="4"/>
+
+            <!-- Major Landmark POI Rings -->
+            <!-- Rond-Point des Nations Unies (Centre) -->
+            <circle cx="500" cy="350" r="22" fill="#FFFFFF" stroke="#F1641E" stroke-width="4"/>
+            <circle cx="500" cy="350" r="8" fill="#F1641E"/>
+
             <!-- Échangeur de l'Ouest (Gounghin) -->
-            <circle cx="280" cy="345" r="16" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3" />
+            <circle cx="280" cy="345" r="16" fill="#FFFFFF" stroke="#8C7D6B" stroke-width="3"/>
             <!-- Échangeur de l'Est (Dassasgho) -->
-            <circle cx="720" cy="355" r="16" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3" />
+            <circle cx="720" cy="355" r="16" fill="#FFFFFF" stroke="#8C7D6B" stroke-width="3"/>
             <!-- Échangeur du Nord (Tampouy) -->
-            <circle cx="340" cy="210" r="16" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3" />
+            <circle cx="340" cy="210" r="16" fill="#FFFFFF" stroke="#8C7D6B" stroke-width="3"/>
             <!-- Échangeur de la Patte d'Oie (Sud) -->
-            <circle cx="510" cy="510" r="18" fill="#e2e8f0" stroke="#94a3b8" stroke-width="4" />
+            <circle cx="510" cy="510" r="18" fill="#FFFFFF" stroke="#8C7D6B" stroke-width="4"/>
           </svg>
 
-          <!-- District / Neighborhood Labels -->
-          <div class="district-label label-tampouy">Tampouy (Nord)</div>
-          <div class="district-label label-gounghin">Gounghin (Ouest)</div>
-          <div class="district-label label-kamsonghin">Kamsonghin (Centre)</div>
-          <div class="district-label label-dassasgho">Dassasgho (Est)</div>
-          <div class="district-label label-somgande">Somgandé (Nord-Est)</div>
-          <div class="district-label label-pissy">Pissy (Sud-Ouest)</div>
-          <div class="district-label label-pattedoie">Patte d'Oie (Sud)</div>
-          <div class="district-label label-ouaga2000">Ouaga 2000 (Sud-Est)</div>
+          <!-- District Labels -->
+          <div class="district-badge label-tampouy">Tampouy (Nord)</div>
+          <div class="district-badge label-gounghin">Gounghin (Ouest)</div>
+          <div class="district-badge label-kamsonghin">Kamsonghin (Centre)</div>
+          <div class="district-badge label-dassasgho">Dassasgho (Est)</div>
+          <div class="district-badge label-somgande">Somgandé (Nord-Est)</div>
+          <div class="district-badge label-pissy">Pissy (Sud-Ouest)</div>
+          <div class="district-badge label-pattedoie">Patte d'Oie (Sud)</div>
+          <div class="district-badge label-ouaga2000">Ouaga 2000 (Sud-Est)</div>
 
-          <!-- Dynamic Pins of Ouagadougou Points -->
+          <!-- Interactive Pins -->
           <div 
             *ngFor="let point of filteredPoints()" 
             class="map-pin-wrapper"
@@ -340,54 +371,55 @@
             [class.selected]="selectedPoint()?.id === point.id"
             (click)="selectPoint(point)">
             
-            <!-- Pin Marker Body -->
             <div class="map-pin" [ngClass]="'pin-' + point.status">
               <span *ngIf="point.status === 'validated'" class="pin-icon">✓</span>
               <span *ngIf="point.status === 'submitted'" class="pin-icon">⏱</span>
               <span *ngIf="point.status === 'reserved'" class="pin-icon">👤</span>
               <span *ngIf="point.status === 'available'" class="pin-icon">📍</span>
 
-              <!-- Live pulse for validated or fresh submissions -->
+              <!-- Live pulse for verified or pending submissions -->
               <span *ngIf="point.status === 'validated' || point.status === 'submitted'" class="pin-radar"></span>
             </div>
 
-            <!-- Hover Tooltip -->
+            <!-- Hover Preview Tooltip -->
             <div class="pin-tooltip">
-              <div class="tooltip-title">{{ point.title }}</div>
-              <div class="tooltip-loc">{{ point.location_name }}</div>
-              <div class="tooltip-badge">
+              <div class="tooltip-header">
+                <span class="tooltip-title">{{ point.title }}</span>
                 <span class="badge" [ngClass]="'badge-' + point.status">
-                  {{ point.status === 'validated' ? 'Validé' : (point.status === 'submitted' ? 'En attente' : point.status) }}
+                  {{ point.status === 'validated' ? 'Validé' : (point.status === 'submitted' ? 'En revue' : point.status) }}
                 </span>
               </div>
+              <div class="tooltip-loc">{{ point.location_name }}</div>
+              <div class="tooltip-reward" *ngIf="point.reward">{{ point.reward }} FCFA</div>
             </div>
           </div>
         </div>
 
         <!-- Floating Map Legend -->
-        <div class="map-legend-box card">
-          <div class="legend-title">Légende des audits</div>
-          <div class="legend-items">
-            <div class="legend-item"><span class="legend-color color-validated"></span> Validé ({{ tracking.metrics.completed_missions }})</div>
-            <div class="legend-item"><span class="legend-color color-submitted"></span> En revue ({{ tracking.metrics.submitted_missions }})</div>
-            <div class="legend-item"><span class="legend-color color-reserved"></span> En cours ({{ tracking.metrics.reserved_missions }})</div>
-            <div class="legend-item"><span class="legend-color color-available"></span> Disponible ({{ tracking.metrics.available_missions }})</div>
+        <div class="map-legend-box">
+          <div class="legend-header">Légende terrain</div>
+          <div class="legend-items-list">
+            <div class="legend-entry"><span class="legend-dot dot-sage"></span> Validé ({{ tracking.metrics.completed_missions }})</div>
+            <div class="legend-entry"><span class="legend-dot dot-buttercream"></span> En revue ({{ tracking.metrics.submitted_missions }})</div>
+            <div class="legend-entry"><span class="legend-dot dot-terracotta"></span> En cours ({{ tracking.metrics.reserved_missions }})</div>
+            <div class="legend-entry"><span class="legend-dot dot-neutral"></span> Disponible ({{ tracking.metrics.available_missions }})</div>
           </div>
         </div>
 
-        <!-- Coordinates Indicator -->
-        <div class="map-coords-badge">
-          <span>Centre : Ouagadougou 12°22'N, 1°31'W • PostGIS Haversine Active</span>
+        <!-- Coordinates HUD -->
+        <div class="map-hud-coordinates">
+          <span class="hud-dot"></span>
+          <span>Ouagadougou 12°22'N, 1°31'W • Rayon PostGIS Haversine 100m</span>
         </div>
       </div>
     </div>
 
     <!-- Right Side: Inspection Drawer (Volet latéral d'audit des résultats) -->
-    <div class="inspection-drawer card" *ngIf="selectedPoint() as point">
+    <aside class="inspection-drawer card" *ngIf="selectedPoint() as point">
       <!-- Drawer Header with Prev/Next Navigation -->
       <div class="drawer-header">
         <div class="drawer-nav-actions">
-          <button class="icon-nav-btn" (click)="selectPrevPoint()" title="Point précédent">
+          <button class="nav-arrow-btn" (click)="selectPrevPoint()" title="Point précédent">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M15 18l-6-6 6-6"/>
             </svg>
@@ -395,7 +427,7 @@
           <span class="drawer-step-indicator">
             Point <strong>#{{ point.id }}</strong> / {{ filteredPoints().length }}
           </span>
-          <button class="icon-nav-btn" (click)="selectNextPoint()" title="Point suivant">
+          <button class="nav-arrow-btn" (click)="selectNextPoint()" title="Point suivant">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 18l6-6-6-6"/>
             </svg>
@@ -423,43 +455,43 @@
         <!-- GPS & Compliance Metrics -->
         <div class="meta-metrics-grid">
           <div class="meta-metric-item">
-            <span class="meta-m-label">Coordonnées GPS</span>
-            <span class="meta-m-val">{{ point.latitude | number:'1.4-4' }}, {{ point.longitude | number:'1.4-4' }}</span>
+            <span class="meta-m-label">Coordonnées Cibles</span>
+            <span class="meta-m-val font-mono">{{ point.latitude | number:'1.4-4' }}, {{ point.longitude | number:'1.4-4' }}</span>
           </div>
 
           <div class="meta-metric-item" *ngIf="point.submission">
-            <span class="meta-m-label">Écart GPS mesuré</span>
-            <span class="meta-m-val text-emerald">
+            <span class="meta-m-label">Écart GPS vérifié</span>
+            <span class="meta-m-val text-sage font-bold">
               {{ point.submission.gps_distance_meters || 15 }} m (&lt; 100m conforme)
             </span>
           </div>
 
           <div class="meta-metric-item" *ngIf="point.assigned_user as user">
-            <span class="meta-m-label">Contributeur assigné</span>
+            <span class="meta-m-label">Contributeur terrain</span>
             <span class="meta-m-val contributor-link">
-              {{ user.name }} (Score: <strong>{{ user.reputation_score }}/100</strong>)
+              👤 {{ user.name }} (⭐ <strong>{{ user.reputation_score }}/100</strong>)
             </span>
           </div>
 
           <div class="meta-metric-item" *ngIf="point.submission?.validated_at">
-            <span class="meta-m-label">Validation</span>
+            <span class="meta-m-label">Date de validation</span>
             <span class="meta-m-val">{{ point.submission?.validated_at | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
         </div>
 
         <!-- Photo Proofs Section -->
         <div class="drawer-section" *ngIf="point.submission?.photos && point.submission!.photos!.length > 0">
-          <h3 class="section-title">
+          <div class="section-title-row">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
-            <span>Photographies prises sur place ({{ point.submission!.photos!.length }})</span>
-          </h3>
+            <h3 class="section-heading">Photographies certifiées sur place ({{ point.submission!.photos!.length }})</h3>
+          </div>
 
           <div class="photos-grid">
             <div 
-              class="photo-thumb-wrapper" 
+              class="photo-thumb-card" 
               *ngFor="let photo of point.submission!.photos"
               (click)="openZoom(photo)">
               <img [src]="photo" alt="Preuve terrain" class="photo-thumb">
@@ -470,6 +502,7 @@
                   <line x1="11" y1="8" x2="11" y2="14"/>
                   <line x1="8" y1="11" x2="14" y2="11"/>
                 </svg>
+                <span>Agrandir</span>
               </div>
             </div>
           </div>
@@ -477,7 +510,7 @@
 
         <!-- Questionnaire Answers Breakdown -->
         <div class="drawer-section" *ngIf="point.submission?.answers">
-          <h3 class="section-title">
+          <div class="section-title-row">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
@@ -485,8 +518,8 @@
               <line x1="16" y1="17" x2="8" y2="17"/>
               <polyline points="10 9 9 9 8 9"/>
             </svg>
-            <span>Synthèse du questionnaire d'audit</span>
-          </h3>
+            <h3 class="section-heading">Synthèse du questionnaire d'audit</h3>
+          </div>
 
           <div class="qa-cards-list">
             <div class="qa-card" *ngFor="let item of getAnswerEntries(point.submission!.answers)">
@@ -498,12 +531,12 @@
 
         <!-- Empty state if mission not yet submitted -->
         <div class="drawer-empty-state" *ngIf="!point.submission">
-          <div class="empty-icon">📍</div>
+          <div class="empty-icon-circle">📍</div>
           <div class="empty-title">Mission en attente d'exécution</div>
-          <p class="empty-desc">Ce point est actuellement réservé ou disponible pour les contributeurs de Ouagadougou. Les photos et réponses apparaîtront dès la soumission.</p>
+          <p class="empty-desc">Ce point est actuellement réservé ou disponible pour les contributeurs de Ouagadougou. Les photos certifiées et réponses apparaîtront dès la soumission terrain.</p>
         </div>
       </div>
-    </div>
+    </aside>
   </div>
 
   <!-- Grid Mode (Alternative view) -->
@@ -545,12 +578,12 @@
       <button class="zoom-close-btn" (click)="closeZoom()" title="Fermer">✕</button>
       <img [src]="zoomedPhoto()" alt="Photo agrandie" class="zoom-large-image">
       <div class="zoom-caption">
-        Photo certifiée avec géolocalisation native • Ouagadougou
+        Photo certifiée avec géolocalisation native in-app • Ouagadougou
       </div>
     </div>
   </div>
 
-  <!-- Modal d'Exportation des Données (Story 5.3) -->
+  <!-- Modal d'Exportation des Données -->
   <div class="export-modal-backdrop" *ngIf="isExportModalOpen()" (click)="closeExportModal()">
     <div class="card export-modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
@@ -672,7 +705,7 @@
         <button class="btn btn-secondary" (click)="closeExportModal()" [disabled]="isExporting()">
           Annuler
         </button>
-        <button class="btn btn-emerald" (click)="triggerExport()" [disabled]="isExporting()">
+        <button class="btn btn-primary" (click)="triggerExport()" [disabled]="isExporting()">
           <span *ngIf="!isExporting()">
             📥 Télécharger le fichier {{ exportFormat().toUpperCase() }}
           </span>
@@ -684,7 +717,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Feedback -->
+  <!-- Toast Feedback -->
   <div class="toast-notification" *ngIf="toastMessage() as msg">
     <div class="toast-icon">✓</div>
     <div class="toast-text">{{ msg }}</div>
