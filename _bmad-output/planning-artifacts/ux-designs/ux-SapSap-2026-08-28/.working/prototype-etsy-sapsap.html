@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SapSap — Prototype UX & Design System (Etsy DNA)</title>
+  
+  <!-- Google Fonts: Editorial Serif + Clean Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & CSS VARIABLES (Etsy-inspired for SapSap)
+       ========================================================================== */
+    :root {
+      /* Palette Chromatique Principale */
+      --color-terracotta: #F1641E;
+      --color-terracotta-dark: #D34B0B;
+      --color-terracotta-light: #FFEDE5;
+      --color-terracotta-subtle: #FFF6F2;
+      
+      --color-sage: #4D6B53;
+      --color-sage-light: #EBF2EC;
+      --color-sage-dark: #2F4735;
+
+      --color-buttercream: #FDF0CD;
+      --color-buttercream-dark: #B88219;
+
+      --color-lilac: #E8E9FF;
+      --color-lilac-text: #484C8A;
+
+      --color-canvas: #FAF8F5;
+      --color-surface: #FFFFFF;
+      --color-surface-elevated: #F5F1EB;
+      --color-surface-border: #E8E2D9;
+      --color-surface-border-subtle: #F0ECE4;
+
+      --color-ink: #222222;
+      --color-ink-muted: #595959;
+      --color-ink-subtle: #757575;
+
+      /* Typographie */
+      --font-serif: 'Fraunces', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Radii */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+
+      /* Shadows (Ambiance chaleureuse diffusée) */
+      --shadow-sm: 0 2px 6px rgba(80, 50, 20, 0.04);
+      --shadow-md: 0 8px 24px rgba(80, 50, 20, 0.06), 0 2px 6px rgba(80, 50, 20, 0.03);
+      --shadow-lg: 0 16px 40px rgba(80, 50, 20, 0.09), 0 4px 12px rgba(80, 50, 20, 0.04);
+      --shadow-terracotta: 0 8px 20px rgba(241, 100, 30, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-canvas);
+      color: var(--color-ink);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION BAR (Etsy Look & Feel)
+       ========================================================================== */
+    .top-bar-notice {
+      background: var(--color-buttercream);
+      color: var(--color-buttercream-dark);
+      padding: 6px 20px;
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(184, 130, 25, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-bar-notice span.badge {
+      background: #FFFFFF;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+    }
+
+    header.main-header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-surface-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--color-terracotta);
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      cursor: pointer;
+    }
+
+    .logo-badge {
+      font-family: var(--font-sans);
+      font-size: 10.5px;
+      font-weight: 700;
+      background: var(--color-terracotta-light);
+      color: var(--color-terracotta-dark);
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .search-box-wrapper {
+      flex: 1;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--color-surface-elevated);
+      border: 1.5px solid transparent;
+      border-radius: var(--radius-full);
+      padding: 10px 48px 10px 20px;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      color: var(--color-ink);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .search-input:focus {
+      background: #FFFFFF;
+      border-color: var(--color-terracotta);
+      box-shadow: 0 0 0 4px var(--color-terracotta-light);
+    }
+
+    .search-btn {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--color-terracotta);
+      color: #FFFFFF;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .search-btn:hover {
+      background: var(--color-terracotta-dark);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .view-switcher-pill {
+      display: flex;
+      background: var(--color-surface-elevated);
+      padding: 3px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-surface-border);
+    }
+
+    .view-tab-btn {
+      background: transparent;
+      border: none;
+      padding: 7px 15px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-ink-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .view-tab-btn.active {
+      background: var(--color-surface);
+      color: var(--color-ink);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .btn-action-round {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-surface-border);
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action-round:hover {
+      background: var(--color-surface-elevated);
+      border-color: var(--color-ink-muted);
+    }
+
+    .btn-action-round .badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: var(--color-terracotta);
+      border-radius: 50%;
+      border: 2px solid #FFFFFF;
+    }
+
+    .avatar-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-surface-elevated);
+      padding: 4px 12px 4px 5px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-surface-border);
+      cursor: pointer;
+    }
+
+    .avatar-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-sage);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Sub-categories bar */
+    .subnav-bar {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--color-surface-border);
+      padding: 8px 24px;
+      overflow-x: auto;
+    }
+
+    .subnav-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #FFFFFF;
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-ink);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .pill-filter:hover {
+      border-color: var(--color-ink);
+      background: var(--color-surface-elevated);
+    }
+
+    .pill-filter.active {
+      background: var(--color-ink);
+      color: #FFFFFF;
+      border-color: var(--color-ink);
+    }
+
+    /* ==========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================== */
+    .main-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .view-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       VUE 1: DÉCOUVERTE MISSIONS (Etsy Marketplace Spirit)
+       ========================================================================== */
+    .hero-banner {
+      background: linear-gradient(135deg, #FFF6F2 0%, #FFFDF8 100%);
+      border: 1px solid rgba(241, 100, 30, 0.15);
+      border-radius: var(--radius-xl);
+      padding: 36px 40px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      right: -40px;
+      bottom: -40px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(241, 100, 30, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--color-ink);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .hero-title span.accent {
+      color: var(--color-terracotta);
+      font-style: italic;
+    }
+
+    .hero-subtitle {
+      color: var(--color-ink-muted);
+      font-size: 15px;
+      max-width: 540px;
+      margin-bottom: 18px;
+    }
+
+    .hero-stats-row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .hero-stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-surface-border);
+      font-size: 13px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-stat-badge strong {
+      color: var(--color-terracotta);
+      font-weight: 700;
+    }
+
+    /* Section Headings */
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-ink);
+    }
+
+    .section-subtitle {
+      font-size: 13.5px;
+      color: var(--color-ink-muted);
+      margin-top: 2px;
+    }
+
+    .link-editorial {
+      color: var(--color-terracotta);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .link-editorial:hover {
+      text-decoration: underline;
+    }
+
+    /* Cards Grid */
+    .mosaic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 22px;
+      margin-bottom: 40px;
+    }
+
+    .mission-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .mission-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(241, 100, 30, 0.3);
+    }
+
+    /* Mosaic Visual (4 quadrants or single photo) */
+    .card-visual-mosaic {
+      height: 180px;
+      background: #EAE6DF;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 2px;
+      background-color: var(--color-surface-border);
+    }
+
+    .mosaic-tile {
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tile-1 { background-color: #E2DDD5; background-image: linear-gradient(45deg, #ECE5DC, #DDD3C5); }
+    .tile-2 { background-color: #D6CEC0; background-image: linear-gradient(135deg, #DFD6C8, #CFC4B3); }
+    .tile-3 { background-color: #DFD7CB; background-image: linear-gradient(180deg, #E6DDD0, #D2C8B8); }
+    .tile-4 { background-color: #CCC1AF; background-image: linear-gradient(225deg, #D9CFBF, #C3B6A1); }
+
+    .tile-icon-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+
+    .single-visual {
+      grid-column: span 2;
+      grid-row: span 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      background: linear-gradient(135deg, #FFF2EB 0%, #FEE5D8 100%);
+    }
+
+    /* Floating Heart/Bookmark */
+    .btn-favorite-float {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      transition: all 0.15s ease;
+      z-index: 5;
+    }
+
+    .btn-favorite-float:hover {
+      transform: scale(1.1);
+      background: #FFFFFF;
+    }
+
+    .btn-favorite-float.saved svg {
+      fill: var(--color-terracotta);
+      stroke: var(--color-terracotta);
+    }
+
+    /* Card Badge Floating */
+    .badge-urgent-float {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--color-buttercream);
+      color: var(--color-buttercream-dark);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(184, 130, 25, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 5;
+    }
+
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--color-ink-muted);
+      margin-bottom: 6px;
+    }
+
+    .card-client-brand {
+      font-weight: 600;
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 16.5px;
+      font-weight: 600;
+      color: var(--color-ink);
+      line-height: 1.3;
+      margin-bottom: 10px;
+      flex: 1;
+    }
+
+    .card-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .micro-tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      background: var(--color-surface-elevated);
+      color: var(--color-ink-muted);
+      font-weight: 500;
+    }
+
+    .micro-tag.geo {
+      background: var(--color-sage-light);
+      color: var(--color-sage-dark);
+    }
+
+    .card-footer {
+      border-top: 1px solid var(--color-surface-border-subtle);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .reward-price {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-terracotta);
+      font-family: var(--font-sans);
+    }
+
+    .reward-price span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-ink-muted);
+    }
+
+    .btn-reserve {
+      background: var(--color-terracotta-subtle);
+      color: var(--color-terracotta-dark);
+      border: 1px solid rgba(241, 100, 30, 0.2);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reserve:hover {
+      background: var(--color-terracotta);
+      color: #FFFFFF;
+      border-color: var(--color-terracotta);
+    }
+
+    /* ==========================================================================
+       VUE 2: PORTAIL BUSINESS (Wizard de Création & Estimations)
+       ========================================================================== */
+    .business-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 28px;
+    }
+
+    .form-wizard-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .wizard-steps-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .wizard-steps-header::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 30px;
+      right: 30px;
+      height: 2px;
+      background: var(--color-surface-border);
+      z-index: 1;
+    }
+
+    .step-item {
+      position: relative;
+      z-index: 2;
+      background: var(--color-surface);
+      padding: 0 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-surface-elevated);
+      border: 2px solid var(--color-surface-border);
+      color: var(--color-ink-muted);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .step-item.active .step-number {
+      background: var(--color-terracotta);
+      border-color: var(--color-terracotta);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px var(--color-terracotta-light);
+    }
+
+    .step-item.completed .step-number {
+      background: var(--color-sage);
+      border-color: var(--color-sage);
+      color: #FFFFFF;
+    }
+
+    .step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-ink-muted);
+    }
+
+    .step-item.active .step-label {
+      color: var(--color-ink);
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: var(--color-ink);
+    }
+
+    .form-label span.optional {
+      font-weight: 400;
+      color: var(--color-ink-subtle);
+      font-size: 12px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      background: var(--color-surface);
+      color: var(--color-ink);
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--color-terracotta);
+      box-shadow: 0 0 0 3px var(--color-terracotta-light);
+      outline: none;
+    }
+
+    .radio-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .radio-option-card {
+      border: 1.5px solid var(--color-surface-border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: var(--color-surface);
+    }
+
+    .radio-option-card:hover {
+      border-color: var(--color-ink-muted);
+      background: var(--color-surface-elevated);
+    }
+
+    .radio-option-card.selected {
+      border-color: var(--color-terracotta);
+      background: var(--color-terracotta-subtle);
+    }
+
+    .radio-option-card input {
+      margin-top: 3px;
+      accent-color: var(--color-terracotta);
+    }
+
+    /* Live Preview & Budget Sticky Sidebar */
+    .business-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sticky-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .budget-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 13.5px;
+      color: var(--color-ink-muted);
+    }
+
+    .budget-breakdown-row.total {
+      border-top: 1.5px dashed var(--color-surface-border);
+      margin-top: 8px;
+      padding-top: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--color-ink);
+    }
+
+    .budget-breakdown-row.total .price-highlight {
+      color: var(--color-terracotta);
+    }
+
+    .btn-submit-primary {
+      width: 100%;
+      background: var(--color-terracotta);
+      color: #FFFFFF;
+      border: none;
+      padding: 12px 20px;
+      border-radius: var(--radius-full);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-terracotta);
+      transition: all 0.15s ease;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit-primary:hover {
+      background: var(--color-terracotta-dark);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       VUE 3: DASHBOARD ADMIN (Modération Rapide & Relevés GPS)
+       ========================================================================== */
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .admin-stat-box {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: var(--color-ink-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .stat-value-big {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-ink);
+    }
+
+    .stat-badge-trend {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: var(--color-sage-light);
+      color: var(--color-sage-dark);
+    }
+
+    /* Verification Desk Split Screen */
+    .moderation-desk-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .moderation-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-surface-border);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .contributor-brief {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .moderation-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .proof-box {
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--color-surface-elevated);
+    }
+
+    .proof-box-header {
+      background: #FFFFFF;
+      padding: 10px 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-surface-border);
+    }
+
+    .proof-image-mock {
+      height: 260px;
+      background: linear-gradient(135deg, #E6DFD5 0%, #D4C9BD 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-ink-muted);
+      position: relative;
+    }
+
+    .gps-overlay-stamp {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #FFFFFF;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      backdrop-filter: blur(4px);
+    }
+
+    .moderation-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--color-surface-elevated);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-surface-border);
+    }
+
+    .btn-approve {
+      background: var(--color-sage);
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 24px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-approve:hover {
+      background: var(--color-sage-dark);
+    }
+
+    .btn-reject {
+      background: #FFFFFF;
+      color: #D32F2F;
+      border: 1px solid #FFCDD2;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reject:hover {
+      background: #FFEBEE;
+    }
+
+    /* ==========================================================================
+       VUE 4: DESIGN SYSTEM & TOKENS STUDIO
+       ========================================================================== */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .color-swatch-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .swatch-color-box {
+      height: 70px;
+      width: 100%;
+    }
+
+    .swatch-info {
+      padding: 10px;
+    }
+
+    .swatch-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--color-ink);
+    }
+
+    .swatch-hex {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-ink-subtle);
+    }
+
+    /* Notification Drawer / Toast */
+    .toast-feedback {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--color-ink);
+      color: #FFFFFF;
+      padding: 12px 20px;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+    }
+
+    .toast-feedback.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .business-layout { grid-template-columns: 1fr; }
+      .admin-stats-grid { grid-template-columns: 1fr 1fr; }
+      .moderation-split { grid-template-columns: 1fr; }
+      .hero-banner { flex-direction: column; align-items: flex-start; gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Bar (Etsy touch) -->
+  <div class="top-bar-notice">
+    <span>✨ <strong>SapSap v1.0</strong> — Collecte de données géolocalisées propulsée par l'élégance artisanale & la rapidité d'exécution.</span>
+    <span class="badge">Etsy DNA Design System</span>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="header-inner">
+      <div class="logo-container" onclick="switchView('discovery')">
+        <span>SapSap</span>
+        <span class="logo-badge">Craft</span>
+      </div>
+
+      <!-- Live Search Bar -->
+      <div class="search-box-wrapper">
+        <input type="text" class="search-input" id="mainSearch" placeholder="Rechercher une mission, une enseigne, un quartier (ex: Carrefour Cocody)..." oninput="filterMissions()" />
+        <button class="search-btn" title="Rechercher">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+      </div>
+
+      <!-- View Switcher (Simulating App Surfaces) -->
+      <div class="view-switcher-pill">
+        <button class="view-tab-btn active" id="tab-discovery" onclick="switchView('discovery')">
+          <span>🛍️ Découverte</span>
+        </button>
+        <button class="view-tab-btn" id="tab-business" onclick="switchView('business')">
+          <span>💼 Espace Entreprise</span>
+        </button>
+        <button class="view-tab-btn" id="tab-admin" onclick="switchView('admin')">
+          <span>🛡️ Modération Admin</span>
+        </button>
+        <button class="view-tab-btn" id="tab-tokens" onclick="switchView('tokens')">
+          <span>🎨 Design Tokens</span>
+        </button>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="nav-actions">
+        <button class="btn-action-round" title="Messages" onclick="showToast('💬 2 messages non lus d’entreprises')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="badge-dot"></span>
+        </button>
+        <button class="btn-action-round" title="Favoris" onclick="showToast('❤️ 4 missions sauvegardées dans vos favoris')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        </button>
+        <div class="avatar-pill" onclick="showToast('👤 Profil Contributeur: Steve (Score: 98.4%)')">
+          <div class="avatar-img">ST</div>
+          <span style="font-size: 13px; font-weight: 600;">14 500 F</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Pill Filter Bar -->
+    <div class="subnav-bar">
+      <div class="subnav-inner">
+        <button class="pill-filter active" onclick="setCategoryFilter(this, 'all')">🌟 Toutes les missions</button>
+        <button class="pill-filter" onclick="setCategoryFilter(this, 'price')">🏷️ Relevé de Prix</button>
+        <button class="pill-filter" onclick="setCategoryFilter(this, 'presence')">📦 Présence & Facing</button>
+        <button class="pill-filter" onclick="setCategoryFilter(this, 'store')">🏪 Contrôle d'Enseigne</button>
+        <button class="pill-filter" onclick="setCategoryFilter(this, 'survey')">📋 Micro-Sondage</button>
+        <button class="pill-filter" onclick="setCategoryFilter(this, 'urgent')">⚡ Prime d'urgence (48h)</button>
+        <button class="pill-filter" onclick="setCategoryFilter(this, 'near')">📍 À moins de 500m</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       CONTAINER DES VUES
+       ========================================================================== -->
+  <main class="main-container">
+
+    <!-- ==========================================
+         VUE 1 : DÉCOUVERTE & MISSIONS (MARKETPLACE)
+         ========================================== -->
+    <div id="view-discovery" class="view-section active">
+      
+      <!-- Hero Editorial Banner -->
+      <div class="hero-banner">
+        <div>
+          <h1 class="hero-title">Collectez sur le terrain, <span class="accent">gagnez instantanément.</span></h1>
+          <p class="hero-subtitle">Des centaines de missions géolocalisées pour vérifier les prix, auditer les rayons et cartographier les commerces de Côte d'Ivoire.</p>
+          <div class="hero-stats-row">
+            <div class="hero-stat-badge">
+              <span>📍 Missions disponibles :</span>
+              <strong>142 actives</strong>
+            </div>
+            <div class="hero-stat-badge">
+              <span>⚡ Paiement moyen :</span>
+              <strong>1 250 FCFA / mission</strong>
+            </div>
+            <div class="hero-stat-badge">
+              <span>⏱️ Validation garantie :</span>
+              <strong>Sous 48h max</strong>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-submit-primary" style="margin: 0; padding: 14px 28px;" onclick="switchView('business')">
+            <span>+ Créer une campagne</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section: Missions Recommandées (Mosaïque 4 Quadrants Etsy Style) -->
+      <div class="section-header-row">
+        <div>
+          <h2 class="section-title">Missions Vedettes à proximité</h2>
+          <p class="section-subtitle">Sélectionnées selon votre localisation actuelle (Abidjan, Cocody)</p>
+        </div>
+        <a class="link-editorial" onclick="showToast('Filtrage par proximité activé')">Voir la carte interactive →</a>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="mosaic-grid" id="missionsGrid">
+
+        <!-- Carte 1 : Relevé Huile Dinor (Mosaïque 4 Photos) -->
+        <div class="mission-card" data-category="price" onclick="openMissionDetail('Relevé Prix Huile Dinor 1L', '1 500 FCFA', 'Carrefour & Supermarchés', 'Cocody St Jean')">
+          <div class="card-visual-mosaic">
+            <div class="badge-urgent-float">⚡ 48h restantes</div>
+            <button class="btn-favorite-float" onclick="event.stopPropagation(); toggleFav(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <div class="mosaic-tile tile-1"><div class="tile-icon-placeholder">🍾</div></div>
+            <div class="mosaic-tile tile-2"><div class="tile-icon-placeholder">🏷️</div></div>
+            <div class="mosaic-tile tile-3"><div class="tile-icon-placeholder">🏪</div></div>
+            <div class="mosaic-tile tile-4"><div class="tile-icon-placeholder">📸</div></div>
+          </div>
+          <div class="card-body">
+            <div class="card-meta-top">
+              <span class="card-client-brand">🏢 SIFCA Côte d'Ivoire</span>
+              <span>⭐ 4.9 (120 avis)</span>
+            </div>
+            <h3 class="card-title">Relevé de Prix & Rayon : Huile Dinor 1L & 5L</h3>
+            <div class="card-tags-row">
+              <span class="micro-tag geo">📍 Cocody (350m)</span>
+              <span class="micro-tag">📷 2 Photos</span>
+              <span class="micro-tag">⏱️ 5 min</span>
+            </div>
+            <div class="card-footer">
+              <div class="reward-price">1 500 <span>FCFA</span></div>
+              <button class="btn-reserve" onclick="event.stopPropagation(); reserveMission('Relevé Huile Dinor')">Réserver</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte 2 : Audit Présence Savon BF -->
+        <div class="mission-card" data-category="presence" onclick="openMissionDetail('Audit Facing Savon BF', '1 200 FCFA', 'Boutiques de quartier', 'Adjamé Marché')">
+          <div class="card-visual-mosaic">
+            <button class="btn-favorite-float" onclick="event.stopPropagation(); toggleFav(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <div class="mosaic-tile tile-3"><div class="tile-icon-placeholder">🧼</div></div>
+            <div class="mosaic-tile tile-4"><div class="tile-icon-placeholder">📦</div></div>
+            <div class="mosaic-tile tile-1"><div class="tile-icon-placeholder">📊</div></div>
+            <div class="mosaic-tile tile-2"><div class="tile-icon-placeholder">📍</div></div>
+          </div>
+          <div class="card-body">
+            <div class="card-meta-top">
+              <span class="card-client-brand">🏢 UNILEVER Afrique</span>
+              <span>⭐ 5.0 (84 avis)</span>
+            </div>
+            <h3 class="card-title">Contrôle de rupture de stock : Savon BF 250g</h3>
+            <div class="card-tags-row">
+              <span class="micro-tag geo">📍 Adjamé (1.2 km)</span>
+              <span class="micro-tag">📷 1 Photo</span>
+              <span class="micro-tag">⏱️ 3 min</span>
+            </div>
+            <div class="card-footer">
+              <div class="reward-price">1 200 <span>FCFA</span></div>
+              <button class="btn-reserve" onclick="event.stopPropagation(); reserveMission('Contrôle Savon BF')">Réserver</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte 3 : Contrôle Enseigne Orange Money -->
+        <div class="mission-card" data-category="store" onclick="openMissionDetail('Audit Kiosque Orange Money', '2 000 FCFA', 'Points de vente mobile', 'Yopougon Selmer')">
+          <div class="card-visual-mosaic">
+            <div class="badge-urgent-float">⚡ Nouveau</div>
+            <button class="btn-favorite-float saved" onclick="event.stopPropagation(); toggleFav(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#F1641E" stroke="#F1641E" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <div class="single-visual">
+              <span>🟧 📱</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-meta-top">
+              <span class="card-client-brand">🏢 Orange CI</span>
+              <span>⭐ 4.8 (240 avis)</span>
+            </div>
+            <h3 class="card-title">Vérification de visibilité du logo & Grille tarifaire</h3>
+            <div class="card-tags-row">
+              <span class="micro-tag geo">📍 Yopougon (800m)</span>
+              <span class="micro-tag">📷 3 Photos GPS</span>
+              <span class="micro-tag">⏱️ 7 min</span>
+            </div>
+            <div class="card-footer">
+              <div class="reward-price">2 000 <span>FCFA</span></div>
+              <button class="btn-reserve" onclick="event.stopPropagation(); reserveMission('Audit Orange Money')">Réserver</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte 4 : Micro-Sondage Boisson Gazeuse -->
+        <div class="mission-card" data-category="survey" onclick="openMissionDetail('Sondage Préférences Boissons', '800 FCFA', 'Boutiques & Maquis', 'Plateau Dokui')">
+          <div class="card-visual-mosaic">
+            <button class="btn-favorite-float" onclick="event.stopPropagation(); toggleFav(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <div class="mosaic-tile tile-2"><div class="tile-icon-placeholder">🥤</div></div>
+            <div class="mosaic-tile tile-1"><div class="tile-icon-placeholder">📝</div></div>
+            <div class="mosaic-tile tile-4"><div class="tile-icon-placeholder">👥</div></div>
+            <div class="mosaic-tile tile-3"><div class="tile-icon-placeholder">📍</div></div>
+          </div>
+          <div class="card-body">
+            <div class="card-meta-top">
+              <span class="card-client-brand">🏢 SOLIBRA</span>
+              <span>⭐ 4.9 (45 avis)</span>
+            </div>
+            <h3 class="card-title">Questionnaire Express : Prix & Disponibilité Canettes 33cl</h3>
+            <div class="card-tags-row">
+              <span class="micro-tag geo">📍 Plateau (450m)</span>
+              <span class="micro-tag">📋 4 Questions</span>
+              <span class="micro-tag">⏱️ 3 min</span>
+            </div>
+            <div class="card-footer">
+              <div class="reward-price">800 <span>FCFA</span></div>
+              <button class="btn-reserve" onclick="event.stopPropagation(); reserveMission('Sondage Boissons 33cl')">Réserver</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==========================================
+         VUE 2 : PORTAIL BUSINESS (CRÉATION CAMPAGNE)
+         ========================================== -->
+    <div id="view-business" class="view-section">
+      <div class="section-header-row" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="section-title">Créer une nouvelle campagne de collecte</h2>
+          <p class="section-subtitle">Définissez vos besoins terrain et recevez des données certifiées en 24-48h.</p>
+        </div>
+      </div>
+
+      <div class="business-layout">
+        <!-- Form Wizard Card -->
+        <div class="form-wizard-card">
+          
+          <!-- Wizard Steps -->
+          <div class="wizard-steps-header">
+            <div class="step-item completed">
+              <div class="step-number">✓</div>
+              <span class="step-label">1. Type</span>
+            </div>
+            <div class="step-item active">
+              <div class="step-number">2</div>
+              <span class="step-label">2. Périmètre</span>
+            </div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <span class="step-label">3. Consignes</span>
+            </div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <span class="step-label">4. Budget</span>
+            </div>
+          </div>
+
+          <form id="campaignForm" onsubmit="event.preventDefault(); calculateBudget();">
+            <div class="form-group">
+              <label class="form-label">Titre de la campagne</label>
+              <input type="text" class="form-control" id="campTitle" value="Audit Linéaire & Prix Huile de Palme 1L" oninput="updateLivePreview()" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Type d'audit terrain</label>
+              <div class="radio-card-grid">
+                <label class="radio-option-card selected" onclick="selectRadioCard(this)">
+                  <input type="radio" name="missionType" value="price" checked />
+                  <div>
+                    <strong style="display:block; font-size:13px;">Relevé de Prix & Promo</strong>
+                    <span style="font-size:11.5px; color:var(--color-ink-muted);">Photo de l'étiquette + saisie du montant</span>
+                  </div>
+                </label>
+                <label class="radio-option-card" onclick="selectRadioCard(this)">
+                  <input type="radio" name="missionType" value="facing" />
+                  <div>
+                    <strong style="display:block; font-size:13px;">Présence de Marque</strong>
+                    <span style="font-size:11.5px; color:var(--color-ink-muted);">Photo grand angle du rayon complet</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Zone géographique ciblée</label>
+              <select class="form-control" id="campZone" onchange="updateLivePreview()">
+                <option value="Abidjan - Toutes communes">Abidjan (Toutes communes)</option>
+                <option value="Cocody & Plateau">Cocody & Plateau uniquement</option>
+                <option value="Yopougon & Abobo">Yopougon & Abobo (Forte densité)</option>
+                <option value="Bouaké & San Pedro">Grandes villes secondaires</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nombre de points de vente à auditer</label>
+              <input type="range" min="10" max="500" step="10" value="50" class="form-control" id="campVolume" oninput="document.getElementById('volDisplay').innerText = this.value; calculateBudget();" />
+              <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--color-ink-muted); margin-top:4px;">
+                <span>10 boutiques</span>
+                <span><strong><span id="volDisplay">50</span> points de vente</strong></span>
+                <span>500 boutiques</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Rémunération unitaire par contributeur (FCFA)</label>
+              <input type="number" class="form-control" id="campReward" value="1500" step="100" min="500" oninput="calculateBudget(); updateLivePreview();" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Délai d'auto-validation</label>
+              <select class="form-control">
+                <option value="48">48 heures (Recommandé - Standard SapSap)</option>
+                <option value="24">24 heures (Priorité Express)</option>
+                <option value="72">72 heures (Audit complexe)</option>
+              </select>
+            </div>
+          </form>
+
+        </div>
+
+        <!-- Sidebar: Estimation & Live Preview -->
+        <div class="business-sidebar">
+          
+          <!-- Sticky Budget Breakdown Card -->
+          <div class="sticky-card">
+            <h3 style="font-family:var(--font-serif); font-size:18px; margin-bottom:14px;">Estimation du Budget</h3>
+            
+            <div class="budget-breakdown-row">
+              <span>Points d'audit</span>
+              <strong id="summaryPoints">50</strong>
+            </div>
+            <div class="budget-breakdown-row">
+              <span>Rémunération brute contributeurs</span>
+              <strong id="summaryContributors">75 000 FCFA</strong>
+            </div>
+            <div class="budget-breakdown-row">
+              <span>Frais de plateforme SapSap (15%)</span>
+              <strong id="summaryFee">11 250 FCFA</strong>
+            </div>
+            <div class="budget-breakdown-row">
+              <span>Garantie Séquestre & GPS certifié</span>
+              <strong style="color:var(--color-sage);">Inclus ✓</strong>
+            </div>
+            
+            <div class="budget-breakdown-row total">
+              <span>Total Séquestre</span>
+              <span class="price-highlight" id="summaryTotal">86 250 FCFA</span>
+            </div>
+
+            <button class="btn-submit-primary" onclick="showToast('🚀 Campagne simulée et financée avec succès !')">
+              <span>Payer et Lancer la Campagne</span>
+            </button>
+            <p style="font-size:11.5px; color:var(--color-ink-subtle); text-align:center; margin-top:10px;">Paiement sécurisé par Mobile Money (Wave, Orange, MTN) ou Carte bancaire.</p>
+          </div>
+
+          <!-- Live Card Preview -->
+          <div class="sticky-card" style="background:var(--color-surface-elevated);">
+            <div style="font-size:12px; font-weight:700; color:var(--color-ink-muted); text-transform:uppercase; margin-bottom:10px;">Aperçu direct sur l'app Contributeur</div>
+            
+            <div class="mission-card" style="margin:0; box-shadow:none;">
+              <div class="card-visual-mosaic" style="height:120px;">
+                <div class="single-visual" style="font-size:24px;">📸 🏷️</div>
+              </div>
+              <div class="card-body" style="padding:12px;">
+                <h4 class="card-title" id="previewTitle" style="font-size:14px;">Audit Linéaire & Prix Huile de Palme 1L</h4>
+                <div class="card-footer" style="padding-top:8px;">
+                  <div class="reward-price" style="font-size:15px;" id="previewPrice">1 500 <span>FCFA</span></div>
+                  <span class="micro-tag geo" id="previewZone">📍 Abidjan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         VUE 3 : DASHBOARD ADMIN & MODÉRATION
+         ========================================== -->
+    <div id="view-admin" class="view-section">
+      <div class="section-header-row" style="margin-bottom: 20px;">
+        <div>
+          <h2 class="section-title">Desk de Modération & Contrôle Anti-Fraude</h2>
+          <p class="section-subtitle">Examinez les soumissions terrain en attente de validation ou d'auto-validation à 48h.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="pill-filter active">En attente (18)</button>
+          <button class="pill-filter">Validées (1 420)</button>
+          <button class="pill-filter">Rejetées (34)</button>
+        </div>
+      </div>
+
+      <!-- Quick KPI Strip -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-box">
+          <div class="stat-label-row">
+            <span>Soumissions du jour</span>
+            <span class="stat-badge-trend">+14%</span>
+          </div>
+          <div class="stat-value-big">184</div>
+        </div>
+        <div class="admin-stat-box">
+          <div class="stat-label-row">
+            <span>Auto-validées sous 48h</span>
+            <span>⏱️ Scheduler</span>
+          </div>
+          <div class="stat-value-big">92.4%</div>
+        </div>
+        <div class="admin-stat-box">
+          <div class="stat-label-row">
+            <span>Score Anti-Fraude Device</span>
+            <span style="color:var(--color-sage); font-weight:700;">Optimal</span>
+          </div>
+          <div class="stat-value-big">99.1%</div>
+        </div>
+        <div class="admin-stat-box">
+          <div class="stat-label-row">
+            <span>Fonds distribués aujourd'hui</span>
+            <span>Mobile Money</span>
+          </div>
+          <div class="stat-value-big" style="color:var(--color-terracotta);">245k F</div>
+        </div>
+      </div>
+
+      <!-- Verification Desk Split Screen -->
+      <div class="moderation-desk-card">
+        <div class="moderation-header-bar">
+          <div class="contributor-brief">
+            <div class="avatar-img" style="width:36px; height:36px; font-size:14px;">AC</div>
+            <div>
+              <div style="font-weight:700; font-size:14.5px;">Aïcha Coulibaly <span style="font-size:12px; font-weight:500; color:var(--color-ink-muted);">(Score Fiabilité: 98.6%)</span></div>
+              <div style="font-size:12px; color:var(--color-ink-muted);">Campagne : Relevé Prix Huile Dinor 1L • Soumis il y a 2h • Device ID: <code style="font-family:var(--font-mono); font-size:10.5px;">a7f9...3b21</code></div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="micro-tag" style="background:var(--color-buttercream); color:var(--color-buttercream-dark); font-weight:700;">⏱️ Auto-validation dans 46h</span>
+          </div>
+        </div>
+
+        <!-- Split comparison -->
+        <div class="moderation-split">
+          <!-- Consigne attendue -->
+          <div class="proof-box">
+            <div class="proof-box-header">
+              <span>📋 Consigne client & Photo de référence</span>
+              <span style="color:var(--color-ink-muted);">Critère : Lisibilité Prix</span>
+            </div>
+            <div class="proof-image-mock">
+              <span style="font-size:36px; margin-bottom:8px;">📐 🧴</span>
+              <span style="font-size:13px; font-weight:600;">Photo nette de l'étiquette prix sous la bouteille</span>
+            </div>
+          </div>
+
+          <!-- Preuve soumise par le contributeur -->
+          <div class="proof-box">
+            <div class="proof-box-header" style="background:var(--color-sage-light); color:var(--color-sage-dark);">
+              <span>📷 Preuve soumise par Aïcha</span>
+              <span>GPS Proche (14m) ✓</span>
+            </div>
+            <div class="proof-image-mock" style="background:linear-gradient(135deg, #E0ECE3 0%, #C8DFCD 100%);">
+              <span style="font-size:36px; margin-bottom:8px;">📸 🏷️</span>
+              <span style="font-size:14px; font-weight:700; color:var(--color-sage-dark);">Prix relevé : 1 450 FCFA</span>
+              <div class="gps-overlay-stamp">
+                📍 5.3489° N, 4.0123° W • Cocody St Jean • Prise il y a 2h04
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="moderation-actions-row">
+          <div style="font-size:13px; color:var(--color-ink-muted);">
+            Raccourcis clavier : <strong>[E] Valider</strong> • <strong>[R] Rejeter</strong> • <strong>[F] Flag Fraude</strong>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button class="btn-reject" onclick="showToast('❌ Soumission rejetée (motif envoyé au contributeur)')">Rejeter avec motif</button>
+            <button class="btn-approve" onclick="showToast('✅ Soumission validée ! 1 500 FCFA crédités sur le portefeuille d’Aïcha.')">
+              <span>✓ Approuver & Rémunérer (1 500 F)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         VUE 4 : DESIGN SYSTEM & TOKENS STUDIO
+         ========================================== -->
+    <div id="view-tokens" class="view-section">
+      <div class="section-header-row" style="margin-bottom: 24px;">
+        <div>
+          <h2 class="section-title">Design System & Spécifications Etsy DNA</h2>
+          <p class="section-subtitle">Palette de couleurs, typographie éditoriale, élévations et composants fondateurs pour SapSap.</p>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--font-serif); font-size:18px; margin-bottom:12px;">1. Palette Chromatique Chaleureuse</h3>
+      <div class="token-grid">
+        <div class="color-swatch-card">
+          <div class="swatch-color-box" style="background:#F1641E;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Terracotta Primary</div>
+            <div class="swatch-hex">#F1641E</div>
+          </div>
+        </div>
+        <div class="color-swatch-card">
+          <div class="swatch-color-box" style="background:#4D6B53;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Sage Green (Validé/GPS)</div>
+            <div class="swatch-hex">#4D6B53</div>
+          </div>
+        </div>
+        <div class="color-swatch-card">
+          <div class="swatch-color-box" style="background:#FDF0CD;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Buttercream (Urgences)</div>
+            <div class="swatch-hex">#FDF0CD</div>
+          </div>
+        </div>
+        <div class="color-swatch-card">
+          <div class="swatch-color-box" style="background:#FAF8F5;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Canvas Ecru Warm</div>
+            <div class="swatch-hex">#FAF8F5</div>
+          </div>
+        </div>
+        <div class="color-swatch-card">
+          <div class="swatch-color-box" style="background:#222222;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Deep Ink</div>
+            <div class="swatch-hex">#222222</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--font-serif); font-size:18px; margin-bottom:12px;">2. Duo Typographique</h3>
+      <div style="background:#FFFFFF; border:1px solid var(--color-surface-border); border-radius:var(--radius-lg); padding:24px; margin-bottom:30px;">
+        <div style="font-family:var(--font-serif); font-size:28px; font-weight:700; margin-bottom:8px;">
+          Fraunces Editorial Serif — Pour raconter les histoires et valoriser les missions
+        </div>
+        <div style="font-family:var(--font-sans); font-size:15px; color:var(--color-ink-muted); line-height:1.6;">
+          Plus Jakarta Sans — Pour l'interface utilisateur, la lisibilité des montants en FCFA, les tableaux de bord et les coordonnées GPS.
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast Feedback Floating Notification -->
+  <div id="toast" class="toast-feedback">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">Action effectuée</span>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT INTERACTION LOGIC
+       ========================================================================== -->
+  <script>
+    // Tab switching logic
+    function switchView(viewName) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.view-tab-btn').forEach(el => el.classList.remove('active'));
+      
+      const targetView = document.getElementById('view-' + viewName);
+      const targetTab = document.getElementById('tab-' + viewName);
+      
+      if (targetView) targetView.classList.add('active');
+      if (targetTab) targetTab.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Favorite heart toggle
+    function toggleFav(btn) {
+      btn.classList.toggle('saved');
+      const isSaved = btn.classList.contains('saved');
+      const icon = btn.querySelector('svg');
+      if (isSaved) {
+        icon.setAttribute('fill', '#F1641E');
+        icon.setAttribute('stroke', '#F1641E');
+        showToast('❤️ Mission ajoutée à vos favoris');
+      } else {
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', '#222222');
+        showToast('Mission retirée de vos favoris');
+      }
+    }
+
+    // Mission reservation action
+    function reserveMission(name) {
+      showToast('🔒 ' + name + ' réservée pendant 2h pour vous !');
+    }
+
+    // Modal / detail simulation
+    function openMissionDetail(title, price, place, loc) {
+      showToast('📖 Ouverture du détail : ' + title + ' (' + price + ')');
+    }
+
+    // Live filter missions
+    function filterMissions() {
+      const q = document.getElementById('mainSearch').value.toLowerCase();
+      const cards = document.querySelectorAll('#missionsGrid .mission-card');
+      cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        if (text.includes(q)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Category filter pills
+    function setCategoryFilter(btn, cat) {
+      document.querySelectorAll('.pill-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const cards = document.querySelectorAll('#missionsGrid .mission-card');
+      cards.forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-category') === cat) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      showToast('Filtre appliqué : ' + btn.innerText);
+    }
+
+    // Radio option card selection
+    function selectRadioCard(label) {
+      document.querySelectorAll('.radio-option-card').forEach(c => c.classList.remove('selected'));
+      label.classList.add('selected');
+      const radio = label.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+      updateLivePreview();
+    }
+
+    // Live Budget calculation
+    function calculateBudget() {
+      const volume = parseInt(document.getElementById('campVolume').value) || 50;
+      const reward = parseInt(document.getElementById('campReward').value) || 1500;
+      
+      const contributorTotal = volume * reward;
+      const fee = Math.round(contributorTotal * 0.15);
+      const total = contributorTotal + fee;
+
+      document.getElementById('summaryPoints').innerText = volume;
+      document.getElementById('summaryContributors').innerText = contributorTotal.toLocaleString('fr-FR') + ' FCFA';
+      document.getElementById('summaryFee').innerText = fee.toLocaleString('fr-FR') + ' FCFA';
+      document.getElementById('summaryTotal').innerText = total.toLocaleString('fr-FR') + ' FCFA';
+    }
+
+    // Live preview updater
+    function updateLivePreview() {
+      const title = document.getElementById('campTitle').value || 'Mission sans titre';
+      const reward = parseInt(document.getElementById('campReward').value) || 1500;
+      const zone = document.getElementById('campZone').value;
+
+      document.getElementById('previewTitle').innerText = title;
+      document.getElementById('previewPrice').innerHTML = reward.toLocaleString('fr-FR') + ' <span>FCFA</span>';
+      document.getElementById('previewZone').innerText = '📍 ' + zone;
+    }
+
+    // Toast notification
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-msg');
+      msgEl.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2600);
+    }
+
+    // Keyboard shortcuts for admin desk
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('view-admin').classList.contains('active')) {
+        if (e.key === 'e' || e.key === 'E') {
+          showToast('✅ [Raccourci E] Soumission validée !');
+        } else if (e.key === 'r' || e.key === 'R') {
+          showToast('❌ [Raccourci R] Soumission rejetée.');
+        } else if (e.key === 'f' || e.key === 'F') {
+          showToast('🚩 [Raccourci F] Flag Fraude signalé.');
+        }
+      }
+    });
+
+    // Initial budget calculation
+    calculateBudget();
+  </script>
+</body>
+</html>

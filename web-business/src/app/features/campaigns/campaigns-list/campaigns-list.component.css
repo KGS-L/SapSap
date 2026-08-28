@@ -1,116 +1,96 @@
 .campaigns-page {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 2rem;
 }
 
-.page-header {
+/* Hero Banner (Etsy Craft Style) */
+.hero-banner {
+  background: linear-gradient(135deg, #FFF6F2 0%, #FFFDF8 100%);
+  border: 1px solid rgba(241, 100, 30, 0.18);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem 2.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
 }
 
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 0.25rem;
+.hero-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid var(--color-surface-border);
+  padding: 0.3rem 0.875rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-terracotta-dark);
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-xs);
 }
 
-.page-subtitle {
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.hero-title .accent {
+  color: var(--color-terracotta);
+  font-style: italic;
+}
+
+.hero-subtitle {
   font-size: 0.9375rem;
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
+  max-width: 680px;
+  margin-bottom: 1.25rem;
 }
 
-/* Stats Top Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.25rem;
-}
-
-.stat-card {
-  padding: 1.25rem 1.5rem;
+.hero-stats-row {
   display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.875rem;
 }
 
-.stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-lg);
-  display: flex;
+.hero-stat-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  background: #FFFFFF;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-surface-border);
+  font-size: 0.8125rem;
+  box-shadow: var(--shadow-xs);
+}
+
+.hero-stat-badge span {
+  color: var(--color-ink-muted);
+}
+
+.hero-stat-badge strong {
+  color: var(--color-terracotta-dark);
+  font-weight: 800;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
 
-.stat-icon svg {
-  width: 26px;
-  height: 26px;
-}
-
-.icon-emerald {
-  background: var(--primary-50);
-  color: var(--primary-600);
-}
-
-.icon-blue {
-  background: var(--info-bg);
-  color: var(--info-text);
-}
-
-.icon-purple {
-  background: var(--purple-bg);
-  color: var(--purple-text);
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.stat-value {
-  font-family: var(--font-heading);
-  font-size: 1.625rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.2;
-  margin: 0.125rem 0;
-}
-
-.stat-total {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-subtle);
-}
-
-.currency {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.stat-sub {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.text-success {
-  color: var(--primary-600);
-}
-.text-info {
-  color: var(--info);
+.btn-hero-cta {
+  padding: 0.875rem 1.75rem;
+  font-size: 0.9375rem;
 }
 
 /* Filter Toolbar */
@@ -118,40 +98,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
-.filter-tabs {
-  display: inline-flex;
-  padding: 0.25rem;
-  background: var(--bg-muted);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  gap: 0.25rem;
+.filter-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.filter-tab {
-  padding: 0.4375rem 1rem;
+.toolbar-hint {
   font-size: 0.8125rem;
   font-weight: 600;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  transition: all var(--transition-fast);
-}
-
-.filter-tab:hover {
-  color: var(--text-main);
-}
-
-.filter-tab.active {
-  background: #ffffff;
-  color: var(--text-main);
-  box-shadow: var(--shadow-xs);
+  color: var(--color-sage-dark);
+  background: var(--color-sage-light);
+  padding: 0.35rem 0.875rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--success-border);
 }
 
 /* Campaigns Grid */
 .campaigns-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 1.5rem;
 }
 
@@ -159,7 +128,17 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.125rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-normal);
+}
+
+.campaign-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(241, 100, 30, 0.3);
 }
 
 .card-top {
@@ -174,109 +153,149 @@
   justify-content: space-between;
 }
 
-.campaign-type {
-  font-size: 0.75rem;
-  font-weight: 700;
+.type-pill {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  background: var(--color-surface-elevated);
+  color: var(--color-ink);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-surface-border);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--primary-600);
+  letter-spacing: 0.04em;
 }
 
 .campaign-title {
-  font-size: 1.1875rem;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--color-ink);
   line-height: 1.35;
 }
 
 .campaign-desc {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  line-height: 1.5;
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+/* Micro-tags row */
 .campaign-target-row {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
 }
 
-.target-item {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
+.micro-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-surface-elevated);
+  color: var(--color-ink);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-surface-border);
 }
 
-.target-item svg {
-  color: var(--primary-600);
+.micro-tag.geo {
+  background: #FFF8F5;
+  color: var(--color-terracotta-dark);
+  border-color: rgba(241, 100, 30, 0.2);
 }
 
 /* Progress Section */
 .progress-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  background: var(--bg-muted);
-  padding: 0.875rem 1rem;
-  border-radius: var(--radius-md);
+  gap: 0.375rem;
 }
 
 .progress-label-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
 }
 
 .progress-label {
-  color: var(--text-muted);
+  color: var(--color-ink-muted);
   font-weight: 600;
 }
 
 .progress-count {
-  color: var(--text-secondary);
+  color: var(--color-ink);
 }
 
-/* Bottom */
+/* Card Bottom & Financials */
 .card-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px dashed var(--color-surface-border);
   padding-top: 1rem;
-  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .financial-meta {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .meta-item {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
 }
 
 .meta-label {
   font-size: 0.6875rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.meta-value {
-  font-size: 0.875rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--color-ink-subtle);
+  text-transform: uppercase;
 }
 
-.text-emerald {
-  color: var(--primary-700);
+.price-hero {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-terracotta);
+}
+
+.price-hero .unit {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+}
+
+.budget-meta {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-sage-dark);
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card-export-dropdown {
+  display: flex;
+  gap: 0.375rem;
+}
+
+@media (max-width: 900px) {
+  .hero-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hero-actions {
+    width: 100%;
+    flex-direction: row;
+  }
+  .campaigns-grid {
+    grid-template-columns: 1fr;
+  }
 }
